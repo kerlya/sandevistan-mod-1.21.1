@@ -1,0 +1,6 @@
+{
+ "schemaVersion":1,"id":"sandevistan","version":"${version}","name":"Сандевистан",
+ "description":"Сандевистан для Minecraft 1.21.1","authors":["Sandevistan Mod Team"],"license":"MIT","environment":"*",
+ "entrypoints":{"main":["ru.sandevistan.SandevistanMod"],"client":["ru.sandevistan.client.SandevistanClient"]},
+ "depends":{"fabricloader":">=0.16.5","minecraft":"1.21.1","java":">=21","fabric-api":"*"}
+}
