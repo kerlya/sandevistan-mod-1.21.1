@@ -5,9 +5,14 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.AttributeModifierSlot;
+import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,7 +42,17 @@ import java.util.UUID;
 public final class SandevistanMod implements ModInitializer {
     public static final Item SANDEVISTAN = Registry.register(
         Registries.ITEM, Identifier.of("sandevistan", "sandevistan"),
-        new SandevistanItem(new Item.Settings().maxCount(1))
+        new SandevistanItem(new Item.Settings().maxCount(1).component(
+            DataComponentTypes.ATTRIBUTE_MODIFIERS,
+            AttributeModifiersComponent.builder()
+                .add(EntityAttributes.GENERIC_ARMOR,
+                    new EntityAttributeModifier(Identifier.of("sandevistan", "armor"), 5.0, EntityAttributeModifier.Operation.ADD_VALUE),
+                    AttributeModifierSlot.CHEST)
+                .add(EntityAttributes.GENERIC_ARMOR_TOUGHNESS,
+                    new EntityAttributeModifier(Identifier.of("sandevistan", "toughness"), 0.0, EntityAttributeModifier.Operation.ADD_VALUE),
+                    AttributeModifierSlot.CHEST)
+                .build()
+        ))
     );
 
     private static final SoundEvent ACTIVATE = sound("activate");
@@ -76,7 +91,6 @@ public final class SandevistanMod implements ModInitializer {
     private static boolean equipped(ServerPlayerEntity p) {
         return p.getEquippedStack(EquipmentSlot.CHEST).isOf(SANDEVISTAN) || p.getOffHandStack().isOf(SANDEVISTAN);
     }
-
     private static void activate(ServerPlayerEntity p) {
         long now = p.getServerWorld().getTime();
         UUID id = p.getUuid();
