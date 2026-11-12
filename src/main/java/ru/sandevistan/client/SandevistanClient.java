@@ -100,7 +100,7 @@ public final class SandevistanClient implements ClientModInitializer {
         activateKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.activate", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.sandevistan"));
         menuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_K, "category.sandevistan"));
         scanKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.scan", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, "category.sandevistan"));
-        phoneKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.phone", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_P, "category.sandevistan"));
+        phoneKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.phone", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Z, "category.sandevistan"));
         acceptCallKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.accept", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Y, "category.sandevistan"));
         rejectCallKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.reject", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.sandevistan"));
 
