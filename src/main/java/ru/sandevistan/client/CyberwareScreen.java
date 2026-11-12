@@ -5,15 +5,16 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import ru.sandevistan.CyberwareScreenHandler;
+import ru.sandevistan.CyberwareStorage;
 
 public class CyberwareScreen extends HandledScreen<CyberwareScreenHandler> {
 
     public CyberwareScreen(CyberwareScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
-        this.backgroundWidth = 196;
-        this.backgroundHeight = 206;
-        this.playerInventoryTitleX = 18;
-        this.playerInventoryTitleY = 112;
+        this.backgroundWidth = 216;
+        this.backgroundHeight = 216;
+        this.playerInventoryTitleX = 28;
+        this.playerInventoryTitleY = 122;
     }
 
     @Override
@@ -21,70 +22,89 @@ public class CyberwareScreen extends HandledScreen<CyberwareScreenHandler> {
         int x = (this.width - this.backgroundWidth) / 2;
         int y = (this.height - this.backgroundHeight) / 2;
 
-        // Основной темный фон интерфейса рипердока
-        ctx.fill(x, y, x + backgroundWidth, y + backgroundHeight, 0xF0090D16);
+        // Глубокий темно-бордово-черный фон в стиле меню Cyberpunk 2077
+        ctx.fill(x, y, x + backgroundWidth, y + backgroundHeight, 0xF412070B);
 
-        // Внешняя неоново-желтая рамка Cyberpunk
-        ctx.fill(x, y, x + backgroundWidth, y + 2, 0xFFFCEE09);
-        ctx.fill(x, y + backgroundHeight - 2, x + backgroundWidth, y + backgroundHeight, 0xFFFCEE09);
-        ctx.fill(x, y, x + 2, y + backgroundHeight, 0xFFFCEE09);
-        ctx.fill(x + backgroundWidth - 2, y, x + backgroundWidth, y + backgroundHeight, 0xFFFCEE09);
+        // Внешняя красно-неоновая рамка
+        int redNeon = 0xFFFF2A55;
+        int cyanNeon = 0xFF00F0FF;
+        ctx.fill(x, y, x + backgroundWidth, y + 1, redNeon);
+        ctx.fill(x, y + backgroundHeight - 1, x + backgroundWidth, y + backgroundHeight, redNeon);
+        ctx.fill(x, y, x + 1, y + backgroundHeight, redNeon);
+        ctx.fill(x + backgroundWidth - 1, y, x + backgroundWidth, y + backgroundHeight, redNeon);
 
-        // Верхняя плашка заголовка
-        ctx.fill(x + 2, y + 2, x + backgroundWidth - 2, y + 16, 0xFF151C28);
+        // Верхняя панель вкладок
+        ctx.fill(x + 1, y + 1, x + backgroundWidth - 1, y + 15, 0xFF1E0B11);
+        ctx.fill(x + 8, y + 14, x + 84, y + 15, cyanNeon);
 
-        // Центральный голографический силуэт человека
-        int cx = x + backgroundWidth / 2;
+        // Левая вертикальная шкала лимита киберимплантов (как на скриншоте)
+        int installedCount = 0;
+        for (int i = 0; i < CyberwareStorage.SLOT_COUNT; i++) {
+            if (this.handler.getSlot(i).hasStack()) installedCount++;
+        }
+        int barX = x + 10;
+        int barTopY = y + 26;
+        ctx.drawText(this.textRenderer, "§c" + installedCount + "/" + CyberwareStorage.SLOT_COUNT, barX - 2, barTopY - 8, 0xFF2A55, false);
+        for (int seg = 0; seg < 15; seg++) {
+            int sy = barTopY + seg * 5;
+            boolean filled = (15 - seg) <= installedCount * 3;
+            int segColor = filled ? (installedCount >= 4 ? 0xFFFF2A55 : 0xFFFCEE09) : 0xFF33151E;
+            ctx.fill(barX, sy, barX + 10, sy + 3, segColor);
+        }
+
+        // Анатомический силуэт человека по центру (с легким красно-голубым свечением)
+        int cx = x + 108;
         int cy = y + 24;
-        int holoFill = 0x4400F0FF;
-        int holoBorder = 0xAA00F0FF;
+        int bodyFill = 0x38FF5E7E;
+        int bodyEdge = 0x9970D6FF;
 
-        // Голова + визор
-        drawHoloPart(ctx, cx - 7, cy, 14, 14, holoFill, holoBorder);
-        ctx.fill(cx - 5, cy + 5, cx + 5, cy + 7, 0xFFFCEE09);
+        // Голова + глазной сканер
+        drawHoloRect(ctx, cx - 6, cy, 12, 13, bodyFill, bodyEdge);
+        ctx.fill(cx - 4, cy + 4, cx + 4, cy + 6, cyanNeon); // Визор / оптика
 
         // Шея и торс
-        ctx.fill(cx - 3, cy + 14, cx + 3, cy + 17, holoFill);
-        drawHoloPart(ctx, cx - 11, cy + 17, 22, 30, holoFill, holoBorder);
-        // Линия позвоночника (подсветка под Сандевистан)
-        ctx.fill(cx - 1, cy + 19, cx + 1, cy + 45, 0xFF00E676);
+        ctx.fill(cx - 2, cy + 13, cx + 2, cy + 16, bodyFill);
+        drawHoloRect(ctx, cx - 10, cy + 16, 20, 32, bodyFill, bodyEdge);
+        ctx.fill(cx - 1, cy + 18, cx + 1, cy + 46, 0xCC00F0FF); // Позвоночник
 
-        // Руки (левая и правая)
-        drawHoloPart(ctx, cx - 18, cy + 18, 5, 26, holoFill, holoBorder);
-        drawHoloPart(ctx, cx + 13, cy + 18, 5, 26, holoFill, holoBorder);
+        // Расставленные руки (по диагонали ступенями в стиле пиксель-арта)
+        for (int step = 0; step < 5; step++) {
+            ctx.fill(cx - 13 - step * 2, cy + 18 + step * 5, cx - 10 - step * 2, cy + 24 + step * 5, bodyEdge);
+            ctx.fill(cx + 10 + step * 2, cy + 18 + step * 5, cx + 13 + step * 2, cy + 24 + step * 5, bodyEdge);
+        }
 
-        // Ноги (левая и правая)
-        drawHoloPart(ctx, cx - 10, cy + 49, 8, 28, holoFill, holoBorder);
-        drawHoloPart(ctx, cx + 2, cy + 49, 8, 28, holoFill, holoBorder);
+        // Ноги
+        drawHoloRect(ctx, cx - 9, cy + 49, 7, 34, bodyFill, bodyEdge);
+        drawHoloRect(ctx, cx + 2, cy + 49, 7, 34, bodyFill, bodyEdge);
 
-        // Соединительные линии от слотов к телу
-        // 0: Спина -> позвоночник
-        ctx.fill(x + 42, y + 38, cx - 1, y + 39, 0xFF00F0FF);
-        // 1: Руки -> правая рука
-        ctx.fill(cx + 18, y + 38, x + 154, y + 39, 0xFF3A4750);
-        // 2: Ноги -> правая нога
-        ctx.fill(cx + 10, y + 82, x + 154, y + 83, 0xFF3A4750);
-        // 3: Кожа -> торс/бок
-        ctx.fill(x + 42, y + 82, cx - 11, y + 83, 0xFF3A4750);
+        // Соединительные линии от тела к слотам
+        ctx.fill(cx + 1, y + 39, x + 150, y + 40, cyanNeon);      // ОС (Спина)
+        ctx.fill(cx + 4, y + 29, x + 144, y + 30, 0x6600F0FF);   // Линия от глаз
+        ctx.fill(x + 144, y + 29, x + 145, y + 72, 0x6600F0FF);
+        ctx.fill(x + 144, y + 71, x + 150, y + 72, cyanNeon);    // Глаза
+        ctx.fill(x + 66, y + 44, cx - 13, y + 45, 0x66FF2A55);   // Руки
+        ctx.fill(x + 66, y + 92, cx - 10, y + 93, 0x66FF2A55);   // Кожа
+        ctx.fill(cx + 9, y + 104, x + 150, y + 105, 0x66FF2A55); // Ноги
 
-        // Отрисовка 4 слотов имплантов и подписей
-        drawImplantSlot(ctx, x + 24, y + 30, "СПИНА", true);
-        drawImplantSlot(ctx, x + 156, y + 30, "РУКИ", false);
-        drawImplantSlot(ctx, x + 156, y + 74, "НОГИ", false);
-        drawImplantSlot(ctx, x + 24, y + 74, "КОЖА", false);
+        // 5 слотов имплантов (ОС и ГЛАЗА активны и подсвечены голубым)
+        drawCyberSlot(ctx, x + 152, y + 32, "ОС", true);
+        drawCyberSlot(ctx, x + 152, y + 64, "ГЛАЗА", true);
+        drawCyberSlot(ctx, x + 48, y + 36, "РУКИ", false);
+        drawCyberSlot(ctx, x + 48, y + 84, "КОЖА", false);
+        drawCyberSlot(ctx, x + 152, y + 96, "НОГИ", false);
 
-        // Сетка инвентаря игрока (36 слотов)
+        // Инвентарь игрока снизу
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                drawVanillaSlot(ctx, x + 18 + col * 18, y + 124 + row * 18);
+                drawInvSlot(ctx, x + 28 + col * 18, y + 134 + row * 18);
             }
         }
         for (int col = 0; col < 9; col++) {
-            drawVanillaSlot(ctx, x + 18 + col * 18, y + 182);
+            drawInvSlot(ctx, x + 28 + col * 18, y + 192);
         }
     }
 
-    private void drawHoloPart(DrawContext ctx, int px, int py, int w, int h, int fill, int border) {
+    private void drawHoloRect(DrawContext ctx, int px, int py, int w, int h, int fill, int border) {
         ctx.fill(px, py, px + w, py + h, fill);
         ctx.fill(px, py, px + w, py + 1, border);
         ctx.fill(px, py + h - 1, px + w, py + h, border);
@@ -92,29 +112,34 @@ public class CyberwareScreen extends HandledScreen<CyberwareScreenHandler> {
         ctx.fill(px + w - 1, py, px + w, py + h, border);
     }
 
-    private void drawImplantSlot(DrawContext ctx, int sx, int sy, String label, boolean active) {
-        int border = active ? 0xFF00F0FF : 0xFF3A4750;
-        ctx.fill(sx - 2, sy - 2, sx + 18, sy + 18, border);
-        ctx.fill(sx - 1, sy - 1, sx + 17, sy + 17, 0xFF101622);
-        int textW = this.textRenderer.getWidth(label);
-        ctx.drawText(this.textRenderer, label, sx + 8 - textW / 2, sy - 10, active ? 0x00F0FF : 0x718096, false);
+    private void drawCyberSlot(DrawContext ctx, int sx, int sy, String label, boolean unlocked) {
+        int outer = unlocked ? 0xFFFF2A55 : 0xFF4A1826;
+        int innerCorner = unlocked ? 0xFF00F0FF : 0xFF2B1018;
+        ctx.fill(sx - 2, sy - 2, sx + 18, sy + 18, outer);
+        ctx.fill(sx - 1, sy - 1, sx + 17, sy + 17, 0xFF1A090E);
+        // Уголки-акценты в стиле Cyberpunk
+        ctx.fill(sx - 2, sy - 2, sx + 2, sy - 1, innerCorner);
+        ctx.fill(sx + 14, sy + 17, sx + 18, sy + 18, innerCorner);
+
+        int tw = this.textRenderer.getWidth(label);
+        ctx.drawText(this.textRenderer, label, sx + 8 - tw / 2, sy - 10, unlocked ? 0xFF4D70 : 0x7A3B4C, false);
     }
 
-    private void drawVanillaSlot(DrawContext ctx, int sx, int sy) {
-        ctx.fill(sx - 1, sy - 1, sx + 17, sy + 17, 0xFF2D3748);
-        ctx.fill(sx, sy, sx + 16, sy + 16, 0xFF171923);
+    private void drawInvSlot(DrawContext ctx, int sx, int sy) {
+        ctx.fill(sx - 1, sy - 1, sx + 17, sy + 17, 0xFF3B1622);
+        ctx.fill(sx, sy, sx + 16, sy + 16, 0xFF180A0F);
     }
 
     @Override
     protected void drawForeground(DrawContext ctx, int mouseX, int mouseY) {
-        ctx.drawText(this.textRenderer, Text.literal("§e§lКИБЕРИМПЛАНТЫ // РИПЕРДОК"), 8, 5, 0xFCEE09, false);
-        ctx.drawText(this.textRenderer, this.playerInventoryTitle, this.playerInventoryTitleX, this.playerInventoryTitleY, 0xA0AEC0, false);
+        ctx.drawText(this.textRenderer, Text.literal("§bКИБЕРИМПЛАНТЫ"), 8, 4, 0x00F0FF, false);
+        ctx.drawText(this.textRenderer, Text.literal("§cИНВЕНТАРЬ"), this.playerInventoryTitleX, this.playerInventoryTitleY, 0xFF2A55, false);
     }
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
         this.renderBackground(ctx, mouseX, mouseY, delta);
-        super.render(ctx, mouseX, mouseY, delta);
+        super.render(ctx, mouseY, mouseX, delta);
         this.drawMouseoverTooltip(ctx, mouseX, mouseY);
     }
 }
