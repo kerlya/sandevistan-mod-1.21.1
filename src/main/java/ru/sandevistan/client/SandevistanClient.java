@@ -17,12 +17,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class SandevistanClient implements ClientModInitializer {
-    private KeyBinding activateKey;
-    private KeyBinding menuKey;
-    private static KeyBinding scanKey;
-    private KeyBinding phoneKey;
-    private KeyBinding acceptCallKey;
-    private KeyBinding rejectCallKey;
+    public static KeyBinding activateKey;
+    public static KeyBinding menuKey;
+    public static KeyBinding scanKey;
+    public static KeyBinding phoneKey;
+    public static KeyBinding acceptCallKey;
+    public static KeyBinding rejectCallKey;
 
     public static long lastActivateMs = 0L;
     public static boolean clientHasSandevistan = false;
@@ -37,6 +37,11 @@ public final class SandevistanClient implements ClientModInitializer {
     public static int clientProgress = 0;
     public static int clientGoal = 0;
     public static long clientReward = 0L;
+
+    public static String getKeyLabel(KeyBinding key, String fallback) {
+        if (key == null) return fallback;
+        return key.getBoundKeyLocalizedText().getString().toUpperCase();
+    }
 
     public static boolean isEquipped(MinecraftClient client) {
         return client.player != null && clientHasSandevistan;
