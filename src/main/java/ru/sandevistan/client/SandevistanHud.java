@@ -21,6 +21,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import ru.sandevistan.RipperdocEntity;
 import java.util.Locale;
 
 public final class SandevistanHud {
@@ -35,9 +36,9 @@ public final class SandevistanHud {
         if (raw == null || raw.isEmpty()) return "";
         String[] parts = raw.split(":");
         if (parts.length == 3) {
-            String first = Text.translatable("fixer.sandevistan.first." + parts[0]).getString();
-            String nick = Text.translatable("fixer.sandevistan.nick." + parts[1]).getString();
-            String last = Text.translatable("fixer.sandevistan.last." + parts[2]).getString();
+            String first = Text.translatable("fixer.sandevistan.first." + parts).getString();
+            String nick = Text.translatable("fixer.sandevistan.nick." + parts).getString();
+            String last = Text.translatable("fixer.sandevistan.last." + parts).getString();
             return first + " " + nick + " " + last;
         }
         return raw;
@@ -294,11 +295,12 @@ public final class SandevistanHud {
 
     private static Text getAggressionLabel(LivingEntity entity) {
         if (entity instanceof HostileEntity) return Text.translatable("threat.sandevistan.hostile");
-        if (entity instanceof Angerable || entity instanceof GolemEntity || entity instanceof PlayerEntity) return Text.translatable("threat.sandevistan.neutral");
+        if (entity instanceof Angerable || entity instanceof GolemEntity || entity instanceof PlayerEntity || entity instanceof RipperdocEntity) return Text.translatable("threat.sandevistan.neutral");
         return Text.translatable("threat.sandevistan.peaceful");
     }
 
     private static Text getFactionLabel(LivingEntity entity) {
+        if (entity instanceof RipperdocEntity) return Text.translatable("faction.sandevistan.ripperdocs");
         if (entity instanceof PlayerEntity) return Text.translatable("faction.sandevistan.players");
         if (entity instanceof VillagerEntity || entity instanceof GolemEntity) return Text.translatable("faction.sandevistan.civilians");
         if (entity instanceof IllagerEntity) return Text.translatable("faction.sandevistan.illagers");
