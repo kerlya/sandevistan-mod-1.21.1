@@ -5,5 +5,42 @@
   "key.sandevistan.menu": "Меню киберимплантов",
   "key.sandevistan.scan": "Сканер Кироши (Зум)",
   "category.sandevistan": "Сандевистан",
-  "hud.sandevistan.title": "САНДЕВИСТАН"
+
+  "gui.sandevistan.title": "КИБЕРИМПЛАНТЫ",
+  "gui.sandevistan.inventory": "ИНВЕНТАРЬ",
+  "gui.sandevistan.slot.os": "ОС",
+  "gui.sandevistan.slot.eyes": "ГЛАЗА",
+  "gui.sandevistan.slot.arms": "РУКИ",
+  "gui.sandevistan.slot.skin": "КОЖА",
+  "gui.sandevistan.slot.legs": "НОГИ",
+
+  "hud.sandevistan.ready": "§aСАНДЕВИСТАН: ГОТОВ [R]",
+  "hud.sandevistan.active": "§eАКТИВЕН: %sс",
+  "hud.sandevistan.cooldown": "§cОЖИДАНИЕ: %sс",
+
+  "scanner.sandevistan.header": "§b[ ОПТИКА КИРОШИ MK.1 // СКАНЕР ]",
+  "scanner.sandevistan.data": "§bДАННЫЕ СКАНИРОВАНИЯ",
+  "scanner.sandevistan.target": "§cЦЕЛЬ:",
+  "scanner.sandevistan.threat": "§cСТАТУС УГРОЗЫ:",
+  "scanner.sandevistan.faction": "§cФРАКЦИЯ: §e%s",
+  "scanner.sandevistan.stats": "§7ДИСТ: %sм // HP: %s/%s",
+
+  "threat.sandevistan.hostile": "§4§lВРАЖДЕБЕН (АГРЕССИВНЫЙ)",
+  "threat.sandevistan.neutral": "§e§lНЕЙТРАЛЕН (ПРОВОЦИРУЕМЫЙ)",
+  "threat.sandevistan.peaceful": "§a§lМИРНЫЙ (БЕЗОПАСЕН)",
+
+  "faction.sandevistan.players": "НАЕМНИКИ / ИГРОКИ",
+  "faction.sandevistan.civilians": "ГРАЖДАНСКИЕ / ПОСЕЛЕНИЕ",
+  "faction.sandevistan.illagers": "СИНДИКАТ ИЛЛИДЖЕРОВ",
+  "faction.sandevistan.undead": "НЕЖИТЬ",
+  "faction.sandevistan.arthropods": "ЧЛЕНИСТОНОГИЕ",
+  "faction.sandevistan.nether": "ЛЕГИОН НЕЗЕРА",
+  "faction.sandevistan.end": "СУЩНОСТИ КРАЯ",
+  "faction.sandevistan.fauna": "БИОТЕХНИКА / ФАУНА",
+
+  "msg.sandevistan.overload": "§c[СБОЙ СИСТЕМЫ]: §eПерегрузка нервной системы! Сделайте перерыв.",
+  "msg.sandevistan.psychosis": "§4§l[КРИТИЧЕСКИЙ СБОЙ]: ОБНАРУЖЕН КИБЕРПСИХОЗ!",
+  "msg.sandevistan.glitch.0": "§4[ОШИБКА]: §cПотеря контроля над моторикой...",
+  "msg.sandevistan.glitch.1": "§4[СБОЙ]: §cОни повсюду... Я должен бежать...",
+  "msg.sandevistan.glitch.2": "§4[ВНИМАНИЕ]: §cНейронная связь разрушается!"
 }
