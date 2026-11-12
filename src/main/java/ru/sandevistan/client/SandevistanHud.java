@@ -13,6 +13,9 @@ import net.minecraft.entity.passive.GolemEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.text.Text;
 import net.minecraft.util.hit.EntityHitResult;
@@ -26,6 +29,29 @@ public final class SandevistanHud {
 
     public static void register() {
         HudRenderCallback.EVENT.register(SandevistanHud::render);
+    }
+
+    public static int countRequiredItems(MinecraftClient client, String targetType) {
+        if (client.player == null) return 0;
+        Item req = switch (targetType) {
+            case "iron_ingot" -> Items.IRON_INGOT;
+            case "redstone" -> Items.REDSTONE;
+            case "gold_ingot" -> Items.GOLD_INGOT;
+            case "diamond" -> Items.DIAMOND;
+            default -> null;
+        };
+        if (req == null) return 0;
+        int total = 0;
+        for (int i = 0; i < client.player.getInventory().size(); i++) {
+            ItemStack st = client.player.getInventory().getStack(i);
+            if (st.isOf(req)) total += st.getCount();
+        }
+        return total;
+    }
+
+    private static String formatTimer(long msLeft) {
+        long sec = Math.max(0L, msLeft / 1000L);
+        return String.format(Locale.US, "%02d:%02d", sec / 60L, sec % 60L);
     }
 
     private static void render(DrawContext ctx, RenderTickCounter tickCounter) {
@@ -45,7 +71,6 @@ public final class SandevistanHud {
         }
 
         if (!SandevistanClient.isEquipped(client)) return;
-
         long elapsed = System.currentTimeMillis() - SandevistanClient.lastActivateMs;
         int x = 12;
         int y = client.getWindow().getScaledHeight() - 42;
@@ -116,7 +141,7 @@ public final class SandevistanHud {
         ctx.fill(px + 2, py + 3, px + 12, py + 17, 0x6600F0FF);
         ctx.fill(px + 5, py + 19, px + 9, py + 20, 0xFF00F0FF);
 
-        if (SandevistanClient.clientCallState > 0) {
+        if (SandevistanClient.clientCallState > 0 || SandevistanClient.clientHasUnreadSms) {
             ctx.fill(px + 11, py - 2, px + 15, py + 2, 0xFFFF2A55);
         }
 
@@ -145,13 +170,14 @@ public final class SandevistanHud {
         ctx.fill(x + 2, y + 8, x + 6, y + 15, 0xFF0B141A);
 
         int tx = x + 52;
-        ctx.drawText(client.textRenderer, Text.literal("§7TRN_FIXER_9000"), tx, y - 2, 0x8899A6, false);
+        ctx.drawText(client.textRenderer, Text.literal("§7NC_NET // 5G"), tx, y - 2, 0x8899A6, false);
         ctx.drawTextWithShadow(client.textRenderer, Text.literal("§b§l" + SandevistanClient.clientFixerName.toUpperCase()), tx, y + 8, 0x00F0FF);
         ctx.drawTextWithShadow(client.textRenderer, Text.translatable("call.sandevistan.incoming"), tx, y + 19, 0xFF2A55);
 
-        Text mobName = Text.translatable("mob.sandevistan." + SandevistanClient.clientTargetType);
+        Text targetName = Text.translatable("target.sandevistan." + SandevistanClient.clientTargetType);
+        String timeTag = SandevistanClient.clientDeadlineMs > 0L ? " §c[" + formatTimer(SandevistanClient.clientDeadlineMs) + "]" : "";
         ctx.drawTextWithShadow(client.textRenderer,
-            Text.translatable("call.sandevistan.desc", mobName, SandevistanClient.clientGoal, SandevistanClient.clientReward),
+            Text.translatable("call.sandevistan.desc", targetName, SandevistanClient.clientGoal, SandevistanClient.clientReward).append(timeTag),
             tx, y + 30, 0xFCEE09);
 
         int btnY = y + 43;
@@ -160,7 +186,6 @@ public final class SandevistanHud {
         int nextBtnX = drawCallKeyButton(ctx, client, tx, btnY, acceptKeyName, Text.translatable("call.sandevistan.answer"));
         drawCallKeyButton(ctx, client, nextBtnX + 10, btnY, rejectKeyName, Text.translatable("call.sandevistan.reject"));
     }
-
     private static int drawCallKeyButton(DrawContext ctx, MinecraftClient client, int bx, int by, String key, Text label) {
         int keyW = Math.max(13, client.textRenderer.getWidth(key) + 6);
         ctx.fill(bx, by, bx + keyW, by + 13, 0xCC1A080D);
@@ -176,14 +201,25 @@ public final class SandevistanHud {
     private static void renderActiveContractTracker(DrawContext ctx, MinecraftClient client) {
         int x = 14;
         int y = 52;
-        ctx.fill(x, y, x + 152, y + 32, 0xBB14080C);
+        String timerSuffix = "";
+        if (SandevistanClient.clientDeadlineMs > 0L) {
+            long left = SandevistanClient.clientDeadlineMs - System.currentTimeMillis();
+            timerSuffix = " §c[" + formatTimer(left) + "]";
+        }
+        Text fixerText = Text.literal("§b" + SandevistanClient.clientFixerName + timerSuffix);
+        Text targetName = Text.translatable("target.sandevistan." + SandevistanClient.clientTargetType);
+        int curProg = "item".equals(SandevistanClient.clientContractKind)
+            ? countRequiredItems(client, SandevistanClient.clientTargetType)
+            : SandevistanClient.clientProgress;
+        Text goalText = Text.translatable("call.sandevistan.progress", targetName, curProg, SandevistanClient.clientGoal, SandevistanClient.clientReward);
+
+        int boxW = Math.max(152, Math.max(client.textRenderer.getWidth(fixerText), client.textRenderer.getWidth(goalText)) + 14);
+        ctx.fill(x, y, x + boxW, y + 32, 0xBB14080C);
         ctx.fill(x, y, x + 2, y + 32, 0xFF00F0FF);
-        ctx.drawText(client.textRenderer, Text.literal("§b" + SandevistanClient.clientFixerName), x + 6, y + 4, 0x00F0FF, false);
-        Text mobName = Text.translatable("mob.sandevistan." + SandevistanClient.clientTargetType);
-        ctx.drawText(client.textRenderer,
-            Text.translatable("call.sandevistan.progress", mobName, SandevistanClient.clientProgress, SandevistanClient.clientGoal, SandevistanClient.clientReward),
-            x + 6, y + 17, 0xFCEE09, false);
+        ctx.drawText(client.textRenderer, fixerText, x + 6, y + 4, 0x00F0FF, false);
+        ctx.drawText(client.textRenderer, goalText, x + 6, y + 17, 0xFCEE09, false);
     }
+
     private static void renderKiroshiScanner(DrawContext ctx, MinecraftClient client) {
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
