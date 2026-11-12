@@ -101,7 +101,7 @@ public final class SandevistanClient implements ClientModInitializer {
                         int by = (scaledHeight - 166) / 2 - 20;
                         Text tabLabel = Text.translatable("craft.sandevistan.tab");
                         int bw = Math.max(114, client.textRenderer.getWidth(tabLabel) + 14);
-                        if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY  {
+                        if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + 18) {
             if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
                 registrationHelper.register(new SandevistanBackFeatureRenderer(playerRenderer));
             }
