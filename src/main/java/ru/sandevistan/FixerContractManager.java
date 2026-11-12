@@ -57,6 +57,7 @@ public final class FixerContractManager {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             RipperdocManager.registerCommands(dispatcher);
+            CyberCraftManager.registerCommands(dispatcher);
 
             dispatcher.register(CommandManager.literal("fixer")
                 .then(CommandManager.literal("call")
@@ -308,6 +309,7 @@ public final class FixerContractManager {
 
         storage.setContract(id, null);
         storage.addEddies(id, c.reward(), "FIXER");
+        CyberCraftManager.grantXp(p, 40);
         NEXT_CALL_TIME.put(id, System.currentTimeMillis() + nextRandomCallDelayMs());
         p.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.3f);
         p.sendMessage(Text.translatable("msg.sandevistan.contract.done", c.reward()), false);
@@ -357,6 +359,7 @@ public final class FixerContractManager {
         if (nextProgress >= c.goal()) {
             storage.setContract(id, null);
             storage.addEddies(id, c.reward(), "FIXER");
+            CyberCraftManager.grantXp(player, 40);
             NEXT_CALL_TIME.put(id, System.currentTimeMillis() + nextRandomCallDelayMs());
             player.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.3f);
             player.sendMessage(Text.translatable("msg.sandevistan.contract.done", c.reward()), false);
