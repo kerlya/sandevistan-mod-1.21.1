@@ -5,33 +5,29 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.Equipment;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.resource.featuretoggle.FeatureFlags;
+import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
@@ -42,26 +38,24 @@ import java.util.UUID;
 public final class SandevistanMod implements ModInitializer {
     public static final Item SANDEVISTAN = Registry.register(
         Registries.ITEM, Identifier.of("sandevistan", "sandevistan"),
-        new SandevistanItem(new Item.Settings().maxCount(1).component(
-            DataComponentTypes.ATTRIBUTE_MODIFIERS,
-            AttributeModifiersComponent.builder()
-                .add(EntityAttributes.GENERIC_ARMOR,
-                    new EntityAttributeModifier(Identifier.of("sandevistan", "armor"), 5.0, EntityAttributeModifier.Operation.ADD_VALUE),
-                    AttributeModifierSlot.CHEST)
-                .add(EntityAttributes.GENERIC_ARMOR_TOUGHNESS,
-                    new EntityAttributeModifier(Identifier.of("sandevistan", "toughness"), 0.0, EntityAttributeModifier.Operation.ADD_VALUE),
-                    AttributeModifierSlot.CHEST)
-                .build()
-        ))
+        new Item(new Item.Settings().maxCount(1))
     );
 
+    public static final ScreenHandlerType<CyberwareScreenHandler> CYBERWARE_HANDLER = Registry.register(
+        Registries.SCREEN_HANDLER, Identifier.of("sandevistan", "cyberware"),
+        new ScreenHandlerType<>(CyberwareScreenHandler::new, FeatureFlags.VANILLA_FEATURES)
+    );
+
+    private static final Identifier ARMOR_MOD_ID = Identifier.of("sandevistan", "cyberware_armor");
     private static final SoundEvent ACTIVATE = sound("activate");
     private static final SoundEvent CLASH = sound("smasher_clash");
+
     private static final Map<UUID, Long> ACTIVE = new HashMap<>();
     private static final Map<UUID, Long> COOLDOWN = new HashMap<>();
     private static final Map<UUID, Integer> OVERUSE_COUNT = new HashMap<>();
     private static final Map<UUID, Long> LAST_USE_TIME = new HashMap<>();
     private static final Map<UUID, Long> PSYCHOSIS_END = new HashMap<>();
+    private static final Map<UUID, Boolean> LAST_SYNCED_STATE = new HashMap<>();
 
     private static final long ACTIVE_TICKS = 160L;
     private static final long COOLDOWN_TICKS = 600L;
@@ -76,25 +70,44 @@ public final class SandevistanMod implements ModInitializer {
     @Override
     public void onInitialize() {
         PayloadTypeRegistry.playC2S().register(ActivatePayload.ID, ActivatePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(OpenCyberwarePayload.ID, OpenCyberwarePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncCyberwarePayload.ID, SyncCyberwarePayload.CODEC);
+
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.player;
             if (!p.getCommandTags().contains("sandevistan_starter_given")) {
                 p.getInventory().insertStack(new ItemStack(SANDEVISTAN));
                 p.addCommandTag("sandevistan_starter_given");
             }
+            boolean hasSandy = hasSandevistanEquipped(p);
+            LAST_SYNCED_STATE.put(p.getUuid(), hasSandy);
+            ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy));
         });
+
         ServerPlayNetworking.registerGlobalReceiver(ActivatePayload.ID,
             (payload, context) -> context.server().execute(() -> activate(context.player())));
+
+        ServerPlayNetworking.registerGlobalReceiver(OpenCyberwarePayload.ID,
+            (payload, context) -> context.server().execute(() -> {
+                ServerPlayerEntity p = context.player();
+                CyberwareStorage storage = CyberwareStorage.get(context.server());
+                p.openHandledScreen(new SimpleNamedScreenHandlerFactory(
+                    (syncId, inv, player) -> new CyberwareScreenHandler(syncId, inv, storage.getInventory(player)),
+                    Text.literal("Киберимпланты")
+                ));
+            }));
+
         ServerTickEvents.END_SERVER_TICK.register(SandevistanMod::tick);
     }
 
-    private static boolean equipped(ServerPlayerEntity p) {
-        return p.getEquippedStack(EquipmentSlot.CHEST).isOf(SANDEVISTAN) || p.getOffHandStack().isOf(SANDEVISTAN);
+    public static boolean hasSandevistanEquipped(ServerPlayerEntity p) {
+        if (p.getServer() == null) return false;
+        return CyberwareStorage.get(p.getServer()).getSlots(p.getUuid()).get(0).isOf(SANDEVISTAN);
     }
     private static void activate(ServerPlayerEntity p) {
         long now = p.getServerWorld().getTime();
         UUID id = p.getUuid();
-        if (!equipped(p) || ACTIVE.getOrDefault(id, 0L) > now || COOLDOWN.getOrDefault(id, 0L) > now) return;
+        if (!hasSandevistanEquipped(p) || ACTIVE.getOrDefault(id, 0L) > now || COOLDOWN.getOrDefault(id, 0L) > now) return;
 
         long lastUse = LAST_USE_TIME.getOrDefault(id, 0L);
         int count = (now - lastUse > SAFE_INTERVAL) ? 1 : OVERUSE_COUNT.getOrDefault(id, 0) + 1;
@@ -141,6 +154,23 @@ public final class SandevistanMod implements ModInitializer {
             UUID id = p.getUuid();
             World w = p.getWorld();
 
+            // Синхронизация слота импланта и выдача бонуса брони (5.0 как у кольчуги)
+            boolean hasSandy = hasSandevistanEquipped(p);
+            if (LAST_SYNCED_STATE.get(id) == null || LAST_SYNCED_STATE.get(id) != hasSandy) {
+                LAST_SYNCED_STATE.put(id, hasSandy);
+                ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy));
+            }
+            EntityAttributeInstance armorAttr = p.getAttributeInstance(EntityAttributes.GENERIC_ARMOR);
+            if (armorAttr != null) {
+                boolean hasMod = armorAttr.hasModifier(ARMOR_MOD_ID);
+                if (hasSandy && !hasMod) {
+                    armorAttr.addTemporaryModifier(new EntityAttributeModifier(ARMOR_MOD_ID, 5.0, EntityAttributeModifier.Operation.ADD_VALUE));
+                } else if (!hasSandy && hasMod) {
+                    armorAttr.removeModifier(ARMOR_MOD_ID);
+                }
+            }
+
+            // Киберпсихоз
             long psychosisEnd = PSYCHOSIS_END.getOrDefault(id, 0L);
             if (psychosisEnd > now) {
                 if (now % 40 == 0) {
@@ -168,6 +198,7 @@ public final class SandevistanMod implements ModInitializer {
                 PSYCHOSIS_END.remove(id);
             }
 
+            // Активный Сандевистан
             long end = ACTIVE.getOrDefault(id, 0L);
             if (end <= now) { ACTIVE.remove(id); continue; }
 
@@ -186,14 +217,6 @@ public final class SandevistanMod implements ModInitializer {
                 if (e instanceof ProjectileEntity projectile) projectile.setVelocity(projectile.getVelocity().multiply(0.65));
             }
             w.addParticle(new DustParticleEffect(new Vector3f(0.78f, 0.9f, 0.12f), 1.0f), p.getX(), p.getY() + 0.8, p.getZ(), 0, 0, 0);
-        }
-    }
-
-    public static class SandevistanItem extends Item implements Equipment {
-        public SandevistanItem(Settings settings) { super(settings); }
-        @Override public EquipmentSlot getSlotType() { return EquipmentSlot.CHEST; }
-        @Override public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
-            return this.equipAndSwap(this, world, user, hand);
         }
     }
 }
