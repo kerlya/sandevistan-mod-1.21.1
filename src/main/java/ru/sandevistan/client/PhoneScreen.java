@@ -9,7 +9,7 @@ import net.minecraft.text.Text;
 import ru.sandevistan.PhoneActionPayload;
 
 public class PhoneScreen extends Screen {
-    private int tab = 0; // 0 = Банк, 1 = Контракты
+    private int tab = 0;
     private TextFieldWidget playerField;
     private TextFieldWidget amountField;
     private ButtonWidget sendButton;
@@ -25,7 +25,6 @@ public class PhoneScreen extends Screen {
         int x = (this.width - w) / 2;
         int y = (this.height - h) / 2;
 
-        // Вкладки снизу экрана телефона
         this.addDrawableChild(ButtonWidget.builder(Text.translatable("phone.sandevistan.tab.bank"), b -> {
             this.tab = 0;
             updateBankWidgets();
@@ -36,7 +35,6 @@ public class PhoneScreen extends Screen {
             updateBankWidgets();
         }).dimensions(x + 80, y + h - 24, 68, 18).build());
 
-        // Поля для перевода Эдди другу во вкладке «Банк»
         this.playerField = new TextFieldWidget(this.textRenderer, x + 12, y + 72, 132, 16, Text.empty());
         this.playerField.setPlaceholder(Text.translatable("phone.sandevistan.bank.nick"));
         this.addDrawableChild(this.playerField);
@@ -68,34 +66,30 @@ public class PhoneScreen extends Screen {
     }
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        this.renderBackground(ctx, mouseX, mouseY, delta);
+        ctx.fill(0, 0, this.width, this.height, 0x88000000);
 
         int w = 156;
         int h = 218;
         int x = (this.width - w) / 2;
         int y = (this.height - h) / 2;
 
-        // Корпус кибер-смартфона
         ctx.fill(x, y, x + w, y + h, 0xF511070C);
         ctx.fill(x, y, x + w, y + 2, 0xFF00F0FF);
         ctx.fill(x, y + h - 2, x + w, y + h, 0xFFFF2A55);
         ctx.fill(x, y, x + 2, y + h, 0xFFFF2A55);
         ctx.fill(x + w - 2, y, x + w, y + h, 0xFF00F0FF);
 
-        // Верхняя статус-строка телефона
         ctx.fill(x + 2, y + 2, x + w - 2, y + 16, 0xFF1F0B13);
         ctx.drawText(this.textRenderer, Text.literal("§bNC-OS // 5G"), x + 8, y + 5, 0x00F0FF, false);
         ctx.drawText(this.textRenderer, Text.literal("§e98%"), x + w - 30, y + 5, 0xFCEE09, false);
 
         if (this.tab == 0) {
-            // Приложение «NIGHT CITY BANK»
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.bank.header"), x + 10, y + 22, 0x00F0FF, false);
             ctx.fill(x + 10, y + 34, x + w - 10, y + 56, 0xFF1E0D15);
             ctx.drawText(this.textRenderer, Text.literal("§e§l€$ " + SandevistanClient.clientEddies), x + 16, y + 41, 0xFCEE09, false);
 
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.bank.transfer"), x + 10, y + 61, 0xFF2A55, false);
 
-            // История транзакций
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.bank.history"), x + 10, y + 114, 0x00F0FF, false);
             String[] entries = SandevistanClient.clientBankHistory.isEmpty()
                 ? new String[0]
@@ -106,7 +100,6 @@ public class PhoneScreen extends Screen {
                 ctx.drawText(this.textRenderer, line, x + 10, y + 126 + i * 11, color, false);
             }
         } else {
-            // Приложение «КОНТРАКТЫ ФИКСЕРОВ»
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.jobs.header"), x + 10, y + 22, 0xFF2A55, false);
             if (SandevistanClient.clientCallState == 2) {
                 ctx.fill(x + 10, y + 36, x + w - 10, y + 122, 0xFF1E0D15);
