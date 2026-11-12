@@ -8,5 +8,15 @@
     "sounds": [
       "sandevistan:ringtone"
     ]
+  },
+  "ripperdoc_ambient": {
+    "sounds": [
+      "sandevistan:ripperdoc_ambient"
+    ]
+  },
+  "ripperdoc_interact": {
+    "sounds": [
+      "sandevistan:ripperdoc_interact"
+    ]
   }
 }
