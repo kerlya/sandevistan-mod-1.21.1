@@ -2,7 +2,6 @@ package ru.sandevistan;
 
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
@@ -17,16 +16,27 @@ public record SyncPhonePayload(
     long reward
 ) implements CustomPayload {
     public static final Id<SyncPhonePayload> ID = new Id<>(Identifier.of("sandevistan", "sync_phone"));
-    public static final PacketCodec<RegistryByteBuf, SyncPhonePayload> CODEC = PacketCodec.tuple(
-        PacketCodecs.VAR_LONG, SyncPhonePayload::eddies,
-        PacketCodecs.STRING, SyncPhonePayload::historyJoined,
-        PacketCodecs.VAR_INT, SyncPhonePayload::callState,
-        PacketCodecs.STRING, SyncPhonePayload::fixerName,
-        PacketCodecs.STRING, SyncPhonePayload::targetType,
-        PacketCodecs.VAR_INT, SyncPhonePayload::progress,
-        PacketCodecs.VAR_INT, SyncPhonePayload::goal,
-        PacketCodecs.VAR_LONG, SyncPhonePayload::reward,
-        SyncPhonePayload::new
+    public static final PacketCodec<RegistryByteBuf, SyncPhonePayload> CODEC = PacketCodec.of(
+        (value, buf) -> {
+            buf.writeVarLong(value.eddies);
+            buf.writeString(value.historyJoined);
+            buf.writeVarInt(value.callState);
+            buf.writeString(value.fixerName);
+            buf.writeString(value.targetType);
+            buf.writeVarInt(value.progress);
+            buf.writeVarInt(value.goal);
+            buf.writeVarLong(value.reward);
+        },
+        buf -> new SyncPhonePayload(
+            buf.readVarLong(),
+            buf.readString(),
+            buf.readVarInt(),
+            buf.readString(),
+            buf.readString(),
+            buf.readVarInt(),
+            buf.readVarInt(),
+            buf.readVarLong()
+        )
     );
 
     @Override
