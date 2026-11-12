@@ -11,24 +11,24 @@
       "from": [6.8, 7.0, 4.0],
       "to": [9.2, 9.6, 13.0],
       "faces": {
-        "north": {"texture": "#body"},
-        "east": {"texture": "#body"},
-        "south": {"texture": "#body"},
-        "west": {"texture": "#body"},
-        "up": {"texture": "#body"},
-        "down": {"texture": "#body"}
+        "north": {"uv":, "texture": "#body"},
+        "east": {"uv":, "texture": "#body"},
+        "south": {"uv":, "texture": "#body"},
+        "west": {"uv":, "texture": "#body"},
+        "up": {"uv":, "texture": "#body"},
+        "down": {"uv":, "texture": "#body"}
       }
     },
     {
       "from": [7.3, 7.7, 1.0],
       "to": [8.7, 9.1, 4.0],
       "faces": {
-        "north": {"texture": "#barrel"},
-        "east": {"texture": "#barrel"},
-        "south": {"texture": "#barrel"},
-        "west": {"texture": "#barrel"},
-        "up": {"texture": "#barrel"},
-        "down": {"texture": "#barrel"}
+        "north": {"uv":, "texture": "#barrel"},
+        "east": {"uv":, "texture": "#barrel"},
+        "south": {"uv":, "texture": "#barrel"},
+        "west": {"uv":, "texture": "#barrel"},
+        "up": {"uv":, "texture": "#barrel"},
+        "down": {"uv":, "texture": "#barrel"}
       }
     },
     {
@@ -36,12 +36,12 @@
       "to": [9.0, 7.0, 11.4],
       "rotation": {"angle": 12.5, "axis": "x", "origin": [8.0, 7.0, 10.3]},
       "faces": {
-        "north": {"texture": "#grip"},
-        "east": {"texture": "#grip"},
-        "south": {"texture": "#grip"},
-        "west": {"texture": "#grip"},
-        "up": {"texture": "#grip"},
-        "down": {"texture": "#grip"}
+        "north": {"uv":, "texture": "#grip"},
+        "east": {"uv":, "texture": "#grip"},
+        "south": {"uv":, "texture": "#grip"},
+        "west": {"uv":, "texture": "#grip"},
+        "up": {"uv":, "texture": "#grip"},
+        "down": {"uv":, "texture": "#grip"}
       }
     },
     {
@@ -49,48 +49,48 @@
       "to": [8.8, 7.0, 7.0],
       "rotation": {"angle": -10.0, "axis": "x", "origin": [8.0, 7.0, 6.1]},
       "faces": {
-        "north": {"texture": "#grip"},
-        "east": {"texture": "#grip"},
-        "south": {"texture": "#grip"},
-        "west": {"texture": "#grip"},
-        "up": {"texture": "#grip"},
-        "down": {"texture": "#grip"}
+        "north": {"uv":, "texture": "#grip"},
+        "east": {"uv":, "texture": "#grip"},
+        "south": {"uv":, "texture": "#grip"},
+        "west": {"uv":, "texture": "#grip"},
+        "up": {"uv":, "texture": "#grip"},
+        "down": {"uv":, "texture": "#grip"}
       }
     },
     {
       "from": [7.3, 9.6, 7.5],
       "to": [8.7, 10.8, 10.2],
       "faces": {
-        "north": {"texture": "#grip"},
-        "east": {"texture": "#grip"},
-        "south": {"texture": "#grip"},
-        "west": {"texture": "#grip"},
-        "up": {"texture": "#grip"},
-        "down": {"texture": "#grip"}
+        "north": {"uv":, "texture": "#grip"},
+        "east": {"uv":, "texture": "#grip"},
+        "south": {"uv":, "texture": "#grip"},
+        "west": {"uv":, "texture": "#grip"},
+        "up": {"uv":, "texture": "#grip"},
+        "down": {"uv":, "texture": "#grip"}
       }
     },
     {
       "from": [6.7, 8.2, 5.0],
       "to": [9.3, 8.6, 12.2],
       "faces": {
-        "north": {"texture": "#neon"},
-        "east": {"texture": "#neon"},
-        "south": {"texture": "#neon"},
-        "west": {"texture": "#neon"},
-        "up": {"texture": "#neon"},
-        "down": {"texture": "#neon"}
+        "north": {"uv":, "texture": "#neon"},
+        "east": {"uv":, "texture": "#neon"},
+        "south": {"uv":, "texture": "#neon"},
+        "west": {"uv":, "texture": "#neon"},
+        "up": {"uv":, "texture": "#neon"},
+        "down": {"uv":, "texture": "#neon"}
       }
     },
     {
       "from": [7.4, 7.5, 13.0],
       "to": [8.6, 9.2, 15.6],
       "faces": {
-        "north": {"texture": "#barrel"},
-        "east": {"texture": "#barrel"},
-        "south": {"texture": "#barrel"},
-        "west": {"texture": "#barrel"},
-        "up": {"texture": "#barrel"},
-        "down": {"texture": "#barrel"}
+        "north": {"uv":, "texture": "#barrel"},
+        "east": {"uv":, "texture": "#barrel"},
+        "south": {"uv":, "texture": "#barrel"},
+        "west": {"uv":, "texture": "#barrel"},
+        "up": {"uv":, "texture": "#barrel"},
+        "down": {"uv":, "texture": "#barrel"}
       }
     }
   ],
