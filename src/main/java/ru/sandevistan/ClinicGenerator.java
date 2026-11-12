@@ -16,6 +16,8 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
@@ -76,6 +78,56 @@ public final class ClinicGenerator {
                     BlockPos pos = p.getBlockPos().offset(p.getHorizontalFacing(), 6);
                     buildClinic(p.getServerWorld(), pos);
                     p.sendMessage(Text.translatable("msg.sandevistan.clinic.spawned"), false);
+                    return 1;
+                }))
+            .then(CommandManager.literal("locate")
+                .executes(ctx -> {
+                    ServerPlayerEntity p = ctx.getSource().getPlayerOrThrow();
+                    ServerWorld world = p.getServerWorld();
+                    int px = p.getBlockX();
+                    int pz = p.getBlockZ();
+                    int pChunkX = Math.floorDiv(px, 16);
+                    int pChunkZ = Math.floorDiv(pz, 16);
+
+                    BlockPos best = null;
+                    double bestDistSq = Double.MAX_VALUE;
+
+                    for (int rx = -5; rx <= 5; rx++) {
+                        for (int rz = -5; rz <= 5; rz++) {
+                            int cx = Math.floorDiv(pChunkX, 32) * 32 + rx * 32 + 8;
+                            int cz = Math.floorDiv(pChunkZ, 32) * 32 + rz * 32 + 8;
+                            long seed = world.getSeed() ^ (cx * 341873128712L + cz * 132897987541L);
+                            if (new Random(seed).nextInt(3) != 0) continue;
+
+                            int bx = cx * 16 + 8;
+                            int bz = cz * 16 + 8;
+                            BlockPos check = new BlockPos(bx, 70, bz);
+                            RegistryEntry<Biome> biome = world.getBiome(check);
+                            boolean validBiome = biome.matchesKey(BiomeKeys.PLAINS)
+                                || biome.matchesKey(BiomeKeys.FOREST)
+                                || biome.matchesKey(BiomeKeys.BIRCH_FOREST)
+                                || biome.matchesKey(BiomeKeys.TAIGA)
+                                || biome.matchesKey(BiomeKeys.SAVANNA);
+                            if (!validBiome) continue;
+
+                            double dSq = (double) (bx - px) * (bx - px) + (double) (bz - pz) * (bz - pz);
+                            if (dSq < bestDistSq) {
+                                bestDistSq = dSq;
+                                best = new BlockPos(bx, 80, bz);
+                            }
+                        }
+                    }
+
+                    if (best == null) {
+                        p.sendMessage(Text.literal("§c[КЛИНИКА]: Поблизости клиник не найдено."), false);
+                    } else {
+                        int dist = (int) Math.sqrt(bestDistSq);
+                        String tpCmd = "/tp @s " + best.getX() + " " + best.getY() + " " + best.getZ();
+                        Text coords = Text.literal("§a[" + best.getX() + ", ~, " + best.getZ() + "]")
+                            .styled(s -> s.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, tpCmd))
+                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Нажмите для телепортации"))));
+                        p.sendMessage(Text.literal("§b[КЛИНИКА]: §eБлижайшая клиника на ").append(coords).append(Text.literal(" §7(" + dist + "м)")), false);
+                    }
                     return 1;
                 })));
     }
@@ -143,11 +195,12 @@ public final class ClinicGenerator {
             }
         }
 
-        // 4. Входная железная дверь на южной стороне (dz = +4)
+        // 4. Автоматический вход: железная дверь и нажимные плиты снаружи и внутри
         world.setBlockState(new BlockPos(cx, cy + 1, cz + 4), Blocks.IRON_DOOR.getDefaultState().with(DoorBlock.FACING, Direction.NORTH).with(DoorBlock.HALF, DoubleBlockHalf.LOWER), 3);
         world.setBlockState(new BlockPos(cx, cy + 2, cz + 4), Blocks.IRON_DOOR.getDefaultState().with(DoorBlock.FACING, Direction.NORTH).with(DoorBlock.HALF, DoubleBlockHalf.UPPER), 3);
-        world.setBlockState(new BlockPos(cx - 1, cy + 2, cz + 5), Blocks.STONE_BUTTON.getDefaultState(), 3);
-        world.setBlockState(new BlockPos(cx - 1, cy + 2, cz + 3), Blocks.STONE_BUTTON.getDefaultState(), 3);
+        world.setBlockState(new BlockPos(cx, cy, cz + 5), floorMat, 3);
+        world.setBlockState(new BlockPos(cx, cy + 1, cz + 5), Blocks.POLISHED_BLACKSTONE_PRESSURE_PLATE.getDefaultState(), 3);
+        world.setBlockState(new BlockPos(cx, cy + 1, cz + 3), Blocks.POLISHED_BLACKSTONE_PRESSURE_PLATE.getDefaultState(), 3);
         world.setBlockState(new BlockPos(cx, cy + 3, cz + 5), Blocks.SOUL_LANTERN.getDefaultState(), 3);
 
         // 5. Интерьер: операционное кресло, верстак, варочная стойка и сундук с расходниками
