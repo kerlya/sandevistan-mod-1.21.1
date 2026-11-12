@@ -31,6 +31,18 @@ public final class SandevistanHud {
         HudRenderCallback.EVENT.register(SandevistanHud::render);
     }
 
+    public static String formatFixerName(String raw) {
+        if (raw == null || raw.isEmpty()) return "";
+        String[] parts = raw.split(":");
+        if (parts.length == 3) {
+            String first = Text.translatable("fixer.sandevistan.first." + parts[0]).getString();
+            String nick = Text.translatable("fixer.sandevistan.nick." + parts[1]).getString();
+            String last = Text.translatable("fixer.sandevistan.last." + parts[2]).getString();
+            return first + " " + nick + " " + last;
+        }
+        return raw;
+    }
+
     public static int countRequiredItems(MinecraftClient client, String targetType) {
         if (client.player == null) return 0;
         Item req = switch (targetType) {
@@ -171,7 +183,8 @@ public final class SandevistanHud {
 
         int tx = x + 52;
         ctx.drawText(client.textRenderer, Text.literal("§7NC_NET // 5G"), tx, y - 2, 0x8899A6, false);
-        ctx.drawTextWithShadow(client.textRenderer, Text.literal("§b§l" + SandevistanClient.clientFixerName.toUpperCase()), tx, y + 8, 0x00F0FF);
+        String resolvedFixer = formatFixerName(SandevistanClient.clientFixerName).toUpperCase();
+        ctx.drawTextWithShadow(client.textRenderer, Text.literal("§b§l" + resolvedFixer), tx, y + 8, 0x00F0FF);
         ctx.drawTextWithShadow(client.textRenderer, Text.translatable("call.sandevistan.incoming"), tx, y + 19, 0xFF2A55);
 
         Text targetName = Text.translatable("target.sandevistan." + SandevistanClient.clientTargetType);
@@ -206,7 +219,7 @@ public final class SandevistanHud {
             long left = SandevistanClient.clientDeadlineMs - System.currentTimeMillis();
             timerSuffix = " §c[" + formatTimer(left) + "]";
         }
-        Text fixerText = Text.literal("§b" + SandevistanClient.clientFixerName + timerSuffix);
+        Text fixerText = Text.literal("§b" + formatFixerName(SandevistanClient.clientFixerName) + timerSuffix);
         Text targetName = Text.translatable("target.sandevistan." + SandevistanClient.clientTargetType);
         int curProg = "item".equals(SandevistanClient.clientContractKind)
             ? countRequiredItems(client, SandevistanClient.clientTargetType)
