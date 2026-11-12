@@ -81,12 +81,13 @@ public final class RipperdocManager {
         }
 
         ItemStack stack = new ItemStack(selected.item());
+        Text itemName = stack.getName();
         if (!p.getInventory().insertStack(stack)) {
             p.dropItem(stack, false);
         }
 
         p.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.9f, 1.4f);
-        p.sendMessage(Text.translatable("msg.sandevistan.shop.bought", stack.getName(), selected.price()), false);
+        p.sendMessage(Text.translatable("msg.sandevistan.shop.bought", itemName, selected.price()), false);
         FixerContractManager.syncPlayer(p);
     }
 }
