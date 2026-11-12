@@ -35,9 +35,9 @@ public final class SandevistanHud {
         if (raw == null || raw.isEmpty()) return "";
         String[] parts = raw.split(":");
         if (parts.length == 3) {
-            String first = Text.translatable("fixer.sandevistan.first." + parts[0]).getString();
-            String nick = Text.translatable("fixer.sandevistan.nick." + parts[1]).getString();
-            String last = Text.translatable("fixer.sandevistan.last." + parts[2]).getString();
+            String first = Text.translatable("fixer.sandevistan.first." + parts).getString();
+            String nick = Text.translatable("fixer.sandevistan.nick." + parts).getString();
+            String last = Text.translatable("fixer.sandevistan.last." + parts).getString();
             return first + " " + nick + " " + last;
         }
         return raw;
@@ -261,9 +261,18 @@ public final class SandevistanHud {
             String hp = String.format(Locale.US, "%.0f", living.getHealth());
             String maxHp = String.format(Locale.US, "%.0f", living.getMaxHealth());
 
+            Text headerT = Text.translatable("scanner.sandevistan.data");
+            Text targetT = Text.literal("§f" + targetName);
+            Text factionT = Text.translatable("scanner.sandevistan.faction", faction);
+            Text statsT = Text.translatable("scanner.sandevistan.stats", dist, hp, maxHp);
+            int maxLineW = Math.max(
+                Math.max(client.textRenderer.getWidth(headerT), client.textRenderer.getWidth(targetT)),
+                Math.max(client.textRenderer.getWidth(aggression), Math.max(client.textRenderer.getWidth(factionT), client.textRenderer.getWidth(statsT)))
+            );
+
             int cardX = cx + 36;
             int cardY = cy - 42;
-            int cardW = 158;
+            int cardW = Math.max(158, maxLineW + 14);
             int cardH = 84;
 
             ctx.fill(cardX, cardY, cardX + cardW, cardY + cardH, 0xDD14080C);
@@ -271,15 +280,15 @@ public final class SandevistanHud {
             ctx.fill(cardX, cardY + cardH - 1, cardX + cardW, cardY + cardH, 0xFFFF2A55);
             ctx.fill(cardX, cardY, cardX + 2, cardY + cardH, 0xFFFF2A55);
 
-            ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.data"), cardX + 6, cardY + 6, 0x00F0FF, false);
+            ctx.drawText(client.textRenderer, headerT, cardX + 6, cardY + 6, 0x00F0FF, false);
             ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.target"), cardX + 6, cardY + 19, 0xFF2A55, false);
-            ctx.drawText(client.textRenderer, Text.literal("§f" + targetName), cardX + 6, cardY + 28, 0xFFFFFF, false);
+            ctx.drawText(client.textRenderer, targetT, cardX + 6, cardY + 28, 0xFFFFFF, false);
 
             ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.threat"), cardX + 6, cardY + 41, 0xFF2A55, false);
             ctx.drawText(client.textRenderer, aggression, cardX + 6, cardY + 50, 0xFFFFFF, false);
 
-            ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.faction", faction), cardX + 6, cardY + 63, 0xFCEE09, false);
-            ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.stats", dist, hp, maxHp), cardX + 6, cardY + 73, 0xA0AEC0, false);
+            ctx.drawText(client.textRenderer, factionT, cardX + 6, cardY + 63, 0xFCEE09, false);
+            ctx.drawText(client.textRenderer, statsT, cardX + 6, cardY + 73, 0xA0AEC0, false);
         }
     }
 
