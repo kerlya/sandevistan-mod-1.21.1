@@ -14,7 +14,6 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -40,12 +39,10 @@ public final class SandevistanMod implements ModInitializer {
         Registries.ITEM, Identifier.of("sandevistan", "sandevistan"),
         new Item(new Item.Settings().maxCount(1))
     );
-
     public static final Item KIROSHI_MK1 = Registry.register(
         Registries.ITEM, Identifier.of("sandevistan", "kiroshi_mk1"),
         new Item(new Item.Settings().maxCount(1))
     );
-
     public static final ScreenHandlerType<CyberwareScreenHandler> CYBERWARE_HANDLER = Registry.register(
         Registries.SCREEN_HANDLER, Identifier.of("sandevistan", "cyberware"),
         new ScreenHandlerType<>(CyberwareScreenHandler::new, FeatureFlags.VANILLA_FEATURES)
@@ -75,8 +72,12 @@ public final class SandevistanMod implements ModInitializer {
     public void onInitialize() {
         PayloadTypeRegistry.playC2S().register(ActivatePayload.ID, ActivatePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenCyberwarePayload.ID, OpenCyberwarePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(PhoneActionPayload.ID, PhoneActionPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncCyberwarePayload.ID, SyncCyberwarePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncBackVisualPayload.ID, SyncBackVisualPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncPhonePayload.ID, SyncPhonePayload.CODEC);
+
+        FixerContractManager.register();
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.player;
@@ -87,11 +88,6 @@ public final class SandevistanMod implements ModInitializer {
             LAST_USE_TIME.remove(id);
             PSYCHOSIS_END.remove(id);
 
-            if (!p.getCommandTags().contains("sandevistan_starter_given")) {
-                p.getInventory().insertStack(new ItemStack(SANDEVISTAN));
-                p.getInventory().insertStack(new ItemStack(KIROSHI_MK1));
-                p.addCommandTag("sandevistan_starter_given");
-            }
             boolean hasSandy = hasSandevistanEquipped(p);
             boolean hasKiroshi = hasKiroshiEquipped(p);
             int stateMask = (hasSandy ? 1 : 0) + (hasKiroshi ? 2 : 0);
@@ -102,10 +98,15 @@ public final class SandevistanMod implements ModInitializer {
                 ServerPlayNetworking.send(p, new SyncBackVisualPayload(other.getId(), hasSandevistanEquipped(other)));
                 ServerPlayNetworking.send(other, new SyncBackVisualPayload(p.getId(), hasSandy));
             }
+            FixerContractManager.onPlayerJoin(p);
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ActivatePayload.ID,
             (payload, context) -> context.server().execute(() -> activate(context.player())));
+
+        ServerPlayNetworking.registerGlobalReceiver(PhoneActionPayload.ID,
+            (payload, context) -> context.server().execute(() ->
+                FixerContractManager.handlePhoneAction(context.player(), payload.action(), payload.targetPlayer(), payload.amount())));
 
         ServerPlayNetworking.registerGlobalReceiver(OpenCyberwarePayload.ID,
             (payload, context) -> context.server().execute(() -> {
@@ -160,6 +161,7 @@ public final class SandevistanMod implements ModInitializer {
     }
 
     private static void tick(MinecraftServer server) {
+        FixerContractManager.tick(server);
         long now = System.currentTimeMillis();
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
             long worldTicks = p.getWorld().getTime();
