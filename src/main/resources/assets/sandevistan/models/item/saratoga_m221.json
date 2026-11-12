@@ -1,0 +1,134 @@
+{
+  "credit": "Sandevistan Mod 3D Placeholder",
+  "textures": {
+    "body": "minecraft:block/netherite_block",
+    "grip": "minecraft:block/black_concrete",
+    "barrel": "minecraft:block/anvil",
+    "neon": "minecraft:block/redstone_block",
+    "particle": "minecraft:block/netherite_block"
+  },
+  "elements": [
+    {
+      "name": "receiver",
+      "from": [6.8, 7.0, 4.0],
+      "to": [9.2, 9.6, 13.0],
+      "faces": {
+        "north": {"texture": "#body"},
+        "east": {"texture": "#body"},
+        "south": {"texture": "#body"},
+        "west": {"texture": "#body"},
+        "up": {"texture": "#body"},
+        "down": {"texture": "#body"}
+      }
+    },
+    {
+      "name": "barrel",
+      "from": [7.3, 7.7, 1.0],
+      "to": [8.7, 9.1, 4.0],
+      "faces": {
+        "north": {"texture": "#barrel"},
+        "east": {"texture": "#barrel"},
+        "south": {"texture": "#barrel"},
+        "west": {"texture": "#barrel"},
+        "up": {"texture": "#barrel"},
+        "down": {"texture": "#barrel"}
+      }
+    },
+    {
+      "name": "grip",
+      "from": [7.0, 3.2, 9.2],
+      "to": [9.0, 7.0, 11.4],
+      "rotation": {"angle": 12.5, "axis": "x", "origin": [8.0, 7.0, 10.3]},
+      "faces": {
+        "north": {"texture": "#grip"},
+        "east": {"texture": "#grip"},
+        "south": {"texture": "#grip"},
+        "west": {"texture": "#grip"},
+        "up": {"texture": "#grip"},
+        "down": {"texture": "#grip"}
+      }
+    },
+    {
+      "name": "magazine",
+      "from": [7.2, 2.5, 5.2],
+      "to": [8.8, 7.0, 7.0],
+      "rotation": {"angle": -10.0, "axis": "x", "origin": [8.0, 7.0, 6.1]},
+      "faces": {
+        "north": {"texture": "#grip"},
+        "east": {"texture": "#grip"},
+        "south": {"texture": "#grip"},
+        "west": {"texture": "#grip"},
+        "up": {"texture": "#grip"},
+        "down": {"texture": "#grip"}
+      }
+    },
+    {
+      "name": "sight",
+      "from": [7.3, 9.6, 7.5],
+      "to": [8.7, 10.8, 10.2],
+      "faces": {
+        "north": {"texture": "#grip"},
+        "east": {"texture": "#grip"},
+        "south": {"texture": "#grip"},
+        "west": {"texture": "#grip"},
+        "up": {"texture": "#grip"},
+        "down": {"texture": "#grip"}
+      }
+    },
+    {
+      "name": "neon_stripe",
+      "from": [6.7, 8.2, 5.0],
+      "to": [9.3, 8.6, 12.2],
+      "faces": {
+        "north": {"texture": "#neon"},
+        "east": {"texture": "#neon"},
+        "south": {"texture": "#neon"},
+        "west": {"texture": "#neon"},
+        "up": {"texture": "#neon"},
+        "down": {"texture": "#neon"}
+      }
+    },
+    {
+      "name": "stock",
+      "from": [7.4, 7.5, 13.0],
+      "to": [8.6, 9.2, 15.6],
+      "faces": {
+        "north": {"texture": "#barrel"},
+        "east": {"texture": "#barrel"},
+        "south": {"texture": "#barrel"},
+        "west": {"texture": "#barrel"},
+        "up": {"texture": "#barrel"},
+        "down": {"texture": "#barrel"}
+      }
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "translation": [0, 0.5, -1.5],
+      "scale": [0.85, 0.85, 0.85]
+    },
+    "thirdperson_lefthand": {
+      "translation": [0, 0.5, -1.5],
+      "scale": [0.85, 0.85, 0.85]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, -8, 0],
+      "translation": [1.5, 2.5, -1.0],
+      "scale": [0.9, 0.9, 0.9]
+    },
+    "firstperson_lefthand": {
+      "rotation":,
+      "translation": [1.5, 2.5, -1.0],
+      "scale": [0.9, 0.9, 0.9]
+    },
+    "gui": {
+      "rotation": [25, -135, 0],
+      "translation": [0.5, 0.5, 0],
+      "scale": [0.95, 0.95, 0.95]
+    },
+    "ground": {
+      "translation":,
+      "scale": [0.65, 0.65, 0.65]
+    }
+  }
+}
