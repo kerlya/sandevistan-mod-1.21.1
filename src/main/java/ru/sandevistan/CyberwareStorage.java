@@ -27,8 +27,9 @@ public class CyberwareStorage extends PersistentState {
     private final Map<UUID, Long> playerEddies = new HashMap<>();
     private final Map<UUID, ActiveContract> activeContracts = new HashMap<>();
     private final Map<UUID, List<String>> bankHistory = new HashMap<>();
+    private final Map<UUID, List<String>> smsMessages = new HashMap<>();
 
-    public record ActiveContract(String fixerName, String targetType, int progress, int goal, long reward) {}
+    public record ActiveContract(String fixerName, String kind, String targetType, int progress, int goal, long reward, long deadlineMs) {}
 
     public DefaultedList<ItemStack> getSlots(UUID uuid) {
         return playerSlots.computeIfAbsent(uuid, k -> DefaultedList.ofSize(SLOT_COUNT, ItemStack.EMPTY));
@@ -70,6 +71,17 @@ public class CyberwareStorage extends PersistentState {
         if (list.size() > 6) list.remove(list.size() - 1);
     }
 
+    public List<String> getSms(UUID uuid) {
+        return smsMessages.computeIfAbsent(uuid, k -> new ArrayList<>());
+    }
+
+    public void addSms(UUID uuid, String entry) {
+        List<String> list = getSms(uuid);
+        list.add(0, entry);
+        if (list.size() > 8) list.remove(list.size() - 1);
+        markDirty();
+    }
+
     public ActiveContract getContract(UUID uuid) {
         return activeContracts.get(uuid);
     }
@@ -79,7 +91,6 @@ public class CyberwareStorage extends PersistentState {
         else activeContracts.put(uuid, contract);
         markDirty();
     }
-
     public Inventory getInventory(PlayerEntity player) {
         DefaultedList<ItemStack> items = getSlots(player.getUuid());
         return new Inventory() {
@@ -126,10 +137,12 @@ public class CyberwareStorage extends PersistentState {
         activeContracts.forEach((uuid, c) -> {
             NbtCompound cTag = new NbtCompound();
             cTag.putString("Fixer", c.fixerName());
+            cTag.putString("Kind", c.kind());
             cTag.putString("Target", c.targetType());
             cTag.putInt("Progress", c.progress());
             cTag.putInt("Goal", c.goal());
             cTag.putLong("Reward", c.reward());
+            cTag.putLong("Deadline", c.deadlineMs());
             contractsTag.put(uuid.toString(), cTag);
         });
         nbt.put("Contracts", contractsTag);
@@ -141,6 +154,14 @@ public class CyberwareStorage extends PersistentState {
             histTag.put(uuid.toString(), nbtList);
         });
         nbt.put("History", histTag);
+
+        NbtCompound smsTag = new NbtCompound();
+        smsMessages.forEach((uuid, list) -> {
+            NbtList nbtList = new NbtList();
+            for (String s : list) nbtList.add(NbtString.of(s));
+            smsTag.put(uuid.toString(), nbtList);
+        });
+        nbt.put("Sms", smsTag);
         return nbt;
     }
 
@@ -159,12 +180,10 @@ public class CyberwareStorage extends PersistentState {
         NbtCompound contractsTag = nbt.getCompound("Contracts");
         for (String key : contractsTag.getKeys()) {
             NbtCompound cTag = contractsTag.getCompound(key);
+            String kind = cTag.contains("Kind") ? cTag.getString("Kind") : "kill";
             state.activeContracts.put(UUID.fromString(key), new ActiveContract(
-                cTag.getString("Fixer"),
-                cTag.getString("Target"),
-                cTag.getInt("Progress"),
-                cTag.getInt("Goal"),
-                cTag.getLong("Reward")
+                cTag.getString("Fixer"), kind, cTag.getString("Target"),
+                cTag.getInt("Progress"), cTag.getInt("Goal"), cTag.getLong("Reward"), cTag.getLong("Deadline")
             ));
         }
         NbtCompound histTag = nbt.getCompound("History");
@@ -174,14 +193,17 @@ public class CyberwareStorage extends PersistentState {
             for (int i = 0; i < nbtList.size(); i++) list.add(nbtList.getString(i));
             state.bankHistory.put(UUID.fromString(key), list);
         }
+        NbtCompound smsTag = nbt.getCompound("Sms");
+        for (String key : smsTag.getKeys()) {
+            NbtList nbtList = smsTag.getList(key, 8);
+            List<String> list = new ArrayList<>();
+            for (int i = 0; i < nbtList.size(); i++) list.add(nbtList.getString(i));
+            state.smsMessages.put(UUID.fromString(key), list);
+        }
         return state;
     }
 
-    private static final Type<CyberwareStorage> TYPE = new Type<>(
-        CyberwareStorage::new,
-        CyberwareStorage::createFromNbt,
-        null
-    );
+    private static final Type<CyberwareStorage> TYPE = new Type<>(CyberwareStorage::new, CyberwareStorage::createFromNbt, null);
 
     public static CyberwareStorage get(MinecraftServer server) {
         return server.getWorld(World.OVERWORLD).getPersistentStateManager().getOrCreate(TYPE, "sandevistan_cyberware");
