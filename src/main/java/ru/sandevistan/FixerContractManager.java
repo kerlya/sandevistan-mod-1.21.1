@@ -58,6 +58,7 @@ public final class FixerContractManager {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             RipperdocManager.registerCommands(dispatcher);
             CyberCraftManager.registerCommands(dispatcher);
+            ClinicGenerator.registerCommands(dispatcher);
 
             dispatcher.register(CommandManager.literal("fixer")
                 .then(CommandManager.literal("call")
