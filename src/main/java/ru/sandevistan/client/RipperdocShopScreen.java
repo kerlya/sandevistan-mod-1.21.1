@@ -86,7 +86,7 @@ public class RipperdocShopScreen extends Screen {
     }
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        this.renderBackground(ctx, mouseX, mouseY, delta);
+        ctx.fill(0, 0, this.width, this.height, 0x88000000);
 
         int w = 248;
         int h = 212;
