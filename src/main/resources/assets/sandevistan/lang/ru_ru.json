@@ -161,6 +161,7 @@
   "shop.sandevistan.empty": "В этой категории пока нет имплантов",
   "shop.sandevistan.footer": "ВЫБЕРИТЕ ИМПЛАНТ",
   "msg.sandevistan.ripperdoc.spawned": "§b[РИПЕРДОК]: §aРипердок прибыл. Нажмите ПКМ по нему.",
+  "msg.sandevistan.clinic.spawned": "§b[КЛИНИКА]: §aПодпольная клиника рипердока построена рядом с вами.",
   "msg.sandevistan.ripperdoc.removed": "§b[РИПЕРДОК]: §eУдалено рипердоков: %s.",
   "msg.sandevistan.shop.bought": "§b[РИПЕРДОК]: §aПриобретено: §f%s §7(-€$%s)",
 
