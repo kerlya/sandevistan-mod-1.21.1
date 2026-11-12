@@ -1,4 +1,12 @@
 {
- "activate":{"sounds":[{"name":"sandevistan:activate","stream":false}]},
- "smasher_clash":{"sounds":[{"name":"sandevistan:smasher_clash","stream":false}]}
+  "activate": {
+    "sounds": [
+      "sandevistan:activate"
+    ]
+  },
+  "ringtone": {
+    "sounds": [
+      "sandevistan:ringtone"
+    ]
+  }
 }
