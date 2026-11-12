@@ -41,6 +41,11 @@ public final class SandevistanMod implements ModInitializer {
         new Item(new Item.Settings().maxCount(1))
     );
 
+    public static final Item KIROSHI_MK1 = Registry.register(
+        Registries.ITEM, Identifier.of("sandevistan", "kiroshi_mk1"),
+        new Item(new Item.Settings().maxCount(1))
+    );
+
     public static final ScreenHandlerType<CyberwareScreenHandler> CYBERWARE_HANDLER = Registry.register(
         Registries.SCREEN_HANDLER, Identifier.of("sandevistan", "cyberware"),
         new ScreenHandlerType<>(CyberwareScreenHandler::new, FeatureFlags.VANILLA_FEATURES)
@@ -55,7 +60,7 @@ public final class SandevistanMod implements ModInitializer {
     private static final Map<UUID, Integer> OVERUSE_COUNT = new HashMap<>();
     private static final Map<UUID, Long> LAST_USE_TIME = new HashMap<>();
     private static final Map<UUID, Long> PSYCHOSIS_END = new HashMap<>();
-    private static final Map<UUID, Boolean> LAST_SYNCED_STATE = new HashMap<>();
+    private static final Map<UUID, Integer> LAST_SYNCED_STATE = new HashMap<>();
 
     private static final long ACTIVE_TICKS = 160L;
     private static final long COOLDOWN_TICKS = 600L;
@@ -77,11 +82,14 @@ public final class SandevistanMod implements ModInitializer {
             ServerPlayerEntity p = handler.player;
             if (!p.getCommandTags().contains("sandevistan_starter_given")) {
                 p.getInventory().insertStack(new ItemStack(SANDEVISTAN));
+                p.getInventory().insertStack(new ItemStack(KIROSHI_MK1));
                 p.addCommandTag("sandevistan_starter_given");
             }
             boolean hasSandy = hasSandevistanEquipped(p);
-            LAST_SYNCED_STATE.put(p.getUuid(), hasSandy);
-            ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy));
+            boolean hasKiroshi = hasKiroshiEquipped(p);
+            int stateMask = (hasSandy ? 1 : 0) + (hasKiroshi ? 2 : 0);
+            LAST_SYNCED_STATE.put(p.getUuid(), stateMask);
+            ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi));
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ActivatePayload.ID,
@@ -103,6 +111,11 @@ public final class SandevistanMod implements ModInitializer {
     public static boolean hasSandevistanEquipped(ServerPlayerEntity p) {
         if (p.getServer() == null) return false;
         return CyberwareStorage.get(p.getServer()).getSlots(p.getUuid()).get(0).isOf(SANDEVISTAN);
+    }
+
+    public static boolean hasKiroshiEquipped(ServerPlayerEntity p) {
+        if (p.getServer() == null) return false;
+        return CyberwareStorage.get(p.getServer()).getSlots(p.getUuid()).get(1).isOf(KIROSHI_MK1);
     }
     private static void activate(ServerPlayerEntity p) {
         long now = p.getServerWorld().getTime();
@@ -154,12 +167,14 @@ public final class SandevistanMod implements ModInitializer {
             UUID id = p.getUuid();
             World w = p.getWorld();
 
-            // Синхронизация слота импланта и выдача бонуса брони (5.0 как у кольчуги)
             boolean hasSandy = hasSandevistanEquipped(p);
-            if (LAST_SYNCED_STATE.get(id) == null || LAST_SYNCED_STATE.get(id) != hasSandy) {
-                LAST_SYNCED_STATE.put(id, hasSandy);
-                ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy));
+            boolean hasKiroshi = hasKiroshiEquipped(p);
+            int stateMask = (hasSandy ? 1 : 0) + (hasKiroshi ? 2 : 0);
+            if (LAST_SYNCED_STATE.get(id) == null || LAST_SYNCED_STATE.get(id) != stateMask) {
+                LAST_SYNCED_STATE.put(id, stateMask);
+                ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi));
             }
+
             EntityAttributeInstance armorAttr = p.getAttributeInstance(EntityAttributes.GENERIC_ARMOR);
             if (armorAttr != null) {
                 boolean hasMod = armorAttr.hasModifier(ARMOR_MOD_ID);
@@ -170,7 +185,6 @@ public final class SandevistanMod implements ModInitializer {
                 }
             }
 
-            // Киберпсихоз
             long psychosisEnd = PSYCHOSIS_END.getOrDefault(id, 0L);
             if (psychosisEnd > now) {
                 if (now % 40 == 0) {
@@ -198,7 +212,6 @@ public final class SandevistanMod implements ModInitializer {
                 PSYCHOSIS_END.remove(id);
             }
 
-            // Активный Сандевистан
             long end = ACTIVE.getOrDefault(id, 0L);
             if (end <= now) { ACTIVE.remove(id); continue; }
 
