@@ -10,12 +10,14 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.s2c.play.StopSoundS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +35,10 @@ public final class FixerContractManager {
 
     private static long nextRandomSpamDelayMs() {
         return 600_000L + RNG.nextInt(1_200_001);
+    }
+
+    private static void stopRingtone(ServerPlayerEntity p) {
+        p.networkHandler.sendPacket(new StopSoundS2CPacket(Identifier.of("sandevistan", "ringtone"), SoundCategory.MASTER));
     }
 
     private static final String[] FIRST_NAMES = {
@@ -126,6 +132,7 @@ public final class FixerContractManager {
             PendingCall call = PENDING_CALLS.get(id);
             if (call != null && now > call.expireAtMs()) {
                 PENDING_CALLS.remove(id);
+                stopRingtone(p);
                 NEXT_CALL_TIME.put(id, now + nextRandomCallDelayMs());
                 syncPlayer(p);
             }
@@ -216,6 +223,7 @@ public final class FixerContractManager {
         if (action == 1) {
             PendingCall call = PENDING_CALLS.remove(id);
             if (call != null) {
+                stopRingtone(p);
                 long deadline = call.durationMs() > 0L ? System.currentTimeMillis() + call.durationMs() : 0L;
                 storage.setContract(id, new CyberwareStorage.ActiveContract(
                     call.fixerName(), call.kind(), call.targetType(), 0, call.goal(), call.reward(), deadline
@@ -225,6 +233,7 @@ public final class FixerContractManager {
             }
         } else if (action == 2) {
             if (PENDING_CALLS.remove(id) != null) {
+                stopRingtone(p);
                 NEXT_CALL_TIME.put(id, System.currentTimeMillis() + nextRandomCallDelayMs());
                 p.playSoundToPlayer(SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundCategory.MASTER, 0.8f, 0.7f);
                 syncPlayer(p);
