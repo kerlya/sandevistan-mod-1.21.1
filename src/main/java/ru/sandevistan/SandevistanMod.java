@@ -5,8 +5,11 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -51,6 +54,12 @@ public final class SandevistanMod implements ModInitializer {
         Registries.SCREEN_HANDLER, Identifier.of("sandevistan", "cyberware"),
         new ScreenHandlerType<>(CyberwareScreenHandler::new, FeatureFlags.VANILLA_FEATURES)
     );
+    public static final EntityType<RipperdocEntity> RIPPERDOC_ENTITY = Registry.register(
+        Registries.ENTITY_TYPE, Identifier.of("sandevistan", "ripperdoc"),
+        EntityType.Builder.create(RipperdocEntity::new, SpawnGroup.CREATURE)
+            .dimensions(0.6f, 1.8f)
+            .build()
+    );
 
     private static final Identifier ARMOR_MOD_ID = Identifier.of("sandevistan", "cyberware_armor");
     private static final Identifier ARMS_ARMOR_MOD_ID = Identifier.of("sandevistan", "metal_arms_armor");
@@ -60,6 +69,8 @@ public final class SandevistanMod implements ModInitializer {
 
     private static final SoundEvent ACTIVATE = sound("activate");
     public static final SoundEvent RINGTONE = sound("ringtone");
+    public static final SoundEvent RIPPERDOC_AMBIENT = sound("ripperdoc_ambient");
+    public static final SoundEvent RIPPERDOC_INTERACT = sound("ripperdoc_interact");
 
     private static final Map<UUID, Long> ACTIVE = new HashMap<>();
     private static final Map<UUID, Long> COOLDOWN = new HashMap<>();
@@ -80,6 +91,8 @@ public final class SandevistanMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        FabricDefaultAttributeRegistry.register(RIPPERDOC_ENTITY, RipperdocEntity.createRipperdocAttributes());
+
         PayloadTypeRegistry.playC2S().register(ActivatePayload.ID, ActivatePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenCyberwarePayload.ID, OpenCyberwarePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(PhoneActionPayload.ID, PhoneActionPayload.CODEC);
