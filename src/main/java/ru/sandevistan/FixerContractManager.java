@@ -41,17 +41,7 @@ public final class FixerContractManager {
         p.networkHandler.sendPacket(new StopSoundS2CPacket(Identifier.of("sandevistan", "ringtone"), SoundCategory.MASTER));
     }
 
-    private static final String[] FIRST_NAMES = {
-        "Райан", "Декс", "Виктор", "Кай", "Нова", "Рейвен", "Аксель", "Сора", "Данте", "Рокси", "Вега", "Кира"
-    };
-    private static final String[] NICKNAMES = {
-        "«Бритва»", "«Неон»", "«Хром»", "«Призрак»", "«Брокер»", "«Вольт»", "«Тень»", "«Глитч»", "«Скат»", "«Вектор»"
-    };
-    private static final String[] LAST_NAMES = {
-        "Сильверхенд", "Вэнс", "Кросс", "Рен", "Моралес", "Блэк", "Стил", "Кейн", "Мерсер", "Фокс"
-    };
-
-    private record PendingCall(String fixerName, String kind, String targetType, int goal, long reward, long durationMs, long expireAtMs) {}
+    private record PendingCall(String fixerCode, String kind, String targetType, int goal, long reward, long durationMs, long expireAtMs) {}
 
     private static final Map<UUID, PendingCall> PENDING_CALLS = new HashMap<>();
     private static final Map<UUID, Long> NEXT_CALL_TIME = new HashMap<>();
@@ -142,7 +132,7 @@ public final class FixerContractManager {
                 storage.setContract(id, null);
                 NEXT_CALL_TIME.put(id, now + nextRandomCallDelayMs());
                 p.playSoundToPlayer(SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundCategory.MASTER, 0.9f, 0.6f);
-                p.sendMessage(Text.translatable("msg.sandevistan.contract.failed", active.fixerName()), false);
+                p.sendMessage(Text.translatable("msg.sandevistan.contract.failed"), false);
                 syncPlayer(p);
             }
 
@@ -175,9 +165,7 @@ public final class FixerContractManager {
         CyberwareStorage storage = CyberwareStorage.get(p.getServer());
         if (!force && (PENDING_CALLS.containsKey(id) || storage.getContract(id) != null)) return;
 
-        String fixer = FIRST_NAMES[RNG.nextInt(FIRST_NAMES.length)] + " "
-            + NICKNAMES[RNG.nextInt(NICKNAMES.length)] + " "
-            + LAST_NAMES[RNG.nextInt(LAST_NAMES.length)];
+        String fixerCode = RNG.nextInt(12) + ":" + RNG.nextInt(10) + ":" + RNG.nextInt(10);
 
         boolean isItemOrder = RNG.nextInt(100) < 40;
         String kind;
@@ -208,7 +196,7 @@ public final class FixerContractManager {
             }
         }
 
-        PENDING_CALLS.put(id, new PendingCall(fixer, kind, target, goal, reward, durationMs, System.currentTimeMillis() + 25_000L));
+        PENDING_CALLS.put(id, new PendingCall(fixerCode, kind, target, goal, reward, durationMs, System.currentTimeMillis() + 25_000L));
         NEXT_CALL_TIME.put(id, System.currentTimeMillis() + nextRandomCallDelayMs());
 
         p.playSoundToPlayer(SandevistanMod.RINGTONE, SoundCategory.MASTER, 1.0f, 1.0f);
@@ -226,7 +214,7 @@ public final class FixerContractManager {
                 stopRingtone(p);
                 long deadline = call.durationMs() > 0L ? System.currentTimeMillis() + call.durationMs() : 0L;
                 storage.setContract(id, new CyberwareStorage.ActiveContract(
-                    call.fixerName(), call.kind(), call.targetType(), 0, call.goal(), call.reward(), deadline
+                    call.fixerCode(), call.kind(), call.targetType(), 0, call.goal(), call.reward(), deadline
                 ));
                 p.playSoundToPlayer(SoundEvents.UI_BUTTON_CLICK.value(), SoundCategory.MASTER, 1.0f, 1.2f);
                 syncPlayer(p);
@@ -246,7 +234,7 @@ public final class FixerContractManager {
                 storage.setContract(id, null);
                 NEXT_CALL_TIME.put(id, System.currentTimeMillis() + nextRandomCallDelayMs());
                 p.playSoundToPlayer(SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundCategory.MASTER, 0.8f, 0.7f);
-                p.sendMessage(Text.translatable("msg.sandevistan.contract.canceled", c.fixerName()), false);
+                p.sendMessage(Text.translatable("msg.sandevistan.contract.canceled"), false);
                 syncPlayer(p);
             }
         } else if (action == 5) {
@@ -319,10 +307,10 @@ public final class FixerContractManager {
         }
 
         storage.setContract(id, null);
-        storage.addEddies(id, c.reward(), c.fixerName());
+        storage.addEddies(id, c.reward(), "FIXER");
         NEXT_CALL_TIME.put(id, System.currentTimeMillis() + nextRandomCallDelayMs());
         p.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.3f);
-        p.sendMessage(Text.translatable("msg.sandevistan.contract.done", c.fixerName(), c.reward()), false);
+        p.sendMessage(Text.translatable("msg.sandevistan.contract.done", c.reward()), false);
         syncPlayer(p);
     }
 
@@ -368,10 +356,10 @@ public final class FixerContractManager {
         int nextProgress = c.progress() + 1;
         if (nextProgress >= c.goal()) {
             storage.setContract(id, null);
-            storage.addEddies(id, c.reward(), c.fixerName());
+            storage.addEddies(id, c.reward(), "FIXER");
             NEXT_CALL_TIME.put(id, System.currentTimeMillis() + nextRandomCallDelayMs());
             player.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1.0f, 1.3f);
-            player.sendMessage(Text.translatable("msg.sandevistan.contract.done", c.fixerName(), c.reward()), false);
+            player.sendMessage(Text.translatable("msg.sandevistan.contract.done", c.reward()), false);
         } else {
             storage.setContract(id, new CyberwareStorage.ActiveContract(
                 c.fixerName(), c.kind(), c.targetType(), nextProgress, c.goal(), c.reward(), c.deadlineMs()
@@ -392,7 +380,7 @@ public final class FixerContractManager {
         PendingCall call = PENDING_CALLS.get(id);
         if (call != null) {
             ServerPlayNetworking.send(p, new SyncPhonePayload(
-                eddies, historyJoined, smsJoined, unread, 1, call.fixerName(), call.kind(), call.targetType(), 0, call.goal(), call.reward(), call.durationMs()
+                eddies, historyJoined, smsJoined, unread, 1, call.fixerCode(), call.kind(), call.targetType(), 0, call.goal(), call.reward(), call.durationMs()
             ));
             return;
         }
