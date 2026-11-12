@@ -33,6 +33,7 @@
   "threat.sandevistan.neutral": "§e§lНЕЙТРАЛЕН (ПРОВОЦИРУЕМЫЙ)",
   "threat.sandevistan.peaceful": "§a§lМИРНЫЙ (БЕЗОПАСЕН)",
 
+  "faction.sandevistan.ripperdocs": "РИПЕРДОКИ / МЕДТЕХ",
   "faction.sandevistan.players": "НАЕМНИКИ / ИГРОКИ",
   "faction.sandevistan.civilians": "ГРАЖДАНСКИЕ / ПОСЕЛЕНИЕ",
   "faction.sandevistan.illagers": "СИНДИКАТ ИЛЛИДЖЕРОВ",
@@ -41,6 +42,17 @@
   "faction.sandevistan.nether": "ЛЕГИОН НЕЗЕРА",
   "faction.sandevistan.end": "СУЩНОСТИ КРАЯ",
   "faction.sandevistan.fauna": "БИОТЕХНИКА / ФАУНА",
+
+  "entity.sandevistan.ripperdoc": "Рипердок",
+  "entity.sandevistan.ripperdoc.tag": "РИПЕРДОК",
+  "entity.sandevistan.ripperdoc.name.0": "Виктор Вектор",
+  "entity.sandevistan.ripperdoc.name.1": "Кассиус Райдер",
+  "entity.sandevistan.ripperdoc.name.2": "Док Кейн",
+  "entity.sandevistan.ripperdoc.name.3": "Нина Кравиц",
+  "entity.sandevistan.ripperdoc.name.4": "Чарльз Бакс",
+  "entity.sandevistan.ripperdoc.name.5": "Октавио Сильва",
+  "entity.sandevistan.ripperdoc.name.6": "Фингерс",
+  "entity.sandevistan.ripperdoc.name.7": "Роберт Уилсон",
 
   "msg.sandevistan.overload": "§c[СБОЙ СИСТЕМЫ]: §eПерегрузка нервной системы! Сделайте перерыв.",
   "msg.sandevistan.psychosis": "§4§l[КРИТИЧЕСКИЙ СБОЙ]: ОБНАРУЖЕН КИБЕРПСИХОЗ!",
@@ -148,7 +160,7 @@
   "shop.sandevistan.buy": "КУПИТЬ",
   "shop.sandevistan.empty": "В этой категории пока нет имплантов",
   "shop.sandevistan.footer": "ВЫБЕРИТЕ ИМПЛАНТ",
-  "msg.sandevistan.ripperdoc.spawned": "§b[РИПЕРДОК]: §aВиктор Вектор прибыл. Нажмите ПКМ по нему.",
+  "msg.sandevistan.ripperdoc.spawned": "§b[РИПЕРДОК]: §aРипердок прибыл. Нажмите ПКМ по нему.",
   "msg.sandevistan.ripperdoc.removed": "§b[РИПЕРДОК]: §eУдалено рипердоков: %s.",
   "msg.sandevistan.shop.bought": "§b[РИПЕРДОК]: §aПриобретено: §f%s §7(-€$%s)",
 
