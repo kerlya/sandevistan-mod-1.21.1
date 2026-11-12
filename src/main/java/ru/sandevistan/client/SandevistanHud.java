@@ -153,7 +153,7 @@ public final class SandevistanHud {
         if (entity instanceof VillagerEntity || entity instanceof GolemEntity) return "ГРАЖДАНСКИЕ / ПОСЕЛЕНИЕ";
         if (entity instanceof IllagerEntity) return "СИНДИКАТ ИЛЛИДЖЕРОВ";
         if (entity.getType().isIn(EntityTypeTags.UNDEAD)) return "НЕЖИТЬ";
-        if (entity.getType().isIn(EntityTypeTags.ARTHROPODS)) return "ЧЛЕНИСТОНОГИЕ";
+        if (entity.getType().isIn(EntityTypeTags.ARTHROPOD)) return "ЧЛЕНИСТОНОГИЕ";
         if (entity.getWorld().getRegistryKey().getValue().getPath().contains("nether")) return "ЛЕГИОН НЕЗЕРА";
         if (entity.getWorld().getRegistryKey().getValue().getPath().contains("end")) return "СУЩНОСТИ КРАЯ";
         return "БИОТЕХНИКА / ФАУНА";
