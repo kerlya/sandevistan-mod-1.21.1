@@ -18,5 +18,15 @@
     "sounds": [
       "sandevistan:ripperdoc_interact"
     ]
+  },
+  "saratoga_shot": {
+    "sounds": [
+      "sandevistan:saratoga_shot"
+    ]
+  },
+  "saratoga_reload": {
+    "sounds": [
+      "sandevistan:saratoga_reload"
+    ]
   }
 }
