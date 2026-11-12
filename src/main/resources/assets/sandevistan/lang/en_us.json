@@ -4,6 +4,9 @@
   "key.sandevistan.activate": "Activate Sandevistan",
   "key.sandevistan.menu": "Cyberware Menu",
   "key.sandevistan.scan": "Kiroshi Scanner (Zoom)",
+  "key.sandevistan.phone": "Open Phone",
+  "key.sandevistan.accept": "Answer Call",
+  "key.sandevistan.reject": "Reject Call",
   "category.sandevistan": "Sandevistan Mod",
 
   "gui.sandevistan.title": "CYBERWARE",
@@ -42,5 +45,36 @@
   "msg.sandevistan.psychosis": "§4§l[CRITICAL FAILURE]: CYBERPSYCHOSIS DETECTED!",
   "msg.sandevistan.glitch.0": "§4[ERROR]: §cLoss of motor control...",
   "msg.sandevistan.glitch.1": "§4[FAULT]: §cThey are everywhere... I need to run...",
-  "msg.sandevistan.glitch.2": "§4[WARNING]: §cNeural link collapsing!"
+  "msg.sandevistan.glitch.2": "§4[WARNING]: §cNeural link collapsing!",
+
+  "call.sandevistan.incoming": "§c§lINCOMING CALL",
+  "call.sandevistan.desc": "Contract: %s x%s (§a+€$%s§e)",
+  "call.sandevistan.answer": "ANSWER",
+  "call.sandevistan.reject": "REJECT",
+  "call.sandevistan.progress": "Target: %s [%s/%s] (+€$%s)",
+
+  "mob.sandevistan.zombie": "Zombies",
+  "mob.sandevistan.skeleton": "Skeletons",
+  "mob.sandevistan.creeper": "Creepers",
+  "mob.sandevistan.spider": "Spiders",
+  "mob.sandevistan.enderman": "Endermen",
+
+  "phone.sandevistan.title": "Holophone",
+  "phone.sandevistan.tab.bank": "BANK",
+  "phone.sandevistan.tab.jobs": "JOBS",
+  "phone.sandevistan.bank.header": "NIGHT CITY BANK",
+  "phone.sandevistan.bank.transfer": "TRANSFER TO PLAYER:",
+  "phone.sandevistan.bank.nick": "Player name",
+  "phone.sandevistan.bank.sum": "Amount",
+  "phone.sandevistan.bank.send": "SEND",
+  "phone.sandevistan.bank.history": "RECENT TRANSACTIONS:",
+  "phone.sandevistan.jobs.header": "ACTIVE CONTRACT",
+  "phone.sandevistan.jobs.target": "Target: §e%s",
+  "phone.sandevistan.jobs.empty": "No active contracts",
+
+  "msg.sandevistan.contract.done": "§b[%s]: §aContract complete! €$%s wired to your account.",
+  "msg.sandevistan.bank.not_found": "§c[BANK]: Player not found online.",
+  "msg.sandevistan.bank.no_funds": "§c[BANK]: Insufficient Eddies.",
+  "msg.sandevistan.bank.sent": "§b[BANK]: §eSent §a€$%s §eto §f%s.",
+  "msg.sandevistan.bank.received": "§b[BANK]: §aReceived €$%s from %s."
 }
