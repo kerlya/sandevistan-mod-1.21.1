@@ -31,12 +31,16 @@ public final class SandevistanClient implements ClientModInitializer {
 
     public static long clientEddies = 250L;
     public static String clientBankHistory = "";
+    public static String clientSmsHistory = "";
+    public static boolean clientHasUnreadSms = false;
     public static int clientCallState = 0;
     public static String clientFixerName = "";
+    public static String clientContractKind = "kill";
     public static String clientTargetType = "";
     public static int clientProgress = 0;
     public static int clientGoal = 0;
     public static long clientReward = 0L;
+    public static long clientDeadlineMs = 0L;
 
     public static String getKeyLabel(KeyBinding key, String fallback) {
         if (key == null) return fallback;
@@ -72,6 +76,7 @@ public final class SandevistanClient implements ClientModInitializer {
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             PLAYERS_WITH_SANDEVISTAN.clear();
             clientCallState = 0;
+            clientHasUnreadSms = false;
         });
 
         ClientPlayNetworking.registerGlobalReceiver(SyncCyberwarePayload.ID,
@@ -90,12 +95,16 @@ public final class SandevistanClient implements ClientModInitializer {
             (payload, context) -> context.client().execute(() -> {
                 clientEddies = payload.eddies();
                 clientBankHistory = payload.historyJoined();
+                clientSmsHistory = payload.smsJoined();
+                clientHasUnreadSms = payload.hasUnreadSms();
                 clientCallState = payload.callState();
                 clientFixerName = payload.fixerName();
+                clientContractKind = payload.kind();
                 clientTargetType = payload.targetType();
                 clientProgress = payload.progress();
                 clientGoal = payload.goal();
                 clientReward = payload.reward();
+                clientDeadlineMs = payload.deadlineMs();
             }));
 
         ClientPlayNetworking.registerGlobalReceiver(OpenShopPayload.ID,
@@ -117,10 +126,10 @@ public final class SandevistanClient implements ClientModInitializer {
                 if (client.player != null && client.currentScreen == null) client.setScreen(new PhoneScreen());
             }
             while (acceptCallKey.wasPressed()) {
-                if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(1, "", 0L));
+                if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(1, "", "", 0L));
             }
             while (rejectCallKey.wasPressed()) {
-                if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(2, "", 0L));
+                if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(2, "", "", 0L));
             }
             while (activateKey.wasPressed()) {
                 if (client.player != null && client.getNetworkHandler() != null && isEquipped(client)) {
