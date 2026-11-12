@@ -22,6 +22,8 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import ru.sandevistan.RipperdocEntity;
+import ru.sandevistan.SandevistanMod;
+import ru.sandevistan.SaratogaItem;
 import java.util.List;
 import java.util.Locale;
 
@@ -77,6 +79,7 @@ public final class SandevistanHud {
         }
 
         renderPhoneWidget(ctx, client);
+        renderWeaponHud(ctx, client);
 
         if (SandevistanClient.clientCallState == 1) {
             renderIncomingCall(ctx, client);
@@ -136,6 +139,44 @@ public final class SandevistanHud {
         ctx.fill(barX, barY, barX + barMaxW, barY + 6, 0xFF263238);
         if (filledW > 0) {
             ctx.fill(barX, barY, barX + filledW, barY + 6, barColor);
+        }
+    }
+
+    private static void renderWeaponHud(DrawContext ctx, MinecraftClient client) {
+        if (client.player == null) return;
+        ItemStack main = client.player.getMainHandStack();
+        if (!main.isOf(SandevistanMod.SARATOGA_M221)) return;
+
+        int sw = client.getWindow().getScaledWidth();
+        int sh = client.getWindow().getScaledHeight();
+
+        int inMag = SaratogaItem.getAmmo(main);
+        int reserve = 0;
+        for (int i = 0; i < client.player.getInventory().size(); i++) {
+            ItemStack st = client.player.getInventory().getStack(i);
+            if (st.isOf(SandevistanMod.SMG_AMMO)) reserve += st.getCount();
+        }
+
+        boolean reloading = client.player.getItemCooldownManager().isCoolingDown(SandevistanMod.SARATOGA_M221);
+        String reloadKeyLabel = SandevistanClient.getKeyLabel(SandevistanClient.reloadKey, "X");
+
+        int boxW = 114;
+        int boxH = 26;
+        int bx = sw - boxW - 10;
+        int by = sh - 66;
+
+        ctx.fill(bx, by, bx + boxW, by + boxH, 0xCC14080C);
+        ctx.fill(bx, by, bx + boxW, by + 1, 0xFFFF2A55);
+        ctx.fill(bx, by + boxH - 1, bx + boxW, by + boxH, 0xFFFF2A55);
+        ctx.fill(bx, by, bx + 2, by + boxH, 0xFF00F0FF);
+
+        ctx.drawText(client.textRenderer, Text.literal("§bM221 SARATOGA"), bx + 6, by + 4, 0x00F0FF, false);
+        if (reloading) {
+            ctx.drawText(client.textRenderer, Text.translatable("hud.sandevistan.reloading"), bx + 6, by + 14, 0xFCEE09, false);
+        } else {
+            String ammoColor = inMag == 0 ? "§c" : (inMag <= 8 ? "§e" : "§a");
+            String ammoLine = ammoColor + inMag + "§7/" + SaratogaItem.MAX_AMMO + " §8[" + reserve + "] §b[" + reloadKeyLabel + "]";
+            ctx.drawText(client.textRenderer, Text.literal(ammoLine), bx + 6, by + 14, 0xFFFFFF, false);
         }
     }
 
