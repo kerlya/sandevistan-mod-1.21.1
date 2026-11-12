@@ -1,6 +1,9 @@
 {
- "item.sandevistan.sandevistan":"Сандевистан",
- "key.sandevistan.activate":"Активировать Сандевистан",
- "category.sandevistan":"Сандевистан",
- "hud.sandevistan.title":"САНДЕВИСТАН"
+  "item.sandevistan.sandevistan": "Сандевистан",
+  "item.sandevistan.kiroshi_mk1": "Оптика Кироши Mk.1",
+  "key.sandevistan.activate": "Активировать Сандевистан",
+  "key.sandevistan.menu": "Меню киберимплантов",
+  "key.sandevistan.scan": "Сканер Кироши (Зум)",
+  "category.sandevistan": "Сандевистан",
+  "hud.sandevistan.title": "САНДЕВИСТАН"
 }
