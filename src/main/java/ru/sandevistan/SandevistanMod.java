@@ -62,10 +62,10 @@ public final class SandevistanMod implements ModInitializer {
     private static final Map<UUID, Long> PSYCHOSIS_END = new HashMap<>();
     private static final Map<UUID, Integer> LAST_SYNCED_STATE = new HashMap<>();
 
-    private static final long ACTIVE_TICKS = 160L;
-    private static final long COOLDOWN_TICKS = 600L;
-    private static final long SAFE_INTERVAL = 2400L;
-    private static final long PSYCHOSIS_TICKS = 300L;
+    private static final long ACTIVE_MS = 8000L;
+    private static final long COOLDOWN_MS = 30000L;
+    private static final long SAFE_INTERVAL_MS = 120000L;
+    private static final long PSYCHOSIS_MS = 15000L;
 
     private static SoundEvent sound(String name) {
         Identifier id = Identifier.of("sandevistan", name);
@@ -80,6 +80,13 @@ public final class SandevistanMod implements ModInitializer {
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.player;
+            UUID id = p.getUuid();
+            ACTIVE.remove(id);
+            COOLDOWN.remove(id);
+            OVERUSE_COUNT.remove(id);
+            LAST_USE_TIME.remove(id);
+            PSYCHOSIS_END.remove(id);
+
             if (!p.getCommandTags().contains("sandevistan_starter_given")) {
                 p.getInventory().insertStack(new ItemStack(SANDEVISTAN));
                 p.getInventory().insertStack(new ItemStack(KIROSHI_MK1));
@@ -88,7 +95,7 @@ public final class SandevistanMod implements ModInitializer {
             boolean hasSandy = hasSandevistanEquipped(p);
             boolean hasKiroshi = hasKiroshiEquipped(p);
             int stateMask = (hasSandy ? 1 : 0) + (hasKiroshi ? 2 : 0);
-            LAST_SYNCED_STATE.put(p.getUuid(), stateMask);
+            LAST_SYNCED_STATE.put(id, stateMask);
             ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi));
         });
 
@@ -118,12 +125,12 @@ public final class SandevistanMod implements ModInitializer {
         return CyberwareStorage.get(p.getServer()).getSlots(p.getUuid()).get(1).isOf(KIROSHI_MK1);
     }
     private static void activate(ServerPlayerEntity p) {
-        long now = p.getServerWorld().getTime();
+        long now = System.currentTimeMillis();
         UUID id = p.getUuid();
         if (!hasSandevistanEquipped(p) || ACTIVE.getOrDefault(id, 0L) > now || COOLDOWN.getOrDefault(id, 0L) > now) return;
 
         long lastUse = LAST_USE_TIME.getOrDefault(id, 0L);
-        int count = (now - lastUse > SAFE_INTERVAL) ? 1 : OVERUSE_COUNT.getOrDefault(id, 0) + 1;
+        int count = (now - lastUse > SAFE_INTERVAL_MS) ? 1 : OVERUSE_COUNT.getOrDefault(id, 0) + 1;
         OVERUSE_COUNT.put(id, count);
         LAST_USE_TIME.put(id, now);
 
@@ -131,8 +138,8 @@ public final class SandevistanMod implements ModInitializer {
             .filter(q -> q != p && ACTIVE.getOrDefault(q.getUuid(), 0L) > now)
             .filter(q -> q.squaredDistanceTo(p) <= 625.0).findFirst().orElse(null);
 
-        ACTIVE.put(id, now + ACTIVE_TICKS);
-        COOLDOWN.put(id, now + COOLDOWN_TICKS);
+        ACTIVE.put(id, now + ACTIVE_MS);
+        COOLDOWN.put(id, now + COOLDOWN_MS);
         p.getServerWorld().playSound(null, p.getBlockPos(), ACTIVATE, SoundCategory.PLAYERS, 1f, 1f);
 
         if (count == 3) {
@@ -140,7 +147,7 @@ public final class SandevistanMod implements ModInitializer {
             p.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 100, 0, true, false, true));
             p.damage(p.getDamageSources().magic(), 2.0f);
         } else if (count >= 4) {
-            PSYCHOSIS_END.put(id, now + PSYCHOSIS_TICKS);
+            PSYCHOSIS_END.put(id, now + PSYCHOSIS_MS);
             OVERUSE_COUNT.put(id, 0);
             p.sendMessage(Text.literal("§4§l[КРИТИЧЕСКИЙ СБОЙ]: ОБНАРУЖЕН КИБЕРПСИХОЗ!"), false);
             p.damage(p.getDamageSources().magic(), 4.0f);
@@ -162,8 +169,9 @@ public final class SandevistanMod implements ModInitializer {
     }
 
     private static void tick(MinecraftServer server) {
+        long now = System.currentTimeMillis();
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-            long now = p.getWorld().getTime();
+            long worldTicks = p.getWorld().getTime();
             UUID id = p.getUuid();
             World w = p.getWorld();
 
@@ -187,7 +195,7 @@ public final class SandevistanMod implements ModInitializer {
 
             long psychosisEnd = PSYCHOSIS_END.getOrDefault(id, 0L);
             if (psychosisEnd > now) {
-                if (now % 40 == 0) {
+                if (worldTicks % 40 == 0) {
                     SoundEvent hallucination = switch (w.random.nextInt(4)) {
                         case 0 -> SoundEvents.ENTITY_ENDERMAN_STARE;
                         case 1 -> SoundEvents.ENTITY_GHAST_SCREAM;
@@ -196,7 +204,7 @@ public final class SandevistanMod implements ModInitializer {
                     };
                     p.playSoundToPlayer(hallucination, SoundCategory.HOSTILE, 0.8f, 0.6f + w.random.nextFloat() * 0.5f);
                 }
-                if (now % 60 == 0) {
+                if (worldTicks % 60 == 0) {
                     String glitchText = switch (w.random.nextInt(3)) {
                         case 0 -> "§4[ОШИБКА]: §cПотеря контроля над моторикой...";
                         case 1 -> "§4[СБОЙ]: §cОни повсюду... Я должен бежать...";
