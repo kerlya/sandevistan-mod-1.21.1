@@ -12,11 +12,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
-import ru.sandevistan.ActivatePayload;
-import ru.sandevistan.OpenCyberwarePayload;
-import ru.sandevistan.SandevistanMod;
-import ru.sandevistan.SyncBackVisualPayload;
-import ru.sandevistan.SyncCyberwarePayload;
+import ru.sandevistan.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,10 +20,24 @@ public final class SandevistanClient implements ClientModInitializer {
     private KeyBinding activateKey;
     private KeyBinding menuKey;
     private static KeyBinding scanKey;
+    private KeyBinding phoneKey;
+    private KeyBinding acceptCallKey;
+    private KeyBinding rejectCallKey;
+
     public static long lastActivateMs = 0L;
     public static boolean clientHasSandevistan = false;
     public static boolean clientHasKiroshi = false;
     private static final Set<Integer> PLAYERS_WITH_SANDEVISTAN = new HashSet<>();
+
+    // Данные телефона и звонков
+    public static long clientEddies = 250L;
+    public static String clientBankHistory = "";
+    public static int clientCallState = 0; // 0 = тишина, 1 = звонок, 2 = контракт принят
+    public static String clientFixerName = "";
+    public static String clientTargetType = "";
+    public static int clientProgress = 0;
+    public static int clientGoal = 0;
+    public static long clientReward = 0L;
 
     public static boolean isEquipped(MinecraftClient client) {
         return client.player != null && clientHasSandevistan;
@@ -35,9 +45,7 @@ public final class SandevistanClient implements ClientModInitializer {
 
     public static boolean hasBackImplant(int entityId) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null && client.player.getId() == entityId) {
-            return clientHasSandevistan;
-        }
+        if (client.player != null && client.player.getId() == entityId) return clientHasSandevistan;
         return PLAYERS_WITH_SANDEVISTAN.contains(entityId);
     }
 
@@ -51,14 +59,16 @@ public final class SandevistanClient implements ClientModInitializer {
         HandledScreens.register(SandevistanMod.CYBERWARE_HANDLER, CyberwareScreen::new);
         SandevistanHud.register();
 
-        // Регистрация 3D-рендера Сандевистана на спине игрока
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
             if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
                 registrationHelper.register(new SandevistanBackFeatureRenderer(playerRenderer));
             }
         });
 
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> PLAYERS_WITH_SANDEVISTAN.clear());
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            PLAYERS_WITH_SANDEVISTAN.clear();
+            clientCallState = 0;
+        });
 
         ClientPlayNetworking.registerGlobalReceiver(SyncCyberwarePayload.ID,
             (payload, context) -> context.client().execute(() -> {
@@ -72,18 +82,37 @@ public final class SandevistanClient implements ClientModInitializer {
                 else PLAYERS_WITH_SANDEVISTAN.remove(payload.entityId());
             }));
 
-        activateKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.sandevistan.activate", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.sandevistan"));
-        menuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.sandevistan.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_K, "category.sandevistan"));
-        scanKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-            "key.sandevistan.scan", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, "category.sandevistan"));
+        ClientPlayNetworking.registerGlobalReceiver(SyncPhonePayload.ID,
+            (payload, context) -> context.client().execute(() -> {
+                clientEddies = payload.eddies();
+                clientBankHistory = payload.historyJoined();
+                clientCallState = payload.callState();
+                clientFixerName = payload.fixerName();
+                clientTargetType = payload.targetType();
+                clientProgress = payload.progress();
+                clientGoal = payload.goal();
+                clientReward = payload.reward();
+            }));
+
+        activateKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.activate", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.sandevistan"));
+        menuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_K, "category.sandevistan"));
+        scanKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.scan", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, "category.sandevistan"));
+        phoneKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.phone", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_P, "category.sandevistan"));
+        acceptCallKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.accept", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Y, "category.sandevistan"));
+        rejectCallKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.reject", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.sandevistan"));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (menuKey.wasPressed()) {
-                if (client.player != null && client.getNetworkHandler() != null) {
-                    ClientPlayNetworking.send(new OpenCyberwarePayload());
-                }
+                if (client.player != null && client.getNetworkHandler() != null) ClientPlayNetworking.send(new OpenCyberwarePayload());
+            }
+            while (phoneKey.wasPressed()) {
+                if (client.player != null && client.currentScreen == null) client.setScreen(new PhoneScreen());
+            }
+            while (acceptCallKey.wasPressed()) {
+                if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(1, "", 0L));
+            }
+            while (rejectCallKey.wasPressed()) {
+                if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(2, "", 0L));
             }
             while (activateKey.wasPressed()) {
                 if (client.player != null && client.getNetworkHandler() != null && isEquipped(client)) {
