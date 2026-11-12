@@ -105,6 +105,7 @@ public final class SandevistanMod implements ModInitializer {
 
         FixerContractManager.register();
         RipperdocManager.register();
+        ClinicGenerator.register();
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.player;
