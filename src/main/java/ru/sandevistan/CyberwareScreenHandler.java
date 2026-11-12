@@ -20,43 +20,43 @@ public class CyberwareScreenHandler extends ScreenHandler {
         this.cyberwareInv = cyberwareInv;
         cyberwareInv.onOpen(playerInv.player);
 
-        // 0: ОС (Сандевистан)
-        this.addSlot(new Slot(cyberwareInv, 0, 22, 34) {
+        // 0: ОС (Сандевистан) — справа сверху
+        this.addSlot(new Slot(cyberwareInv, 0, 134, 34) {
             @Override public boolean canInsert(ItemStack stack) { return stack.isOf(SandevistanMod.SANDEVISTAN); }
             @Override public int getMaxItemCount() { return 1; }
         });
 
-        // 1: ГЛАЗА (Оптика Кироши)
-        this.addSlot(new Slot(cyberwareInv, 1, 22, 62) {
+        // 1: ГЛАЗА (Оптика Кироши) — справа по центру
+        this.addSlot(new Slot(cyberwareInv, 1, 134, 62) {
             @Override public boolean canInsert(ItemStack stack) { return stack.isOf(SandevistanMod.KIROSHI_MK1); }
             @Override public int getMaxItemCount() { return 1; }
         });
 
-        // 2: РУКИ (Металлические руки)
-        this.addSlot(new Slot(cyberwareInv, 2, 138, 34) {
+        // 2: РУКИ (Металлические руки) — слева сверху
+        this.addSlot(new Slot(cyberwareInv, 2, 42, 40) {
             @Override public boolean canInsert(ItemStack stack) { return stack.isOf(SandevistanMod.METAL_ARMS); }
             @Override public int getMaxItemCount() { return 1; }
         });
 
-        // 3: КОЖА (резерв)
-        this.addSlot(new Slot(cyberwareInv, 3, 138, 62) {
+        // 3: КОЖА — слева снизу
+        this.addSlot(new Slot(cyberwareInv, 3, 42, 74) {
             @Override public boolean canInsert(ItemStack stack) { return false; }
             @Override public int getMaxItemCount() { return 1; }
         });
 
-        // 4: НОГИ (резерв)
-        this.addSlot(new Slot(cyberwareInv, 4, 138, 90) {
+        // 4: НОГИ — справа снизу
+        this.addSlot(new Slot(cyberwareInv, 4, 134, 90) {
             @Override public boolean canInsert(ItemStack stack) { return false; }
             @Override public int getMaxItemCount() { return 1; }
         });
 
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                this.addSlot(new Slot(playerInv, col + row * 9 + 9, 8 + col * 18, 134 + row * 18));
+                this.addSlot(new Slot(playerInv, col + row * 9 + 9, 18 + col * 18, 126 + row * 18));
             }
         }
         for (int col = 0; col < 9; ++col) {
-            this.addSlot(new Slot(playerInv, col, 8 + col * 18, 192));
+            this.addSlot(new Slot(playerInv, col, 18 + col * 18, 184));
         }
     }
 
