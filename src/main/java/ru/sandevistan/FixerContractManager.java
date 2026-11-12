@@ -179,20 +179,20 @@ public final class FixerContractManager {
             String[] items = {"iron_ingot", "redstone", "gold_ingot", "diamond"};
             target = items[RNG.nextInt(items.length)];
             switch (target) {
-                case "diamond" -> { goal = 1 + RNG.nextInt(2); reward = goal * 380L; durationMs = 0L; }
-                case "gold_ingot" -> { goal = 4 + RNG.nextInt(5); reward = goal * 55L; durationMs = 0L; }
-                case "redstone" -> { goal = 10 + RNG.nextInt(11); reward = goal * 18L; durationMs = 240_000L; }
-                default -> { goal = 8 + RNG.nextInt(9); reward = goal * 22L; durationMs = 240_000L; }
+                case "diamond" -> { goal = 1 + RNG.nextInt(2); reward = goal * 500L; durationMs = 0L; }
+                case "gold_ingot" -> { goal = 4 + RNG.nextInt(5); reward = goal * 80L; durationMs = 0L; }
+                case "redstone" -> { goal = 10 + RNG.nextInt(11); reward = goal * 26L; durationMs = 900_000L; }
+                default -> { goal = 8 + RNG.nextInt(9); reward = goal * 32L; durationMs = 900_000L; }
             }
         } else {
             kind = "kill";
             String[] targets = {"zombie", "skeleton", "creeper", "spider", "enderman", "witch"};
             target = targets[RNG.nextInt(targets.length)];
             switch (target) {
-                case "enderman" -> { goal = 3 + RNG.nextInt(3); reward = goal * 130L; durationMs = 0L; }
-                case "witch" -> { goal = 2 + RNG.nextInt(2); reward = goal * 160L; durationMs = 0L; }
-                case "creeper" -> { goal = 4 + RNG.nextInt(4); reward = goal * 55L; durationMs = 240_000L; }
-                default -> { goal = 6 + RNG.nextInt(7); reward = goal * 30L; durationMs = 210_000L; }
+                case "enderman" -> { goal = 3 + RNG.nextInt(3); reward = goal * 180L; durationMs = 0L; }
+                case "witch" -> { goal = 2 + RNG.nextInt(2); reward = goal * 220L; durationMs = 0L; }
+                case "creeper" -> { goal = 4 + RNG.nextInt(4); reward = goal * 80L; durationMs = 720_000L; }
+                default -> { goal = 6 + RNG.nextInt(7); reward = goal * 45L; durationMs = 600_000L; }
             }
         }
 
