@@ -21,37 +21,36 @@ public class CyberwareScreenHandler extends ScreenHandler {
         this.cyberwareInv = cyberwareInv;
         cyberwareInv.onOpen(playerInventory.player);
 
-        // 4 специализированных слота имплантов (координаты подобраны под неоновую панель)
-        // Слот 0: Спина (Нервная система)
-        this.addSlot(new Slot(cyberwareInv, 0, 26, 32) {
+        // Слот 0: Спина (слева сверху)
+        this.addSlot(new Slot(cyberwareInv, 0, 24, 30) {
             @Override public boolean canInsert(ItemStack stack) { return stack.isOf(SandevistanMod.SANDEVISTAN); }
             @Override public int getMaxItemCount() { return 1; }
         });
-        // Слот 1: Руки (зарезервировано)
-        this.addSlot(new Slot(cyberwareInv, 1, 62, 32) {
+        // Слот 1: Руки (справа сверху)
+        this.addSlot(new Slot(cyberwareInv, 1, 156, 30) {
             @Override public boolean canInsert(ItemStack stack) { return false; }
             @Override public int getMaxItemCount() { return 1; }
         });
-        // Слот 2: Ноги (зарезервировано)
-        this.addSlot(new Slot(cyberwareInv, 2, 98, 32) {
+        // Слот 2: Ноги (справа снизу)
+        this.addSlot(new Slot(cyberwareInv, 2, 156, 74) {
             @Override public boolean canInsert(ItemStack stack) { return false; }
             @Override public int getMaxItemCount() { return 1; }
         });
-        // Слот 3: Кожа (зарезервировано)
-        this.addSlot(new Slot(cyberwareInv, 3, 134, 32) {
+        // Слот 3: Кожа (слева снизу)
+        this.addSlot(new Slot(cyberwareInv, 3, 24, 74) {
             @Override public boolean canInsert(ItemStack stack) { return false; }
             @Override public int getMaxItemCount() { return 1; }
         });
 
-        // Основной инвентарь игрока (3 ряда по 9 слотов)
+        // Основной инвентарь игрока (сдвинут вниз под силуэт)
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 18 + col * 18, 124 + row * 18));
             }
         }
-        // Хотбар игрока (9 слотов)
+        // Хотбар игрока
         for (int col = 0; col < 9; ++col) {
-            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
+            this.addSlot(new Slot(playerInventory, col, 18 + col * 18, 182));
         }
     }
 
