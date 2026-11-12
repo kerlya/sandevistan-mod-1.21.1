@@ -17,11 +17,18 @@ import ru.sandevistan.SyncCyberwarePayload;
 public final class SandevistanClient implements ClientModInitializer {
     private KeyBinding activateKey;
     private KeyBinding menuKey;
+    private static KeyBinding scanKey;
     public static long lastActivateMs = 0L;
     public static boolean clientHasSandevistan = false;
+    public static boolean clientHasKiroshi = false;
 
     public static boolean isEquipped(MinecraftClient client) {
         return client.player != null && clientHasSandevistan;
+    }
+
+    public static boolean isScanning() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        return client.player != null && client.currentScreen == null && clientHasKiroshi && scanKey != null && scanKey.isPressed();
     }
 
     @Override
@@ -30,12 +37,17 @@ public final class SandevistanClient implements ClientModInitializer {
         SandevistanHud.register();
 
         ClientPlayNetworking.registerGlobalReceiver(SyncCyberwarePayload.ID,
-            (payload, context) -> context.client().execute(() -> clientHasSandevistan = payload.hasSandevistan()));
+            (payload, context) -> context.client().execute(() -> {
+                clientHasSandevistan = payload.hasSandevistan();
+                clientHasKiroshi = payload.hasKiroshi();
+            }));
 
         activateKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.sandevistan.activate", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.sandevistan"));
         menuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
             "key.sandevistan.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_K, "category.sandevistan"));
+        scanKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+            "key.sandevistan.scan", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, "category.sandevistan"));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (menuKey.wasPressed()) {
