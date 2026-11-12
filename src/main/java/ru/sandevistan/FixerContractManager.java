@@ -49,6 +49,8 @@ public final class FixerContractManager {
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            RipperdocManager.registerCommands(dispatcher);
+
             dispatcher.register(CommandManager.literal("fixer")
                 .then(CommandManager.literal("call")
                     .requires(src -> src.hasPermissionLevel(2))
