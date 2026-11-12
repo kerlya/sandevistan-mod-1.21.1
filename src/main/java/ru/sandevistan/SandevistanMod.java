@@ -77,6 +77,7 @@ public final class SandevistanMod implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(ActivatePayload.ID, ActivatePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenCyberwarePayload.ID, OpenCyberwarePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncCyberwarePayload.ID, SyncCyberwarePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SyncBackVisualPayload.ID, SyncBackVisualPayload.CODEC);
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.player;
@@ -97,6 +98,11 @@ public final class SandevistanMod implements ModInitializer {
             int stateMask = (hasSandy ? 1 : 0) + (hasKiroshi ? 2 : 0);
             LAST_SYNCED_STATE.put(id, stateMask);
             ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi));
+
+            for (ServerPlayerEntity other : server.getPlayerManager().getPlayerList()) {
+                ServerPlayNetworking.send(p, new SyncBackVisualPayload(other.getId(), hasSandevistanEquipped(other)));
+                ServerPlayNetworking.send(other, new SyncBackVisualPayload(p.getId(), hasSandy));
+            }
         });
 
         ServerPlayNetworking.registerGlobalReceiver(ActivatePayload.ID,
@@ -181,6 +187,9 @@ public final class SandevistanMod implements ModInitializer {
             if (LAST_SYNCED_STATE.get(id) == null || LAST_SYNCED_STATE.get(id) != stateMask) {
                 LAST_SYNCED_STATE.put(id, stateMask);
                 ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi));
+                for (ServerPlayerEntity otherPlayer : server.getPlayerManager().getPlayerList()) {
+                    ServerPlayNetworking.send(otherPlayer, new SyncBackVisualPayload(p.getId(), hasSandy));
+                }
             }
 
             EntityAttributeInstance armorAttr = p.getAttributeInstance(EntityAttributes.GENERIC_ARMOR);
