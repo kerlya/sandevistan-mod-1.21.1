@@ -22,10 +22,8 @@ public class CyberwareScreen extends HandledScreen<CyberwareScreenHandler> {
         int x = (this.width - this.backgroundWidth) / 2;
         int y = (this.height - this.backgroundHeight) / 2;
 
-        // Глубокий темно-бордово-черный фон в стиле меню Cyberpunk 2077
         ctx.fill(x, y, x + backgroundWidth, y + backgroundHeight, 0xF412070B);
 
-        // Внешняя красно-неоновая рамка
         int redNeon = 0xFFFF2A55;
         int cyanNeon = 0xFF00F0FF;
         ctx.fill(x, y, x + backgroundWidth, y + 1, redNeon);
@@ -33,11 +31,9 @@ public class CyberwareScreen extends HandledScreen<CyberwareScreenHandler> {
         ctx.fill(x, y, x + 1, y + backgroundHeight, redNeon);
         ctx.fill(x + backgroundWidth - 1, y, x + backgroundWidth, y + backgroundHeight, redNeon);
 
-        // Верхняя панель вкладок
         ctx.fill(x + 1, y + 1, x + backgroundWidth - 1, y + 15, 0xFF1E0B11);
         ctx.fill(x + 8, y + 14, x + 84, y + 15, cyanNeon);
 
-        // Левая вертикальная шкала лимита киберимплантов (как на скриншоте)
         int installedCount = 0;
         for (int i = 0; i < CyberwareStorage.SLOT_COUNT; i++) {
             if (this.handler.getSlot(i).hasStack()) installedCount++;
@@ -52,48 +48,40 @@ public class CyberwareScreen extends HandledScreen<CyberwareScreenHandler> {
             ctx.fill(barX, sy, barX + 10, sy + 3, segColor);
         }
 
-        // Анатомический силуэт человека по центру (с легким красно-голубым свечением)
         int cx = x + 108;
         int cy = y + 24;
         int bodyFill = 0x38FF5E7E;
         int bodyEdge = 0x9970D6FF;
 
-        // Голова + глазной сканер
         drawHoloRect(ctx, cx - 6, cy, 12, 13, bodyFill, bodyEdge);
-        ctx.fill(cx - 4, cy + 4, cx + 4, cy + 6, cyanNeon); // Визор / оптика
+        ctx.fill(cx - 4, cy + 4, cx + 4, cy + 6, cyanNeon);
 
-        // Шея и торс
         ctx.fill(cx - 2, cy + 13, cx + 2, cy + 16, bodyFill);
         drawHoloRect(ctx, cx - 10, cy + 16, 20, 32, bodyFill, bodyEdge);
-        ctx.fill(cx - 1, cy + 18, cx + 1, cy + 46, 0xCC00F0FF); // Позвоночник
+        ctx.fill(cx - 1, cy + 18, cx + 1, cy + 46, 0xCC00F0FF);
 
-        // Расставленные руки (по диагонали ступенями в стиле пиксель-арта)
         for (int step = 0; step < 5; step++) {
             ctx.fill(cx - 13 - step * 2, cy + 18 + step * 5, cx - 10 - step * 2, cy + 24 + step * 5, bodyEdge);
             ctx.fill(cx + 10 + step * 2, cy + 18 + step * 5, cx + 13 + step * 2, cy + 24 + step * 5, bodyEdge);
         }
 
-        // Ноги
         drawHoloRect(ctx, cx - 9, cy + 49, 7, 34, bodyFill, bodyEdge);
         drawHoloRect(ctx, cx + 2, cy + 49, 7, 34, bodyFill, bodyEdge);
 
-        // Соединительные линии от тела к слотам
-        ctx.fill(cx + 1, y + 39, x + 150, y + 40, cyanNeon);      // ОС (Спина)
-        ctx.fill(cx + 4, y + 29, x + 144, y + 30, 0x6600F0FF);   // Линия от глаз
+        ctx.fill(cx + 1, y + 39, x + 150, y + 40, cyanNeon);
+        ctx.fill(cx + 4, y + 29, x + 144, y + 30, 0x6600F0FF);
         ctx.fill(x + 144, y + 29, x + 145, y + 72, 0x6600F0FF);
-        ctx.fill(x + 144, y + 71, x + 150, y + 72, cyanNeon);    // Глаза
-        ctx.fill(x + 66, y + 44, cx - 13, y + 45, 0x66FF2A55);   // Руки
-        ctx.fill(x + 66, y + 92, cx - 10, y + 93, 0x66FF2A55);   // Кожа
-        ctx.fill(cx + 9, y + 104, x + 150, y + 105, 0x66FF2A55); // Ноги
+        ctx.fill(x + 144, y + 71, x + 150, y + 72, cyanNeon);
+        ctx.fill(x + 66, y + 44, cx - 13, y + 45, 0x66FF2A55);
+        ctx.fill(x + 66, y + 92, cx - 10, y + 93, 0x66FF2A55);
+        ctx.fill(cx + 9, y + 104, x + 150, y + 105, 0x66FF2A55);
 
-        // 5 слотов имплантов (ОС и ГЛАЗА активны и подсвечены голубым)
-        drawCyberSlot(ctx, x + 152, y + 32, "ОС", true);
-        drawCyberSlot(ctx, x + 152, y + 64, "ГЛАЗА", true);
-        drawCyberSlot(ctx, x + 48, y + 36, "РУКИ", false);
-        drawCyberSlot(ctx, x + 48, y + 84, "КОЖА", false);
-        drawCyberSlot(ctx, x + 152, y + 96, "НОГИ", false);
+        drawCyberSlot(ctx, x + 152, y + 32, Text.translatable("gui.sandevistan.slot.os").getString(), true);
+        drawCyberSlot(ctx, x + 152, y + 64, Text.translatable("gui.sandevistan.slot.eyes").getString(), true);
+        drawCyberSlot(ctx, x + 48, y + 36, Text.translatable("gui.sandevistan.slot.arms").getString(), false);
+        drawCyberSlot(ctx, x + 48, y + 84, Text.translatable("gui.sandevistan.slot.skin").getString(), false);
+        drawCyberSlot(ctx, x + 152, y + 96, Text.translatable("gui.sandevistan.slot.legs").getString(), false);
 
-        // Инвентарь игрока снизу
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 drawInvSlot(ctx, x + 28 + col * 18, y + 134 + row * 18);
@@ -117,7 +105,6 @@ public class CyberwareScreen extends HandledScreen<CyberwareScreenHandler> {
         int innerCorner = unlocked ? 0xFF00F0FF : 0xFF2B1018;
         ctx.fill(sx - 2, sy - 2, sx + 18, sy + 18, outer);
         ctx.fill(sx - 1, sy - 1, sx + 17, sy + 17, 0xFF1A090E);
-        // Уголки-акценты в стиле Cyberpunk
         ctx.fill(sx - 2, sy - 2, sx + 2, sy - 1, innerCorner);
         ctx.fill(sx + 14, sy + 17, sx + 18, sy + 18, innerCorner);
 
@@ -132,15 +119,14 @@ public class CyberwareScreen extends HandledScreen<CyberwareScreenHandler> {
 
     @Override
     protected void drawForeground(DrawContext ctx, int mouseX, int mouseY) {
-        ctx.drawText(this.textRenderer, Text.literal("§bКИБЕРИМПЛАНТЫ"), 8, 4, 0x00F0FF, false);
-        ctx.drawText(this.textRenderer, Text.literal("§cИНВЕНТАРЬ"), this.playerInventoryTitleX, this.playerInventoryTitleY, 0xFF2A55, false);
+        ctx.drawText(this.textRenderer, Text.translatable("gui.sandevistan.title"), 8, 4, 0x00F0FF, false);
+        ctx.drawText(this.textRenderer, Text.translatable("gui.sandevistan.inventory"), this.playerInventoryTitleX, this.playerInventoryTitleY, 0xFF2A55, false);
     }
 
-     @Override
+    @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
         this.renderBackground(ctx, mouseX, mouseY, delta);
         super.render(ctx, mouseX, mouseY, delta);
         this.drawMouseoverTooltip(ctx, mouseX, mouseY);
     }
-
 }
