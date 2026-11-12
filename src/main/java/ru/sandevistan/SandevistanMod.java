@@ -43,12 +43,21 @@ public final class SandevistanMod implements ModInitializer {
         Registries.ITEM, Identifier.of("sandevistan", "kiroshi_mk1"),
         new Item(new Item.Settings().maxCount(1))
     );
+    public static final Item METAL_ARMS = Registry.register(
+        Registries.ITEM, Identifier.of("sandevistan", "metal_arms"),
+        new Item(new Item.Settings().maxCount(1))
+    );
     public static final ScreenHandlerType<CyberwareScreenHandler> CYBERWARE_HANDLER = Registry.register(
         Registries.SCREEN_HANDLER, Identifier.of("sandevistan", "cyberware"),
         new ScreenHandlerType<>(CyberwareScreenHandler::new, FeatureFlags.VANILLA_FEATURES)
     );
 
     private static final Identifier ARMOR_MOD_ID = Identifier.of("sandevistan", "cyberware_armor");
+    private static final Identifier ARMS_ARMOR_MOD_ID = Identifier.of("sandevistan", "metal_arms_armor");
+    private static final Identifier ARMS_TOUGHNESS_MOD_ID = Identifier.of("sandevistan", "metal_arms_toughness");
+    private static final Identifier ARMS_DAMAGE_MOD_ID = Identifier.of("sandevistan", "metal_arms_damage");
+    private static final Identifier ARMS_SPEED_MOD_ID = Identifier.of("sandevistan", "metal_arms_speed");
+
     private static final SoundEvent ACTIVATE = sound("activate");
     public static final SoundEvent RINGTONE = sound("ringtone");
 
@@ -57,7 +66,7 @@ public final class SandevistanMod implements ModInitializer {
     private static final Map<UUID, Integer> OVERUSE_COUNT = new HashMap<>();
     private static final Map<UUID, Long> LAST_USE_TIME = new HashMap<>();
     private static final Map<UUID, Long> PSYCHOSIS_END = new HashMap<>();
-    private static final Map<UUID, Integer> LAST_SYNCED_STATE = new HashMap<>();
+    private static final Map<UUID, String> LAST_SYNCED_SIG = new HashMap<>();
 
     private static final long ACTIVE_MS = 8000L;
     private static final long COOLDOWN_MS = 30000L;
@@ -75,6 +84,7 @@ public final class SandevistanMod implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(OpenCyberwarePayload.ID, OpenCyberwarePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(PhoneActionPayload.ID, PhoneActionPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(BuyImplantPayload.ID, BuyImplantPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(CraftImplantPayload.ID, CraftImplantPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncCyberwarePayload.ID, SyncCyberwarePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncBackVisualPayload.ID, SyncBackVisualPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncPhonePayload.ID, SyncPhonePayload.CODEC);
@@ -92,12 +102,8 @@ public final class SandevistanMod implements ModInitializer {
             LAST_USE_TIME.remove(id);
             PSYCHOSIS_END.remove(id);
 
+            forceSyncCyberware(p);
             boolean hasSandy = hasSandevistanEquipped(p);
-            boolean hasKiroshi = hasKiroshiEquipped(p);
-            int stateMask = (hasSandy ? 1 : 0) + (hasKiroshi ? 2 : 0);
-            LAST_SYNCED_STATE.put(id, stateMask);
-            ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi));
-
             for (ServerPlayerEntity other : server.getPlayerManager().getPlayerList()) {
                 ServerPlayNetworking.send(p, new SyncBackVisualPayload(other.getId(), hasSandevistanEquipped(other)));
                 ServerPlayNetworking.send(other, new SyncBackVisualPayload(p.getId(), hasSandy));
@@ -115,6 +121,10 @@ public final class SandevistanMod implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(BuyImplantPayload.ID,
             (payload, context) -> context.server().execute(() ->
                 RipperdocManager.handleBuy(context.player(), payload.implantId())));
+
+        ServerPlayNetworking.registerGlobalReceiver(CraftImplantPayload.ID,
+            (payload, context) -> context.server().execute(() ->
+                CyberCraftManager.handleCraft(context.player(), payload.recipeId())));
 
         ServerPlayNetworking.registerGlobalReceiver(OpenCyberwarePayload.ID,
             (payload, context) -> context.server().execute(() -> {
@@ -137,6 +147,26 @@ public final class SandevistanMod implements ModInitializer {
     public static boolean hasKiroshiEquipped(ServerPlayerEntity p) {
         if (p.getServer() == null) return false;
         return CyberwareStorage.get(p.getServer()).getSlots(p.getUuid()).get(1).isOf(KIROSHI_MK1);
+    }
+
+    public static boolean hasMetalArmsEquipped(ServerPlayerEntity p) {
+        if (p.getServer() == null) return false;
+        return CyberwareStorage.get(p.getServer()).getSlots(p.getUuid()).get(2).isOf(METAL_ARMS);
+    }
+
+    public static void forceSyncCyberware(ServerPlayerEntity p) {
+        if (p.getServer() == null) return;
+        CyberwareStorage st = CyberwareStorage.get(p.getServer());
+        UUID id = p.getUuid();
+        boolean hasSandy = hasSandevistanEquipped(p);
+        boolean hasKiroshi = hasKiroshiEquipped(p);
+        boolean hasArms = hasMetalArmsEquipped(p);
+        int lvl = st.getLevel(id);
+        int xp = st.getXp(id);
+        int next = st.getXpForNextLevel(lvl);
+        String sig = hasSandy + ":" + hasKiroshi + ":" + hasArms + ":" + lvl + ":" + xp;
+        LAST_SYNCED_SIG.put(id, sig);
+        ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi, hasArms, lvl, xp, next));
     }
     private static void activate(ServerPlayerEntity p) {
         long now = System.currentTimeMillis();
@@ -171,6 +201,8 @@ public final class SandevistanMod implements ModInitializer {
     private static void tick(MinecraftServer server) {
         FixerContractManager.tick(server);
         long now = System.currentTimeMillis();
+        CyberwareStorage st = CyberwareStorage.get(server);
+
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
             long worldTicks = p.getWorld().getTime();
             UUID id = p.getUuid();
@@ -178,10 +210,14 @@ public final class SandevistanMod implements ModInitializer {
 
             boolean hasSandy = hasSandevistanEquipped(p);
             boolean hasKiroshi = hasKiroshiEquipped(p);
-            int stateMask = (hasSandy ? 1 : 0) + (hasKiroshi ? 2 : 0);
-            if (LAST_SYNCED_STATE.get(id) == null || LAST_SYNCED_STATE.get(id) != stateMask) {
-                LAST_SYNCED_STATE.put(id, stateMask);
-                ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi));
+            boolean hasArms = hasMetalArmsEquipped(p);
+            int lvl = st.getLevel(id);
+            int xp = st.getXp(id);
+            int next = st.getXpForNextLevel(lvl);
+            String sig = hasSandy + ":" + hasKiroshi + ":" + hasArms + ":" + lvl + ":" + xp;
+            if (!sig.equals(LAST_SYNCED_SIG.get(id))) {
+                LAST_SYNCED_SIG.put(id, sig);
+                ServerPlayNetworking.send(p, new SyncCyberwarePayload(hasSandy, hasKiroshi, hasArms, lvl, xp, next));
                 for (ServerPlayerEntity otherPlayer : server.getPlayerManager().getPlayerList()) {
                     ServerPlayNetworking.send(otherPlayer, new SyncBackVisualPayload(p.getId(), hasSandy));
                 }
@@ -190,11 +226,33 @@ public final class SandevistanMod implements ModInitializer {
             EntityAttributeInstance armorAttr = p.getAttributeInstance(EntityAttributes.GENERIC_ARMOR);
             if (armorAttr != null) {
                 boolean hasMod = armorAttr.hasModifier(ARMOR_MOD_ID);
-                if (hasSandy && !hasMod) {
-                    armorAttr.addTemporaryModifier(new EntityAttributeModifier(ARMOR_MOD_ID, 5.0, EntityAttributeModifier.Operation.ADD_VALUE));
-                } else if (!hasSandy && hasMod) {
-                    armorAttr.removeModifier(ARMOR_MOD_ID);
-                }
+                if (hasSandy && !hasMod) armorAttr.addTemporaryModifier(new EntityAttributeModifier(ARMOR_MOD_ID, 5.0, EntityAttributeModifier.Operation.ADD_VALUE));
+                else if (!hasSandy && hasMod) armorAttr.removeModifier(ARMOR_MOD_ID);
+
+                boolean hasArmsMod = armorAttr.hasModifier(ARMS_ARMOR_MOD_ID);
+                if (hasArms && !hasArmsMod) armorAttr.addTemporaryModifier(new EntityAttributeModifier(ARMS_ARMOR_MOD_ID, 1.0, EntityAttributeModifier.Operation.ADD_VALUE));
+                else if (!hasArms && hasArmsMod) armorAttr.removeModifier(ARMS_ARMOR_MOD_ID);
+            }
+
+            EntityAttributeInstance toughAttr = p.getAttributeInstance(EntityAttributes.GENERIC_ARMOR_TOUGHNESS);
+            if (toughAttr != null) {
+                boolean hasTough = toughAttr.hasModifier(ARMS_TOUGHNESS_MOD_ID);
+                if (hasArms && !hasTough) toughAttr.addTemporaryModifier(new EntityAttributeModifier(ARMS_TOUGHNESS_MOD_ID, 1.0, EntityAttributeModifier.Operation.ADD_VALUE));
+                else if (!hasArms && hasTough) toughAttr.removeModifier(ARMS_TOUGHNESS_MOD_ID);
+            }
+
+            EntityAttributeInstance dmgAttr = p.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+            if (dmgAttr != null) {
+                boolean hasDmg = dmgAttr.hasModifier(ARMS_DAMAGE_MOD_ID);
+                if (hasArms && !hasDmg) dmgAttr.addTemporaryModifier(new EntityAttributeModifier(ARMS_DAMAGE_MOD_ID, 2.0, EntityAttributeModifier.Operation.ADD_VALUE));
+                else if (!hasArms && hasDmg) dmgAttr.removeModifier(ARMS_DAMAGE_MOD_ID);
+            }
+
+            EntityAttributeInstance spdAttr = p.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_SPEED);
+            if (spdAttr != null) {
+                boolean hasSpd = spdAttr.hasModifier(ARMS_SPEED_MOD_ID);
+                if (hasArms && !hasSpd) spdAttr.addTemporaryModifier(new EntityAttributeModifier(ARMS_SPEED_MOD_ID, -0.08, EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+                else if (!hasArms && hasSpd) spdAttr.removeModifier(ARMS_SPEED_MOD_ID);
             }
 
             long psychosisEnd = PSYCHOSIS_END.getOrDefault(id, 0L);
