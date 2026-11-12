@@ -29,10 +29,9 @@ public final class SandevistanClient implements ClientModInitializer {
     public static boolean clientHasKiroshi = false;
     private static final Set<Integer> PLAYERS_WITH_SANDEVISTAN = new HashSet<>();
 
-    // Данные телефона и звонков
     public static long clientEddies = 250L;
     public static String clientBankHistory = "";
-    public static int clientCallState = 0; // 0 = тишина, 1 = звонок, 2 = контракт принят
+    public static int clientCallState = 0;
     public static String clientFixerName = "";
     public static String clientTargetType = "";
     public static int clientProgress = 0;
@@ -93,6 +92,10 @@ public final class SandevistanClient implements ClientModInitializer {
                 clientGoal = payload.goal();
                 clientReward = payload.reward();
             }));
+
+        ClientPlayNetworking.registerGlobalReceiver(OpenShopPayload.ID,
+            (payload, context) -> context.client().execute(() ->
+                context.client().setScreen(new RipperdocShopScreen())));
 
         activateKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.activate", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.sandevistan"));
         menuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_K, "category.sandevistan"));
