@@ -198,7 +198,8 @@ public class PhoneScreen extends Screen {
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.jobs.header"), x + 10, y + 28, 0xFF2A55, false);
             if (SandevistanClient.clientCallState == 2) {
                 ctx.fill(x + 10, y + 42, x + w - 10, y + 122, 0xFF1E0D15);
-                String fixerTrim = this.textRenderer.trimToWidth(SandevistanClient.clientFixerName, w - 28);
+                String fullFixer = SandevistanHud.formatFixerName(SandevistanClient.clientFixerName);
+                String fixerTrim = this.textRenderer.trimToWidth(fullFixer, w - 28);
                 ctx.drawText(this.textRenderer, Text.literal("§b" + fixerTrim), x + 14, y + 48, 0x00F0FF, false);
 
                 Text targetName = Text.translatable("target.sandevistan." + SandevistanClient.clientTargetType);
