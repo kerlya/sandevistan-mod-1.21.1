@@ -4,6 +4,9 @@
   "key.sandevistan.activate": "Активировать Сандевистан",
   "key.sandevistan.menu": "Меню киберимплантов",
   "key.sandevistan.scan": "Сканер Кироши (Зум)",
+  "key.sandevistan.phone": "Открыть телефон",
+  "key.sandevistan.accept": "Ответить на звонок",
+  "key.sandevistan.reject": "Сбросить звонок",
   "category.sandevistan": "Сандевистан",
 
   "gui.sandevistan.title": "КИБЕРИМПЛАНТЫ",
@@ -42,5 +45,36 @@
   "msg.sandevistan.psychosis": "§4§l[КРИТИЧЕСКИЙ СБОЙ]: ОБНАРУЖЕН КИБЕРПСИХОЗ!",
   "msg.sandevistan.glitch.0": "§4[ОШИБКА]: §cПотеря контроля над моторикой...",
   "msg.sandevistan.glitch.1": "§4[СБОЙ]: §cОни повсюду... Я должен бежать...",
-  "msg.sandevistan.glitch.2": "§4[ВНИМАНИЕ]: §cНейронная связь разрушается!"
+  "msg.sandevistan.glitch.2": "§4[ВНИМАНИЕ]: §cНейронная связь разрушается!",
+
+  "call.sandevistan.incoming": "§c§lВХОДЯЩИЙ ВЫЗОВ",
+  "call.sandevistan.desc": "Заказ: %s x%s (§a+€$%s§e)",
+  "call.sandevistan.answer": "ОТВЕТИТЬ",
+  "call.sandevistan.reject": "СБРОСИТЬ",
+  "call.sandevistan.progress": "Цель: %s [%s/%s] (+€$%s)",
+
+  "mob.sandevistan.zombie": "Зомби",
+  "mob.sandevistan.skeleton": "Скелеты",
+  "mob.sandevistan.creeper": "Криперы",
+  "mob.sandevistan.spider": "Пауки",
+  "mob.sandevistan.enderman": "Эндермены",
+
+  "phone.sandevistan.title": "Голофон",
+  "phone.sandevistan.tab.bank": "БАНК",
+  "phone.sandevistan.tab.jobs": "ЗАКАЗЫ",
+  "phone.sandevistan.bank.header": "NIGHT CITY BANK",
+  "phone.sandevistan.bank.transfer": "ПЕРЕВОД ИГРОКУ:",
+  "phone.sandevistan.bank.nick": "Ник игрока",
+  "phone.sandevistan.bank.sum": "Сумма",
+  "phone.sandevistan.bank.send": "ОТПР.",
+  "phone.sandevistan.bank.history": "ПОСЛЕДНИЕ ОПЕРАЦИИ:",
+  "phone.sandevistan.jobs.header": "АКТИВНЫЙ КОНТРАКТ",
+  "phone.sandevistan.jobs.target": "Цель: §e%s",
+  "phone.sandevistan.jobs.empty": "Нет активных заказов",
+
+  "msg.sandevistan.contract.done": "§b[%s]: §aКонтракт выполнен! На счет переведено €$%s.",
+  "msg.sandevistan.bank.not_found": "§c[БАНК]: Игрок не найден в сети.",
+  "msg.sandevistan.bank.no_funds": "§c[БАНК]: Недостаточно Эдди на счете.",
+  "msg.sandevistan.bank.sent": "§b[БАНК]: §eВы перевели §a€$%s §eигроку §f%s.",
+  "msg.sandevistan.bank.received": "§b[БАНК]: §aПолучен перевод €$%s от %s."
 }
