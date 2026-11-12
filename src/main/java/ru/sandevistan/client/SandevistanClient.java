@@ -33,6 +33,7 @@ public final class SandevistanClient implements ClientModInitializer {
     public static KeyBinding reloadKey;
 
     public static long lastActivateMs = 0L;
+    public static long lastReloadSendMs = 0L;
     public static boolean clientHasSandevistan = false;
     public static boolean clientHasKiroshi = false;
     public static boolean clientHasMetalArms = false;
@@ -182,8 +183,13 @@ public final class SandevistanClient implements ClientModInitializer {
             while (rejectCallKey.wasPressed()) {
                 if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(2, "", "", 0L));
             }
-            while (reloadKey.wasPressed()) {
-                if (client.player != null && client.currentScreen == null && client.player.getMainHandStack().isOf(SandevistanMod.SARATOGA_M221)) {
+            boolean reloadPressed = false;
+            while (reloadKey.wasPressed()) reloadPressed = true;
+            if ((reloadPressed || reloadKey.isPressed()) && client.player != null && client.currentScreen == null && client.player.getMainHandStack().isOf(SandevistanMod.SARATOGA_M221)) {
+                long now = System.currentTimeMillis();
+                if (now - lastReloadSendMs >= 500L) {
+                    lastReloadSendMs = now;
+                    if (client.player.isUsingItem()) client.player.stopUsingItem();
                     ClientPlayNetworking.send(new ReloadWeaponPayload());
                 }
             }
