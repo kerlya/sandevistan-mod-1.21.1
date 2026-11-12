@@ -1,10 +1,6 @@
 package ru.sandevistan;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
@@ -13,24 +9,22 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.village.VillagerProfession;
+import net.minecraft.util.Formatting;
+
+import java.util.List;
+import java.util.Random;
 
 public final class RipperdocManager {
-    public static final String RIPPERDOC_TAG = "sandevistan_ripperdoc";
+    private static final Random RNG = new Random();
+
+    public record ShopOffer(String id, String category, Item item, long price) {}
+
+    public static final List<ShopOffer> OFFERS = List.of(
+        new ShopOffer("sandevistan", "os", SandevistanMod.SANDEVISTAN, 1200L),
+        new ShopOffer("kiroshi_mk1", "eyes", SandevistanMod.KIROSHI_MK1, 450L)
+    );
 
     public static void register() {
-        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (!world.isClient && hand == Hand.MAIN_HAND && player instanceof ServerPlayerEntity sp) {
-                if (entity.getCommandTags().contains(RIPPERDOC_TAG)) {
-                    FixerContractManager.syncPlayer(sp);
-                    ServerPlayNetworking.send(sp, new OpenShopPayload());
-                    return ActionResult.SUCCESS;
-                }
-            }
-            return ActionResult.PASS;
-        });
     }
 
     public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -39,68 +33,60 @@ public final class RipperdocManager {
             .then(CommandManager.literal("spawn")
                 .executes(ctx -> {
                     ServerPlayerEntity p = ctx.getSource().getPlayerOrThrow();
-                    VillagerEntity doc = EntityType.VILLAGER.create(p.getServerWorld());
-                    if (doc != null) {
-                        doc.refreshPositionAndAngles(p.getX(), p.getY(), p.getZ(), p.getYaw(), 0.0f);
-                        doc.setVillagerData(doc.getVillagerData().withProfession(VillagerProfession.CLERIC).withLevel(5));
-                        doc.setCustomName(Text.literal("§b[Рипердок] §fВиктор Вектор"));
-                        doc.setCustomNameVisible(true);
-                        doc.setInvulnerable(true);
-                        doc.setPersistent();
-                        doc.addCommandTag(RIPPERDOC_TAG);
-                        p.getServerWorld().spawnEntity(doc);
-                        p.sendMessage(Text.translatable("msg.sandevistan.ripperdoc.spawned"), false);
-                    }
+                    RipperdocEntity doc = new RipperdocEntity(SandevistanMod.RIPPERDOC_ENTITY, p.getServerWorld());
+                    doc.refreshPositionAndAngles(p.getX(), p.getY(), p.getZ(), p.getYaw(), 0.0f);
+
+                    int nameIdx = RNG.nextInt(8);
+                    Text docName = Text.literal("[")
+                        .append(Text.translatable("entity.sandevistan.ripperdoc.tag"))
+                        .append("] ")
+                        .formatted(Formatting.AQUA)
+                        .append(Text.translatable("entity.sandevistan.ripperdoc.name." + nameIdx).formatted(Formatting.WHITE));
+
+                    doc.setCustomName(docName);
+                    doc.setCustomNameVisible(true);
+                    p.getServerWorld().spawnEntity(doc);
+                    p.sendMessage(Text.translatable("msg.sandevistan.ripperdoc.spawned"), false);
                     return 1;
                 }))
             .then(CommandManager.literal("remove")
                 .executes(ctx -> {
                     ServerPlayerEntity p = ctx.getSource().getPlayerOrThrow();
-                    int removed = 0;
-                    for (VillagerEntity v : p.getServerWorld().getEntitiesByClass(VillagerEntity.class, p.getBoundingBox().expand(32.0), e -> e.getCommandTags().contains(RIPPERDOC_TAG))) {
-                        v.discard();
-                        removed++;
-                    }
-                    p.sendMessage(Text.translatable("msg.sandevistan.ripperdoc.removed", removed), false);
+                    List<RipperdocEntity> list = p.getServerWorld().getEntitiesByClass(
+                        RipperdocEntity.class, p.getBoundingBox().expand(32.0), e -> true
+                    );
+                    int count = list.size();
+                    for (RipperdocEntity doc : list) doc.discard();
+                    p.sendMessage(Text.translatable("msg.sandevistan.ripperdoc.removed", count), false);
                     return 1;
                 })));
     }
-    public static void handleBuy(ServerPlayerEntity p, String implantId) {
-        if (p.getServer() == null) return;
-        Item item;
-        long price;
-        String logLabel;
 
-        switch (implantId) {
-            case "kiroshi_mk1" -> {
-                item = SandevistanMod.KIROSHI_MK1;
-                price = 2000L;
-                logLabel = "Kiroshi Mk.1";
-            }
-            case "sandevistan" -> {
-                item = SandevistanMod.SANDEVISTAN;
-                price = 7000L;
-                logLabel = "Sandevistan";
-            }
-            default -> {
-                return;
+    public static void handleBuy(ServerPlayerEntity p, String offerId) {
+        if (p.getServer() == null) return;
+        ShopOffer selected = null;
+        for (ShopOffer o : OFFERS) {
+            if (o.id().equals(offerId)) {
+                selected = o;
+                break;
             }
         }
+        if (selected == null) return;
 
         CyberwareStorage storage = CyberwareStorage.get(p.getServer());
-        if (!storage.spendEddies(p.getUuid(), price, logLabel)) {
+        if (!storage.spendEddies(p.getUuid(), selected.price(), selected.id().toUpperCase())) {
             p.sendMessage(Text.translatable("msg.sandevistan.bank.no_funds"), true);
-            p.playSoundToPlayer(SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundCategory.MASTER, 0.8f, 0.7f);
+            p.playSoundToPlayer(SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundCategory.MASTER, 0.8f, 0.6f);
             return;
         }
 
-        ItemStack stack = new ItemStack(item);
+        ItemStack stack = new ItemStack(selected.item());
         if (!p.getInventory().insertStack(stack)) {
             p.dropItem(stack, false);
         }
 
-        p.playSoundToPlayer(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1.0f, 1.3f);
-        p.sendMessage(Text.translatable("msg.sandevistan.shop.bought", item.getName(), price), false);
+        p.playSoundToPlayer(SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 0.9f, 1.4f);
+        p.sendMessage(Text.translatable("msg.sandevistan.shop.bought", stack.getName(), selected.price()), false);
         FixerContractManager.syncPlayer(p);
     }
 }
