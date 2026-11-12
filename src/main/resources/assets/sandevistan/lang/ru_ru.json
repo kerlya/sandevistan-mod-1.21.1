@@ -1,6 +1,7 @@
 {
   "item.sandevistan.sandevistan": "Сандевистан",
   "item.sandevistan.kiroshi_mk1": "Оптика Кироши Mk.1",
+  "item.sandevistan.metal_arms": "Металлические руки",
   "key.sandevistan.activate": "Активировать Сандевистан",
   "key.sandevistan.menu": "Меню киберимплантов",
   "key.sandevistan.scan": "Сканер Кироши (Зум)",
@@ -149,5 +150,19 @@
   "shop.sandevistan.footer": "ВЫБЕРИТЕ ИМПЛАНТ",
   "msg.sandevistan.ripperdoc.spawned": "§b[РИПЕРДОК]: §aВиктор Вектор прибыл. Нажмите ПКМ по нему.",
   "msg.sandevistan.ripperdoc.removed": "§b[РИПЕРДОК]: §eУдалено рипердоков: %s.",
-  "msg.sandevistan.shop.bought": "§b[РИПЕРДОК]: §aПриобретено: §f%s §7(-€$%s)"
+  "msg.sandevistan.shop.bought": "§b[РИПЕРДОК]: §aПриобретено: §f%s §7(-€$%s)",
+
+  "craft.sandevistan.tab": "СОЗДАНИЕ ИМПЛАНТОВ",
+  "craft.sandevistan.back": "< ВЕРСТАК",
+  "craft.sandevistan.title": "СОЗДАНИЕ ИМПЛАНТОВ",
+  "craft.sandevistan.ingredients": "НЕОБХОДИМЫЕ МАТЕРИАЛЫ:",
+  "craft.sandevistan.create": "СОЗДАТЬ",
+  "craft.sandevistan.empty": "В этой категории нет чертежей",
+  "craft.sandevistan.footer": "ВЫБЕРИТЕ ЧЕРТЕЖ",
+
+  "msg.sandevistan.level.info": "§b[ТЕХНИКА]: §eУровень: §a%s §7(Опыт: %s / %s XP)",
+  "msg.sandevistan.level.up": "§b[ТЕХНИКА]: §a§lНОВЫЙ УРОВЕНЬ! §eТеперь ваш уровень: §f%s",
+  "msg.sandevistan.craft.low_level": "§c[СБОРКА]: Требуется уровень %s!",
+  "msg.sandevistan.craft.no_items": "§c[СБОРКА]: Недостаточно материалов в инвентаре!",
+  "msg.sandevistan.craft.done": "§b[СБОРКА]: §aСоздано: §f%s §7(+%s XP)"
 }
