@@ -190,7 +190,7 @@ public class PhoneScreen extends Screen {
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.bank.history"), x + 10, y + 126, 0x00F0FF, false);
             String[] entries = SandevistanClient.clientBankHistory.isEmpty() ? new String[0] : SandevistanClient.clientBankHistory.split("\\|");
             for (int i = 0; i < Math.min(entries.length, 5); i++) {
-                String line = this.textRenderer.plainSubstrByWidth(entries[i], w - 22);
+                String line = this.textRenderer.trimToWidth(entries[i], w - 22);
                 int color = line.startsWith("+") ? 0x00E676 : 0xFF5252;
                 ctx.drawText(this.textRenderer, line, x + 10, y + 138 + i * 11, color, false);
             }
@@ -198,7 +198,7 @@ public class PhoneScreen extends Screen {
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.jobs.header"), x + 10, y + 28, 0xFF2A55, false);
             if (SandevistanClient.clientCallState == 2) {
                 ctx.fill(x + 10, y + 42, x + w - 10, y + 122, 0xFF1E0D15);
-                String fixerTrim = this.textRenderer.plainSubstrByWidth(SandevistanClient.clientFixerName, w - 28);
+                String fixerTrim = this.textRenderer.trimToWidth(SandevistanClient.clientFixerName, w - 28);
                 ctx.drawText(this.textRenderer, Text.literal("§b" + fixerTrim), x + 14, y + 48, 0x00F0FF, false);
 
                 Text targetName = Text.translatable("target.sandevistan." + SandevistanClient.clientTargetType);
