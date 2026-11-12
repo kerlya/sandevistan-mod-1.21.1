@@ -1,10 +1,12 @@
 package ru.sandevistan.client;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import ru.sandevistan.PhoneActionPayload;
 
@@ -12,10 +14,13 @@ public class PhoneScreen extends Screen {
     private int tab = 0;
     private TextFieldWidget playerField;
     private TextFieldWidget amountField;
-    private ButtonWidget sendButton;
 
     public PhoneScreen() {
         super(Text.translatable("phone.sandevistan.title"));
+    }
+
+    @Override
+    public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
     }
 
     @Override
@@ -25,16 +30,6 @@ public class PhoneScreen extends Screen {
         int x = (this.width - w) / 2;
         int y = (this.height - h) / 2;
 
-        this.addDrawableChild(ButtonWidget.builder(Text.translatable("phone.sandevistan.tab.bank"), b -> {
-            this.tab = 0;
-            updateBankWidgets();
-        }).dimensions(x + 8, y + h - 24, 68, 18).build());
-
-        this.addDrawableChild(ButtonWidget.builder(Text.translatable("phone.sandevistan.tab.jobs"), b -> {
-            this.tab = 1;
-            updateBankWidgets();
-        }).dimensions(x + 80, y + h - 24, 68, 18).build());
-
         this.playerField = new TextFieldWidget(this.textRenderer, x + 12, y + 72, 132, 16, Text.empty());
         this.playerField.setPlaceholder(Text.translatable("phone.sandevistan.bank.nick"));
         this.addDrawableChild(this.playerField);
@@ -43,18 +38,6 @@ public class PhoneScreen extends Screen {
         this.amountField.setPlaceholder(Text.translatable("phone.sandevistan.bank.sum"));
         this.addDrawableChild(this.amountField);
 
-        this.sendButton = ButtonWidget.builder(Text.translatable("phone.sandevistan.bank.send"), b -> {
-            String target = this.playerField.getText().trim();
-            try {
-                long amt = Long.parseLong(this.amountField.getText().trim());
-                if (!target.isEmpty() && amt > 0) {
-                    ClientPlayNetworking.send(new PhoneActionPayload(3, target, amt));
-                    this.amountField.setText("");
-                }
-            } catch (NumberFormatException ignored) {}
-        }).dimensions(x + 90, y + 92, 54, 16).build();
-        this.addDrawableChild(this.sendButton);
-
         updateBankWidgets();
     }
 
@@ -62,8 +45,74 @@ public class PhoneScreen extends Screen {
         boolean isBank = (this.tab == 0);
         this.playerField.visible = isBank;
         this.amountField.visible = isBank;
-        this.sendButton.visible = isBank;
     }
+
+    private void playClick() {
+        MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.2f));
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int w = 156;
+        int h = 218;
+        int x = (this.width - w) / 2;
+        int y = (this.height - h) / 2;
+
+        if (button == 0) {
+            // Кнопка отправки перевода (только во вкладке БАНК)
+            if (this.tab == 0 && isHovered(mouseX, mouseY, x + 90, y + 92, 54, 16)) {
+                String target = this.playerField.getText().trim();
+                try {
+                    long amt = Long.parseLong(this.amountField.getText().trim());
+                    if (!target.isEmpty() && amt > 0) {
+                        ClientPlayNetworking.send(new PhoneActionPayload(3, target, amt));
+                        this.amountField.setText("");
+                        playClick();
+                    }
+                } catch (NumberFormatException ignored) {}
+                return true;
+            }
+
+            // Нижняя вкладка «БАНК»
+            if (isHovered(mouseX, mouseY, x + 8, y + h - 24, 68, 17)) {
+                this.tab = 0;
+                updateBankWidgets();
+                playClick();
+                return true;
+            }
+
+            // Нижняя вкладка «ЗАКАЗЫ»
+            if (isHovered(mouseX, mouseY, x + 80, y + h - 24, 68, 17)) {
+                this.tab = 1;
+                updateBankWidgets();
+                playClick();
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private boolean isHovered(double mx, double my, int bx, int by, int bw, int bh) {
+        return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
+    }
+    private void drawCyberButton(DrawContext ctx, int bx, int by, int bw, int bh, Text label, boolean active, boolean hovered) {
+        int bg = active ? 0xFF3A101E : (hovered ? 0xFF2B0E18 : 0xFF19080E);
+        int border = active ? 0xFF00F0FF : (hovered ? 0xFFFF2A55 : 0xFF6B1E34);
+        int textColor = active ? 0x00F0FF : (hovered ? 0xFFFFFF : 0xFF4D70);
+
+        ctx.fill(bx, by, bx + bw, by + bh, bg);
+        ctx.fill(bx, by, bx + bw, by + 1, border);
+        ctx.fill(bx, by + bh - 1, bx + bw, by + bh, border);
+        ctx.fill(bx, by, bx + 1, by + bh, border);
+        ctx.fill(bx + bw - 1, by, bx + bw, by + bh, border);
+        if (active) {
+            ctx.fill(bx, by + bh - 2, bx + bw, by + bh, 0xFF00F0FF);
+        }
+
+        int tw = this.textRenderer.getWidth(label);
+        ctx.drawText(this.textRenderer, label, bx + (bw - tw) / 2, by + (bh - 8) / 2, textColor, false);
+    }
+
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
         ctx.fill(0, 0, this.width, this.height, 0x88000000);
@@ -90,6 +139,9 @@ public class PhoneScreen extends Screen {
 
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.bank.transfer"), x + 10, y + 61, 0xFF2A55, false);
 
+            boolean sendHover = isHovered(mouseX, mouseY, x + 90, y + 92, 54, 16);
+            drawCyberButton(ctx, x + 90, y + 92, 54, 16, Text.translatable("phone.sandevistan.bank.send"), false, sendHover);
+
             ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.bank.history"), x + 10, y + 114, 0x00F0FF, false);
             String[] entries = SandevistanClient.clientBankHistory.isEmpty()
                 ? new String[0]
@@ -112,6 +164,11 @@ public class PhoneScreen extends Screen {
                 ctx.drawText(this.textRenderer, Text.translatable("phone.sandevistan.jobs.empty"), x + 10, y + 44, 0xA0AEC0, false);
             }
         }
+
+        boolean bankHover = isHovered(mouseX, mouseY, x + 8, y + h - 24, 68, 17);
+        boolean jobsHover = isHovered(mouseX, mouseY, x + 80, y + h - 24, 68, 17);
+        drawCyberButton(ctx, x + 8, y + h - 24, 68, 17, Text.translatable("phone.sandevistan.tab.bank"), this.tab == 0, bankHover);
+        drawCyberButton(ctx, x + 80, y + h - 24, 68, 17, Text.translatable("phone.sandevistan.tab.jobs"), this.tab == 1, jobsHover);
 
         super.render(ctx, mouseX, mouseY, delta);
     }
