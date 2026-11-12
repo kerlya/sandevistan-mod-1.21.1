@@ -19,6 +19,8 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.Locale;
+
 public final class SandevistanHud {
     private static final long ACTIVE_MS = 8000L;
     private static final long COOLDOWN_MS = 30000L;
@@ -40,7 +42,7 @@ public final class SandevistanHud {
         long elapsed = System.currentTimeMillis() - SandevistanClient.lastActivateMs;
         int x = 12;
         int y = client.getWindow().getScaledHeight() - 42;
-        int width = 132;
+        int width = 144;
         int height = 28;
 
         ctx.fill(x, y, x + width, y + height, 0xAA0D1117);
@@ -48,28 +50,28 @@ public final class SandevistanHud {
         float progress;
         int barColor;
         int borderColor;
-        String label;
+        Text label;
 
         if (SandevistanClient.lastActivateMs == 0L || elapsed >= COOLDOWN_MS) {
             progress = 1.0f;
             barColor = 0xFF00E676;
             borderColor = 0xFF00C853;
-            label = "§aСАНДЕВИСТАН: ГОТОВ [R]";
+            label = Text.translatable("hud.sandevistan.ready");
         } else if (elapsed < ACTIVE_MS) {
             progress = 1.0f - (float) elapsed / ACTIVE_MS;
             boolean pulse = (elapsed / 150L) % 2 == 0;
             barColor = pulse ? 0xFFFFEA00 : 0xFFC6FF00;
             borderColor = 0xFFFFD600;
-            double leftSec = (ACTIVE_MS - elapsed) / 1000.0;
-            label = String.format("§eАКТИВЕН: %.1fс", leftSec);
+            String leftSec = String.format(Locale.US, "%.1f", (ACTIVE_MS - elapsed) / 1000.0);
+            label = Text.translatable("hud.sandevistan.active", leftSec);
         } else {
             long cdElapsed = elapsed - ACTIVE_MS;
             long cdTotal = COOLDOWN_MS - ACTIVE_MS;
             progress = (float) cdElapsed / cdTotal;
             barColor = 0xFFFF5252;
             borderColor = 0xFFD50000;
-            double cdLeftSec = (COOLDOWN_MS - elapsed) / 1000.0;
-            label = String.format("§cОЖИДАНИЕ: %.1fс", cdLeftSec);
+            String cdLeftSec = String.format(Locale.US, "%.1f", (COOLDOWN_MS - elapsed) / 1000.0);
+            label = Text.translatable("hud.sandevistan.cooldown", cdLeftSec);
         }
 
         ctx.fill(x, y, x + width, y + 1, borderColor);
@@ -77,7 +79,7 @@ public final class SandevistanHud {
         ctx.fill(x, y, x + 1, y + height, borderColor);
         ctx.fill(x + width - 1, y, x + width, y + height, borderColor);
 
-        ctx.drawTextWithShadow(client.textRenderer, Text.literal(label), x + 6, y + 5, 0xFFFFFF);
+        ctx.drawTextWithShadow(client.textRenderer, label, x + 6, y + 5, 0xFFFFFF);
 
         int barX = x + 6;
         int barY = y + 17;
@@ -101,7 +103,7 @@ public final class SandevistanHud {
         int scanCyan = 0xAA00F0FF;
         ctx.fill(16, 16, sw - 16, 17, scanCyan);
         ctx.fill(16, sh - 17, sw - 16, sh - 16, scanCyan);
-        ctx.drawTextWithShadow(client.textRenderer, Text.literal("§b[ KIROSHI OPTICS MK.1 // SCANNER ]"), 22, 22, 0x00F0FF);
+        ctx.drawTextWithShadow(client.textRenderer, Text.translatable("scanner.sandevistan.header"), 22, 22, 0x00F0FF);
         ctx.drawTextWithShadow(client.textRenderer, Text.literal("§eZOOM: 2.5x"), 22, sh - 28, 0xFCEE09);
 
         ctx.fill(cx - 28, cy - 1, cx - 12, cy + 1, 0xCCFF2A55);
@@ -112,13 +114,15 @@ public final class SandevistanHud {
         Entity target = raycastEntity(client, 45.0);
         if (target instanceof LivingEntity living) {
             String targetName = living.getName().getString().toUpperCase();
-            String aggression = getAggressionLabel(living);
-            String faction = getFactionLabel(living);
-            double dist = client.player.distanceTo(living);
+            Text aggression = getAggressionLabel(living);
+            Text faction = getFactionLabel(living);
+            String dist = String.format(Locale.US, "%.1f", client.player.distanceTo(living));
+            String hp = String.format(Locale.US, "%.0f", living.getHealth());
+            String maxHp = String.format(Locale.US, "%.0f", living.getMaxHealth());
 
             int cardX = cx + 36;
             int cardY = cy - 42;
-            int cardW = 148;
+            int cardW = 158;
             int cardH = 84;
 
             ctx.fill(cardX, cardY, cardX + cardW, cardY + cardH, 0xDD14080C);
@@ -126,37 +130,37 @@ public final class SandevistanHud {
             ctx.fill(cardX, cardY + cardH - 1, cardX + cardW, cardY + cardH, 0xFFFF2A55);
             ctx.fill(cardX, cardY, cardX + 2, cardY + cardH, 0xFFFF2A55);
 
-            ctx.drawText(client.textRenderer, Text.literal("§bДАННЫЕ СКАНИРОВАНИЯ"), cardX + 6, cardY + 6, 0x00F0FF, false);
-            ctx.drawText(client.textRenderer, Text.literal("§cЦЕЛЬ:"), cardX + 6, cardY + 19, 0xFF2A55, false);
+            ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.data"), cardX + 6, cardY + 6, 0x00F0FF, false);
+            ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.target"), cardX + 6, cardY + 19, 0xFF2A55, false);
             ctx.drawText(client.textRenderer, Text.literal("§f" + targetName), cardX + 6, cardY + 28, 0xFFFFFF, false);
 
-            ctx.drawText(client.textRenderer, Text.literal("§cСТАТУС УГРОЗЫ:"), cardX + 6, cardY + 41, 0xFF2A55, false);
-            ctx.drawText(client.textRenderer, Text.literal(aggression), cardX + 6, cardY + 50, 0xFFFFFF, false);
+            ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.threat"), cardX + 6, cardY + 41, 0xFF2A55, false);
+            ctx.drawText(client.textRenderer, aggression, cardX + 6, cardY + 50, 0xFFFFFF, false);
 
-            ctx.drawText(client.textRenderer, Text.literal("§cФРАКЦИЯ: §e" + faction), cardX + 6, cardY + 63, 0xFCEE09, false);
-            ctx.drawText(client.textRenderer, Text.literal(String.format("§7ДИСТ: %.1fм // HP: %.0f/%.0f", dist, living.getHealth(), living.getMaxHealth())), cardX + 6, cardY + 73, 0xA0AEC0, false);
+            ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.faction", faction), cardX + 6, cardY + 63, 0xFCEE09, false);
+            ctx.drawText(client.textRenderer, Text.translatable("scanner.sandevistan.stats", dist, hp, maxHp), cardX + 6, cardY + 73, 0xA0AEC0, false);
         }
     }
 
-    private static String getAggressionLabel(LivingEntity entity) {
+    private static Text getAggressionLabel(LivingEntity entity) {
         if (entity instanceof HostileEntity) {
-            return "§4§lВРАЖДЕБЕН (АГРЕССИВНЫЙ)";
+            return Text.translatable("threat.sandevistan.hostile");
         }
         if (entity instanceof Angerable || entity instanceof GolemEntity || entity instanceof PlayerEntity) {
-            return "§e§lНЕЙТРАЛЕН (ПРОВОЦИРУЕМЫЙ)";
+            return Text.translatable("threat.sandevistan.neutral");
         }
-        return "§a§lМИРНЫЙ (БЕЗОПАСЕН)";
+        return Text.translatable("threat.sandevistan.peaceful");
     }
 
-    private static String getFactionLabel(LivingEntity entity) {
-        if (entity instanceof PlayerEntity) return "НАЕМНИКИ / ИГРОКИ";
-        if (entity instanceof VillagerEntity || entity instanceof GolemEntity) return "ГРАЖДАНСКИЕ / ПОСЕЛЕНИЕ";
-        if (entity instanceof IllagerEntity) return "СИНДИКАТ ИЛЛИДЖЕРОВ";
-        if (entity.getType().isIn(EntityTypeTags.UNDEAD)) return "НЕЖИТЬ";
-        if (entity.getType().isIn(EntityTypeTags.ARTHROPOD)) return "ЧЛЕНИСТОНОГИЕ";
-        if (entity.getWorld().getRegistryKey().getValue().getPath().contains("nether")) return "ЛЕГИОН НЕЗЕРА";
-        if (entity.getWorld().getRegistryKey().getValue().getPath().contains("end")) return "СУЩНОСТИ КРАЯ";
-        return "БИОТЕХНИКА / ФАУНА";
+    private static Text getFactionLabel(LivingEntity entity) {
+        if (entity instanceof PlayerEntity) return Text.translatable("faction.sandevistan.players");
+        if (entity instanceof VillagerEntity || entity instanceof GolemEntity) return Text.translatable("faction.sandevistan.civilians");
+        if (entity instanceof IllagerEntity) return Text.translatable("faction.sandevistan.illagers");
+        if (entity.getType().isIn(EntityTypeTags.UNDEAD)) return Text.translatable("faction.sandevistan.undead");
+        if (entity.getType().isIn(EntityTypeTags.ARTHROPOD)) return Text.translatable("faction.sandevistan.arthropods");
+        if (entity.getWorld().getRegistryKey().getValue().getPath().contains("nether")) return Text.translatable("faction.sandevistan.nether");
+        if (entity.getWorld().getRegistryKey().getValue().getPath().contains("end")) return Text.translatable("faction.sandevistan.end");
+        return Text.translatable("faction.sandevistan.fauna");
     }
 
     private static Entity raycastEntity(MinecraftClient client, double maxDist) {
