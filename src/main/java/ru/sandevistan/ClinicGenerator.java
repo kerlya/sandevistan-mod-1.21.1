@@ -21,6 +21,7 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
@@ -46,26 +47,30 @@ public final class ClinicGenerator {
 
             int bx = cpos.getStartX() + 8;
             int bz = cpos.getStartZ() + 8;
-            int by = world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, bx, bz);
-            if (by < 60 || by > 130) return;
 
-            BlockPos center = new BlockPos(bx, by, bz);
-            if (!world.getBlockState(center.down()).isSolidBlock(world, center.down())) return;
-            if (!world.getFluidState(center).isEmpty()) return;
+            world.getServer().execute(() -> {
+                if (!world.isChunkLoaded(cpos.x, cpos.z)) return;
+                int by = world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, bx, bz);
+                if (by < 60 || by > 130) return;
 
-            RegistryEntry<Biome> biome = world.getBiome(center);
-            boolean validBiome = biome.matchesKey(BiomeKeys.PLAINS)
-                || biome.matchesKey(BiomeKeys.FOREST)
-                || biome.matchesKey(BiomeKeys.BIRCH_FOREST)
-                || biome.matchesKey(BiomeKeys.TAIGA)
-                || biome.matchesKey(BiomeKeys.SAVANNA);
-            if (!validBiome) return;
+                BlockPos center = new BlockPos(bx, by, bz);
+                if (!world.getBlockState(center.down()).isSolidBlock(world, center.down())) return;
+                if (!world.getFluidState(center).isEmpty()) return;
 
-            if (!world.getEntitiesByClass(RipperdocEntity.class, new net.minecraft.util.math.Box(center).expand(48.0), e -> true).isEmpty()) {
-                return;
-            }
+                RegistryEntry<Biome> biome = world.getBiome(center);
+                boolean validBiome = biome.matchesKey(BiomeKeys.PLAINS)
+                    || biome.matchesKey(BiomeKeys.FOREST)
+                    || biome.matchesKey(BiomeKeys.BIRCH_FOREST)
+                    || biome.matchesKey(BiomeKeys.TAIGA)
+                    || biome.matchesKey(BiomeKeys.SAVANNA);
+                if (!validBiome) return;
 
-            buildClinic(world, center);
+                if (!world.getEntitiesByClass(RipperdocEntity.class, new Box(center).expand(48.0), e -> true).isEmpty()) {
+                    return;
+                }
+
+                buildClinic(world, center);
+            });
         });
     }
 
