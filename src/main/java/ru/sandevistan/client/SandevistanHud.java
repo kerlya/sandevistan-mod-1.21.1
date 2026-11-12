@@ -18,7 +18,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-
 import java.util.Locale;
 
 public final class SandevistanHud {
@@ -35,6 +34,16 @@ public final class SandevistanHud {
 
         if (SandevistanClient.isScanning()) {
             renderKiroshiScanner(ctx, client);
+        }
+
+        // Иконка телефона в правом нижнем углу экрана (как в Cyberpunk 2077)
+        renderPhoneWidget(ctx, client);
+
+        // Входящий вызов или трекер активного заказа слева
+        if (SandevistanClient.clientCallState == 1) {
+            renderIncomingCall(ctx, client);
+        } else if (SandevistanClient.clientCallState == 2) {
+            renderActiveContractTracker(ctx, client);
         }
 
         if (!SandevistanClient.isEquipped(client)) return;
@@ -92,6 +101,92 @@ public final class SandevistanHud {
         }
     }
 
+    private static void renderPhoneWidget(DrawContext ctx, MinecraftClient client) {
+        int sw = client.getWindow().getScaledWidth();
+        int sh = client.getWindow().getScaledHeight();
+        int px = sw - 38;
+        int py = sh - 34;
+
+        // Неоновая иконка смартфона в правом нижнем углу
+        ctx.fill(px, py, px + 14, py + 22, 0xCC0D1821);
+        ctx.fill(px, py, px + 14, py + 1, 0xFF00F0FF);
+        ctx.fill(px, py + 21, px + 14, py + 22, 0xFF00F0FF);
+        ctx.fill(px, py, px + 1, py + 22, 0xFF00F0FF);
+        ctx.fill(px + 13, py, px + 14, py + 22, 0xFF00F0FF);
+        ctx.fill(px + 2, py + 3, px + 12, py + 17, 0x6600F0FF);
+        ctx.fill(px + 5, py + 19, px + 9, py + 20, 0xFF00F0FF);
+
+        // Индикатор нового звонка или активного контракта
+        if (SandevistanClient.clientCallState > 0) {
+            ctx.fill(px + 11, py - 2, px + 15, py + 2, 0xFFFF2A55);
+        }
+
+        // Подсказка клавиши [P] справа от иконки
+        ctx.drawTextWithShadow(client.textRenderer, Text.literal("§b[P]"), px + 17, py + 7, 0x00F0FF);
+    }
+
+    private static void renderIncomingCall(DrawContext ctx, MinecraftClient client) {
+        int x = 14;
+        int y = 52;
+        int red = 0xFFFF2A55;
+        int cyan = 0xFF00F0FF;
+
+        // Голографическая карточка портрета фиксера со смещенными слоями (как на фото Delamain)
+        ctx.fill(x + 18, y - 4, x + 52, y + 36, 0x33FF2A55);
+        ctx.fill(x + 15, y - 2, x + 49, y + 38, 0x55FF2A55);
+        ctx.fill(x + 12, y, x + 46, y + 40, 0xDD1A080D);
+        ctx.fill(x + 12, y, x + 46, y + 1, red);
+        ctx.fill(x + 12, y + 39, x + 46, y + 40, red);
+        ctx.fill(x + 12, y, x + 13, y + 40, red);
+        ctx.fill(x + 45, y, x + 46, y + 40, red);
+
+        // Силуэт-голограмма звонящего внутри рамки
+        ctx.fill(x + 23, y + 7, x + 35, y + 19, 0xAAFF4D70);
+        ctx.fill(x + 19, y + 21, x + 39, y + 36, 0x88FF4D70);
+        ctx.fill(x + 25, y + 11, x + 33, y + 13, cyan);
+
+        // Маленькая иконка телефона с волнами слева от портрета
+        ctx.fill(x, y + 6, x + 8, y + 19, 0xFF00F0FF);
+        ctx.fill(x + 2, y + 8, x + 6, y + 15, 0xFF0B141A);
+
+        // Текстовый блок справа от портрета
+        int tx = x + 52;
+        ctx.drawText(client.textRenderer, Text.literal("§7TRN_FIXER_9000"), tx, y - 2, 0x8899A6, false);
+        ctx.drawTextWithShadow(client.textRenderer, Text.literal("§b§l" + SandevistanClient.clientFixerName.toUpperCase()), tx, y + 8, 0x00F0FF);
+        ctx.drawTextWithShadow(client.textRenderer, Text.translatable("call.sandevistan.incoming"), tx, y + 19, 0xFF2A55);
+
+        Text mobName = Text.translatable("mob.sandevistan." + SandevistanClient.clientTargetType);
+        ctx.drawTextWithShadow(client.textRenderer,
+            Text.translatable("call.sandevistan.desc", mobName, SandevistanClient.clientGoal, SandevistanClient.clientReward),
+            tx, y + 30, 0xFCEE09);
+
+        // Кнопки [Y] ОТВЕТИТЬ и [N] СБРОСИТЬ в красных рамках
+        int btnY = y + 43;
+        drawCallKeyButton(ctx, client, tx, btnY, "Y", Text.translatable("call.sandevistan.answer"));
+        drawCallKeyButton(ctx, client, tx + 76, btnY, "N", Text.translatable("call.sandevistan.reject"));
+    }
+
+    private static void drawCallKeyButton(DrawContext ctx, MinecraftClient client, int bx, int by, String key, Text label) {
+        ctx.fill(bx, by, bx + 13, by + 13, 0xCC1A080D);
+        ctx.fill(bx, by, bx + 13, by + 1, 0xFFFF2A55);
+        ctx.fill(bx, by + 12, bx + 13, by + 13, 0xFFFF2A55);
+        ctx.fill(bx, by, bx + 1, by + 13, 0xFFFF2A55);
+        ctx.fill(bx + 12, by, bx + 13, by + 13, 0xFFFF2A55);
+        ctx.drawText(client.textRenderer, key, bx + 4, by + 3, 0x00F0FF, false);
+        ctx.drawTextWithShadow(client.textRenderer, label, bx + 16, by + 3, 0x00F0FF);
+    }
+
+    private static void renderActiveContractTracker(DrawContext ctx, MinecraftClient client) {
+        int x = 14;
+        int y = 52;
+        ctx.fill(x, y, x + 152, y + 32, 0xBB14080C);
+        ctx.fill(x, y, x + 2, y + 32, 0xFF00F0FF);
+        ctx.drawText(client.textRenderer, Text.literal("§b" + SandevistanClient.clientFixerName), x + 6, y + 4, 0x00F0FF, false);
+        Text mobName = Text.translatable("mob.sandevistan." + SandevistanClient.clientTargetType);
+        ctx.drawText(client.textRenderer,
+            Text.translatable("call.sandevistan.progress", mobName, SandevistanClient.clientProgress, SandevistanClient.clientGoal, SandevistanClient.clientReward),
+            x + 6, y + 17, 0xFCEE09, false);
+    }
     private static void renderKiroshiScanner(DrawContext ctx, MinecraftClient client) {
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
@@ -143,12 +238,8 @@ public final class SandevistanHud {
     }
 
     private static Text getAggressionLabel(LivingEntity entity) {
-        if (entity instanceof HostileEntity) {
-            return Text.translatable("threat.sandevistan.hostile");
-        }
-        if (entity instanceof Angerable || entity instanceof GolemEntity || entity instanceof PlayerEntity) {
-            return Text.translatable("threat.sandevistan.neutral");
-        }
+        if (entity instanceof HostileEntity) return Text.translatable("threat.sandevistan.hostile");
+        if (entity instanceof Angerable || entity instanceof GolemEntity || entity instanceof PlayerEntity) return Text.translatable("threat.sandevistan.neutral");
         return Text.translatable("threat.sandevistan.peaceful");
     }
 
