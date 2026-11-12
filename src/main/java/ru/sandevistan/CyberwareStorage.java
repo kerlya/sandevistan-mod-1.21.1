@@ -16,16 +16,17 @@ import java.util.Map;
 import java.util.UUID;
 
 public class CyberwareStorage extends PersistentState {
+    public static final int SLOT_COUNT = 5;
     private final Map<UUID, DefaultedList<ItemStack>> playerSlots = new HashMap<>();
 
     public DefaultedList<ItemStack> getSlots(UUID uuid) {
-        return playerSlots.computeIfAbsent(uuid, k -> DefaultedList.ofSize(4, ItemStack.EMPTY));
+        return playerSlots.computeIfAbsent(uuid, k -> DefaultedList.ofSize(SLOT_COUNT, ItemStack.EMPTY));
     }
 
     public Inventory getInventory(PlayerEntity player) {
         DefaultedList<ItemStack> items = getSlots(player.getUuid());
         return new Inventory() {
-            @Override public int size() { return 4; }
+            @Override public int size() { return SLOT_COUNT; }
             @Override public boolean isEmpty() { return items.stream().allMatch(ItemStack::isEmpty); }
             @Override public ItemStack getStack(int slot) { return items.get(slot); }
             @Override public ItemStack removeStack(int slot, int amount) {
@@ -66,7 +67,7 @@ public class CyberwareStorage extends PersistentState {
         CyberwareStorage state = new CyberwareStorage();
         NbtCompound users = nbt.getCompound("Users");
         for (String key : users.getKeys()) {
-            DefaultedList<ItemStack> list = DefaultedList.ofSize(4, ItemStack.EMPTY);
+            DefaultedList<ItemStack> list = DefaultedList.ofSize(SLOT_COUNT, ItemStack.EMPTY);
             Inventories.readNbt(users.getCompound(key), list, registries);
             state.playerSlots.put(UUID.fromString(key), list);
         }
