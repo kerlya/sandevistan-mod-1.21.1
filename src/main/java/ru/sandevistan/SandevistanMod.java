@@ -53,7 +53,6 @@ public final class SandevistanMod implements ModInitializer {
 
     private static final Identifier ARMOR_MOD_ID = Identifier.of("sandevistan", "cyberware_armor");
     private static final SoundEvent ACTIVATE = sound("activate");
-    private static final SoundEvent CLASH = sound("smasher_clash");
 
     private static final Map<UUID, Long> ACTIVE = new HashMap<>();
     private static final Map<UUID, Long> COOLDOWN = new HashMap<>();
@@ -114,7 +113,7 @@ public final class SandevistanMod implements ModInitializer {
                 CyberwareStorage storage = CyberwareStorage.get(context.server());
                 p.openHandledScreen(new SimpleNamedScreenHandlerFactory(
                     (syncId, inv, player) -> new CyberwareScreenHandler(syncId, inv, storage.getInventory(player)),
-                    Text.literal("Киберимпланты")
+                    Text.translatable("gui.sandevistan.title")
                 ));
             }));
 
@@ -140,37 +139,23 @@ public final class SandevistanMod implements ModInitializer {
         OVERUSE_COUNT.put(id, count);
         LAST_USE_TIME.put(id, now);
 
-        ServerPlayerEntity other = p.getServerWorld().getPlayers().stream()
-            .filter(q -> q != p && ACTIVE.getOrDefault(q.getUuid(), 0L) > now)
-            .filter(q -> q.squaredDistanceTo(p) <= 625.0).findFirst().orElse(null);
-
         ACTIVE.put(id, now + ACTIVE_MS);
         COOLDOWN.put(id, now + COOLDOWN_MS);
         p.getServerWorld().playSound(null, p.getBlockPos(), ACTIVATE, SoundCategory.PLAYERS, 1f, 1f);
 
         if (count == 3) {
-            p.sendMessage(Text.literal("§c[СБОЙ СИСТЕМЫ]: §eПерегрузка нервной системы! Сделайте перерыв."), true);
+            p.sendMessage(Text.translatable("msg.sandevistan.overload"), true);
             p.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 100, 0, true, false, true));
             p.damage(p.getDamageSources().magic(), 2.0f);
         } else if (count >= 4) {
             PSYCHOSIS_END.put(id, now + PSYCHOSIS_MS);
             OVERUSE_COUNT.put(id, 0);
-            p.sendMessage(Text.literal("§4§l[КРИТИЧЕСКИЙ СБОЙ]: ОБНАРУЖЕН КИБЕРПСИХОЗ!"), false);
+            p.sendMessage(Text.translatable("msg.sandevistan.psychosis"), false);
             p.damage(p.getDamageSources().magic(), 4.0f);
             p.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 300, 1, true, false, true));
             p.addStatusEffect(new StatusEffectInstance(StatusEffects.DARKNESS, 300, 0, true, false, true));
             p.addStatusEffect(new StatusEffectInstance(StatusEffects.WITHER, 120, 0, true, false, true));
             p.getServerWorld().playSound(null, p.getBlockPos(), SoundEvents.ENTITY_WARDEN_HEARTBEAT, SoundCategory.PLAYERS, 1.5f, 0.8f);
-        }
-
-        if (other != null) {
-            p.getServerWorld().playSound(null, p.getBlockPos(), CLASH, SoundCategory.PLAYERS, 1f, 1f);
-            for (ServerPlayerEntity q : p.getServerWorld().getPlayers()) {
-                if (q.squaredDistanceTo(p) <= 1024.0) {
-                    q.sendMessage(Text.literal("§c[Адам Смэшер]: §f«Примитивный имплант.»"), false);
-                    q.sendMessage(Text.literal("§a[Дэвид Мартинес]: §f«Заткнись!»"), false);
-                }
-            }
         }
     }
 
@@ -214,12 +199,12 @@ public final class SandevistanMod implements ModInitializer {
                     p.playSoundToPlayer(hallucination, SoundCategory.HOSTILE, 0.8f, 0.6f + w.random.nextFloat() * 0.5f);
                 }
                 if (worldTicks % 60 == 0) {
-                    String glitchText = switch (w.random.nextInt(3)) {
-                        case 0 -> "§4[ОШИБКА]: §cПотеря контроля над моторикой...";
-                        case 1 -> "§4[СБОЙ]: §cОни повсюду... Я должен бежать...";
-                        default -> "§4[ВНИМАНИЕ]: §cНейронная связь разрушается!";
+                    Text glitchText = switch (w.random.nextInt(3)) {
+                        case 0 -> Text.translatable("msg.sandevistan.glitch.0");
+                        case 1 -> Text.translatable("msg.sandevistan.glitch.1");
+                        default -> Text.translatable("msg.sandevistan.glitch.2");
                     };
-                    p.sendMessage(Text.literal(glitchText), true);
+                    p.sendMessage(glitchText, true);
                 }
                 w.addParticle(new DustParticleEffect(new Vector3f(0.9f, 0.05f, 0.05f), 1.2f),
                     p.getX() + (w.random.nextDouble() - 0.5),
