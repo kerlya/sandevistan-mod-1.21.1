@@ -76,5 +76,19 @@
   "msg.sandevistan.bank.not_found": "§c[БАНК]: Игрок не найден в сети.",
   "msg.sandevistan.bank.no_funds": "§c[БАНК]: Недостаточно Эдди на счете.",
   "msg.sandevistan.bank.sent": "§b[БАНК]: §eВы перевели §a€$%s §eигроку §f%s.",
-  "msg.sandevistan.bank.received": "§b[БАНК]: §aПолучен перевод €$%s от %s."
+  "msg.sandevistan.bank.received": "§b[БАНК]: §aПолучен перевод €$%s от %s.",
+
+  "shop.sandevistan.title": "РИПЕРДОК // ИМПЛАНТЫ",
+  "shop.sandevistan.cat.all": "ВСЕ",
+  "shop.sandevistan.cat.os": "ОС",
+  "shop.sandevistan.cat.eyes": "ГЛАЗА",
+  "shop.sandevistan.cat.arms": "РУКИ",
+  "shop.sandevistan.cat.skin": "КОЖА",
+  "shop.sandevistan.cat.legs": "НОГИ",
+  "shop.sandevistan.buy": "КУПИТЬ",
+  "shop.sandevistan.empty": "В этой категории пока нет имплантов",
+  "shop.sandevistan.footer": "ВЫБЕРИТЕ ИМПЛАНТ",
+  "msg.sandevistan.ripperdoc.spawned": "§b[РИПЕРДОК]: §aВиктор Вектор прибыл. Нажмите ПКМ по нему.",
+  "msg.sandevistan.ripperdoc.removed": "§b[РИПЕРДОК]: §eУдалено рипердоков: %s.",
+  "msg.sandevistan.shop.bought": "§b[РИПЕРДОК]: §aПриобретено: §f%s §7(-€$%s)"
 }
