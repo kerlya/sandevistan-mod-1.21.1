@@ -111,12 +111,13 @@ public final class CyberCraftManager {
         }
 
         ItemStack out = new ItemStack(recipe.result());
+        Text itemName = out.getName();
         if (!p.getInventory().insertStack(out)) {
             p.dropItem(out, false);
         }
 
         p.playSoundToPlayer(SoundEvents.BLOCK_ANVIL_USE, SoundCategory.MASTER, 0.85f, 1.25f);
-        p.sendMessage(Text.translatable("msg.sandevistan.craft.done", out.getName(), recipe.xpReward()), false);
+        p.sendMessage(Text.translatable("msg.sandevistan.craft.done", itemName, recipe.xpReward()), false);
         grantXp(p, recipe.xpReward());
     }
 }
