@@ -1,5 +1,4 @@
 {
-  "credit": "Sandevistan Mod 3D Placeholder",
   "textures": {
     "body": "minecraft:block/netherite_block",
     "grip": "minecraft:block/black_concrete",
@@ -9,7 +8,6 @@
   },
   "elements": [
     {
-      "name": "receiver",
       "from": [6.8, 7.0, 4.0],
       "to": [9.2, 9.6, 13.0],
       "faces": {
@@ -22,7 +20,6 @@
       }
     },
     {
-      "name": "barrel",
       "from": [7.3, 7.7, 1.0],
       "to": [8.7, 9.1, 4.0],
       "faces": {
@@ -35,7 +32,6 @@
       }
     },
     {
-      "name": "grip",
       "from": [7.0, 3.2, 9.2],
       "to": [9.0, 7.0, 11.4],
       "rotation": {"angle": 12.5, "axis": "x", "origin": [8.0, 7.0, 10.3]},
@@ -49,7 +45,6 @@
       }
     },
     {
-      "name": "magazine",
       "from": [7.2, 2.5, 5.2],
       "to": [8.8, 7.0, 7.0],
       "rotation": {"angle": -10.0, "axis": "x", "origin": [8.0, 7.0, 6.1]},
@@ -63,7 +58,6 @@
       }
     },
     {
-      "name": "sight",
       "from": [7.3, 9.6, 7.5],
       "to": [8.7, 10.8, 10.2],
       "faces": {
@@ -76,7 +70,6 @@
       }
     },
     {
-      "name": "neon_stripe",
       "from": [6.7, 8.2, 5.0],
       "to": [9.3, 8.6, 12.2],
       "faces": {
@@ -89,7 +82,6 @@
       }
     },
     {
-      "name": "stock",
       "from": [7.4, 7.5, 13.0],
       "to": [8.6, 9.2, 15.6],
       "faces": {
