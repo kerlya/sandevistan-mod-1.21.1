@@ -17,7 +17,7 @@
   "gui.sandevistan.slot.skin": "SKIN",
   "gui.sandevistan.slot.legs": "LEGS",
 
-  "hud.sandevistan.ready": "§aSANDEVISTAN: READY [R]",
+  "hud.sandevistan.ready": "§aSANDEVISTAN: READY [%s]",
   "hud.sandevistan.active": "§eACTIVE: %ss",
   "hud.sandevistan.cooldown": "§cCOOLDOWN: %ss",
 
