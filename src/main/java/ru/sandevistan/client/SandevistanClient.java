@@ -83,7 +83,7 @@ public final class SandevistanClient implements ClientModInitializer {
                     int by = (scaledHeight - 166) / 2 - 20;
                     Text tabLabel = Text.translatable("craft.sandevistan.tab");
                     int bw = Math.max(114, client.textRenderer.getWidth(tabLabel) + 14);
-                    boolean hover = mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + 18;
+                    boolean hover = mouseX >= bx && !(mouseX > bx + bw) && mouseY >= by && !(mouseY > by + 18);
 
                     int bg = hover ? 0xFF3A101E : 0xEE18080D;
                     int border = hover ? 0xFF00F0FF : 0xFFFF2A55;
@@ -101,7 +101,16 @@ public final class SandevistanClient implements ClientModInitializer {
                         int by = (scaledHeight - 166) / 2 - 20;
                         Text tabLabel = Text.translatable("craft.sandevistan.tab");
                         int bw = Math.max(114, client.textRenderer.getWidth(tabLabel) + 14);
-                        if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY  {
+                        if (mouseX >= bx && !(mouseX > bx + bw) && mouseY >= by && !(mouseY > by + 18)) {
+                            client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.2f));
+                            client.setScreen(new CyberCraftScreen(scr));
+                        }
+                    }
+                });
+            }
+        });
+
+        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
             if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
                 registrationHelper.register(new SandevistanBackFeatureRenderer(playerRenderer));
             }
