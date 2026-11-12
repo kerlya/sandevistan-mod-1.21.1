@@ -1,0 +1,46 @@
+{
+  "item.sandevistan.sandevistan": "Sandevistan",
+  "item.sandevistan.kiroshi_mk1": "Kiroshi Optics Mk.1",
+  "key.sandevistan.activate": "Activate Sandevistan",
+  "key.sandevistan.menu": "Cyberware Menu",
+  "key.sandevistan.scan": "Kiroshi Scanner (Zoom)",
+  "category.sandevistan": "Sandevistan Mod",
+
+  "gui.sandevistan.title": "CYBERWARE",
+  "gui.sandevistan.inventory": "INVENTORY",
+  "gui.sandevistan.slot.os": "OS",
+  "gui.sandevistan.slot.eyes": "EYES",
+  "gui.sandevistan.slot.arms": "ARMS",
+  "gui.sandevistan.slot.skin": "SKIN",
+  "gui.sandevistan.slot.legs": "LEGS",
+
+  "hud.sandevistan.ready": "§aSANDEVISTAN: READY [R]",
+  "hud.sandevistan.active": "§eACTIVE: %ss",
+  "hud.sandevistan.cooldown": "§cCOOLDOWN: %ss",
+
+  "scanner.sandevistan.header": "§b[ KIROSHI OPTICS MK.1 // SCANNER ]",
+  "scanner.sandevistan.data": "§bSCAN DATA",
+  "scanner.sandevistan.target": "§cTARGET:",
+  "scanner.sandevistan.threat": "§cTHREAT LEVEL:",
+  "scanner.sandevistan.faction": "§cFACTION: §e%s",
+  "scanner.sandevistan.stats": "§7DIST: %sm // HP: %s/%s",
+
+  "threat.sandevistan.hostile": "§4§lHOSTILE (AGGRESSIVE)",
+  "threat.sandevistan.neutral": "§e§lNEUTRAL (PROVOKABLE)",
+  "threat.sandevistan.peaceful": "§a§lPEACEFUL (SAFE)",
+
+  "faction.sandevistan.players": "MERCENARIES / PLAYERS",
+  "faction.sandevistan.civilians": "CIVILIANS / SETTLEMENT",
+  "faction.sandevistan.illagers": "ILLAGER SYNDICATE",
+  "faction.sandevistan.undead": "UNDEAD",
+  "faction.sandevistan.arthropods": "ARTHROPODS",
+  "faction.sandevistan.nether": "NETHER LEGION",
+  "faction.sandevistan.end": "END ENTITIES",
+  "faction.sandevistan.fauna": "BIOTECH / FAUNA",
+
+  "msg.sandevistan.overload": "§c[SYSTEM FAULT]: §eNervous system overload! Take a break.",
+  "msg.sandevistan.psychosis": "§4§l[CRITICAL FAILURE]: CYBERPSYCHOSIS DETECTED!",
+  "msg.sandevistan.glitch.0": "§4[ERROR]: §cLoss of motor control...",
+  "msg.sandevistan.glitch.1": "§4[FAULT]: §cThey are everywhere... I need to run...",
+  "msg.sandevistan.glitch.2": "§4[WARNING]: §cNeural link collapsing!"
+}
