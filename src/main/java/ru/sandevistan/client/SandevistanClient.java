@@ -30,6 +30,7 @@ public final class SandevistanClient implements ClientModInitializer {
     public static KeyBinding phoneKey;
     public static KeyBinding acceptCallKey;
     public static KeyBinding rejectCallKey;
+    public static KeyBinding reloadKey;
 
     public static long lastActivateMs = 0L;
     public static boolean clientHasSandevistan = false;
@@ -166,6 +167,7 @@ public final class SandevistanClient implements ClientModInitializer {
         phoneKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.phone", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Z, "category.sandevistan"));
         acceptCallKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.accept", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Y, "category.sandevistan"));
         rejectCallKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.reject", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.sandevistan"));
+        reloadKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.reload", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_X, "category.sandevistan"));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (menuKey.wasPressed()) {
@@ -179,6 +181,11 @@ public final class SandevistanClient implements ClientModInitializer {
             }
             while (rejectCallKey.wasPressed()) {
                 if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(2, "", "", 0L));
+            }
+            while (reloadKey.wasPressed()) {
+                if (client.player != null && client.currentScreen == null && client.player.getMainHandStack().isOf(SandevistanMod.SARATOGA_M221)) {
+                    ClientPlayNetworking.send(new ReloadWeaponPayload());
+                }
             }
             while (activateKey.wasPressed()) {
                 if (client.player != null && client.getNetworkHandler() != null && isEquipped(client)) {
