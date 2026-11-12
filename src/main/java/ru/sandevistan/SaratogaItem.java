@@ -85,7 +85,7 @@ public class SaratogaItem extends Item {
 
         int usedTicks = 72000 - remainingUseTicks;
         boolean sandyActive = SandevistanMod.isSandevistanActive(sp);
-        int fireInterval = sandyActive ? 2 : 3;
+        int fireInterval = sandyActive ? 3 : 4;
         if (usedTicks % fireInterval != 0) return;
 
         int ammo = getAmmo(stack);
@@ -104,14 +104,14 @@ public class SaratogaItem extends Item {
         Vec3d eyePos = sp.getCameraPosVec(1.0f);
         Vec3d look = sp.getRotationVec(1.0f);
 
-        double spread = Math.min(0.035, 0.008 + burstTick * 0.0005);
+        double spread = Math.min(0.045, 0.012 + burstTick * 0.0006);
         Vec3d dir = look.add(
             (world.random.nextDouble() - 0.5) * spread,
             (world.random.nextDouble() - 0.5) * spread,
             (world.random.nextDouble() - 0.5) * spread
         ).normalize();
 
-        double maxRange = 55.0;
+        double maxRange = 32.0;
         Vec3d endPos = eyePos.add(dir.multiply(maxRange));
 
         BlockHitResult blockHit = world.raycast(new RaycastContext(
@@ -130,12 +130,12 @@ public class SaratogaItem extends Item {
             Vec3d hitPos = entityHit.getPos();
             actualEnd = hitPos;
 
-            float dmg = 5.5f;
+            float dmg = 3.5f;
             boolean headshot = false;
             if (target instanceof LivingEntity living) {
                 double headThreshold = living.getY() + living.getHeight() * 0.78;
                 if (hitPos.y >= headThreshold) {
-                    dmg = 8.5f;
+                    dmg = 5.5f;
                     headshot = true;
                 }
                 living.hurtTime = 0;
