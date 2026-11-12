@@ -100,7 +100,6 @@
   "fixer.sandevistan.last.7": "Kane",
   "fixer.sandevistan.last.8": "Mercer",
   "fixer.sandevistan.last.9": "Fox",
-
   "target.sandevistan.zombie": "Zombies",
   "target.sandevistan.skeleton": "Skeletons",
   "target.sandevistan.creeper": "Creepers",
@@ -161,6 +160,7 @@
   "shop.sandevistan.empty": "No implants in this category yet",
   "shop.sandevistan.footer": "SELECT IMPLANT",
   "msg.sandevistan.ripperdoc.spawned": "§b[RIPPERDOC]: §aRipperdoc spawned. Right-click him to trade.",
+  "msg.sandevistan.clinic.spawned": "§b[CLINIC]: §aUnderground ripperdoc clinic built nearby.",
   "msg.sandevistan.ripperdoc.removed": "§b[RIPPERDOC]: §eRemoved ripperdocs: %s.",
   "msg.sandevistan.shop.bought": "§b[RIPPERDOC]: §aPurchased: §f%s §7(-€$%s)",
 
