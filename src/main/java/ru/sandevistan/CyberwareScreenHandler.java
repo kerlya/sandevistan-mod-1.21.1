@@ -11,68 +11,75 @@ import net.minecraft.screen.slot.Slot;
 public class CyberwareScreenHandler extends ScreenHandler {
     private final Inventory cyberwareInv;
 
-    public CyberwareScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(CyberwareStorage.SLOT_COUNT));
+    public CyberwareScreenHandler(int syncId, PlayerInventory playerInv) {
+        this(syncId, playerInv, new SimpleInventory(CyberwareStorage.SLOT_COUNT));
     }
 
-    public CyberwareScreenHandler(int syncId, PlayerInventory playerInventory, Inventory cyberwareInv) {
+    public CyberwareScreenHandler(int syncId, PlayerInventory playerInv, Inventory cyberwareInv) {
         super(SandevistanMod.CYBERWARE_HANDLER, syncId);
-        checkSize(cyberwareInv, CyberwareStorage.SLOT_COUNT);
         this.cyberwareInv = cyberwareInv;
-        cyberwareInv.onOpen(playerInventory.player);
+        cyberwareInv.onOpen(playerInv.player);
 
-        this.addSlot(new Slot(cyberwareInv, 0, 152, 32) {
+        // 0: ОС (Сандевистан)
+        this.addSlot(new Slot(cyberwareInv, 0, 22, 34) {
             @Override public boolean canInsert(ItemStack stack) { return stack.isOf(SandevistanMod.SANDEVISTAN); }
             @Override public int getMaxItemCount() { return 1; }
         });
-        this.addSlot(new Slot(cyberwareInv, 1, 152, 64) {
+
+        // 1: ГЛАЗА (Оптика Кироши)
+        this.addSlot(new Slot(cyberwareInv, 1, 22, 62) {
             @Override public boolean canInsert(ItemStack stack) { return stack.isOf(SandevistanMod.KIROSHI_MK1); }
             @Override public int getMaxItemCount() { return 1; }
         });
-        this.addSlot(new Slot(cyberwareInv, 2, 48, 36) {
+
+        // 2: РУКИ (Металлические руки)
+        this.addSlot(new Slot(cyberwareInv, 2, 138, 34) {
+            @Override public boolean canInsert(ItemStack stack) { return stack.isOf(SandevistanMod.METAL_ARMS); }
+            @Override public int getMaxItemCount() { return 1; }
+        });
+
+        // 3: КОЖА (резерв)
+        this.addSlot(new Slot(cyberwareInv, 3, 138, 62) {
             @Override public boolean canInsert(ItemStack stack) { return false; }
             @Override public int getMaxItemCount() { return 1; }
         });
-        this.addSlot(new Slot(cyberwareInv, 3, 48, 84) {
-            @Override public boolean canInsert(ItemStack stack) { return false; }
-            @Override public int getMaxItemCount() { return 1; }
-        });
-        this.addSlot(new Slot(cyberwareInv, 4, 152, 96) {
+
+        // 4: НОГИ (резерв)
+        this.addSlot(new Slot(cyberwareInv, 4, 138, 90) {
             @Override public boolean canInsert(ItemStack stack) { return false; }
             @Override public int getMaxItemCount() { return 1; }
         });
 
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                this.addSlot(new Slot(playerInventory, col + row * 9 + 9, 28 + col * 18, 134 + row * 18));
+                this.addSlot(new Slot(playerInv, col + row * 9 + 9, 8 + col * 18, 134 + row * 18));
             }
         }
         for (int col = 0; col < 9; ++col) {
-            this.addSlot(new Slot(playerInventory, col, 28 + col * 18, 192));
+            this.addSlot(new Slot(playerInv, col, 8 + col * 18, 192));
         }
+    }
+
+    @Override
+    public ItemStack quickMove(PlayerEntity player, int slotIndex) {
+        ItemStack newStack = ItemStack.EMPTY;
+        Slot slot = this.slots.get(slotIndex);
+        if (slot != null && slot.hasStack()) {
+            ItemStack original = slot.getStack();
+            newStack = original.copy();
+            if (slotIndex < CyberwareStorage.SLOT_COUNT) {
+                if (!this.insertItem(original, CyberwareStorage.SLOT_COUNT, this.slots.size(), true)) return ItemStack.EMPTY;
+            } else {
+                if (!this.insertItem(original, 0, CyberwareStorage.SLOT_COUNT, false)) return ItemStack.EMPTY;
+            }
+            if (original.isEmpty()) slot.setStack(ItemStack.EMPTY);
+            else slot.markDirty();
+        }
+        return newStack;
     }
 
     @Override
     public boolean canUse(PlayerEntity player) {
         return this.cyberwareInv.canPlayerUse(player);
-    }
-
-    @Override
-    public ItemStack quickMove(PlayerEntity player, int invSlot) {
-        ItemStack newStack = ItemStack.EMPTY;
-        Slot slot = this.slots.get(invSlot);
-        if (slot != null && slot.hasStack()) {
-            ItemStack originalStack = slot.getStack();
-            newStack = originalStack.copy();
-            int totalSlots = CyberwareStorage.SLOT_COUNT;
-            if (invSlot < totalSlots) {
-                if (!this.insertItem(originalStack, totalSlots, totalSlots + 36, true)) return ItemStack.EMPTY;
-            } else if (!this.insertItem(originalStack, 0, totalSlots, false)) {
-                return ItemStack.EMPTY;
-            }
-            if (originalStack.isEmpty()) slot.setStack(ItemStack.EMPTY);
-            else slot.markDirty();
-        }
-        return newStack;
     }
 }
