@@ -1,6 +1,7 @@
 {
   "item.sandevistan.sandevistan": "Sandevistan",
   "item.sandevistan.kiroshi_mk1": "Kiroshi Optics Mk.1",
+  "item.sandevistan.metal_arms": "Scrap Metal Arms",
   "key.sandevistan.activate": "Activate Sandevistan",
   "key.sandevistan.menu": "Cyberware Menu",
   "key.sandevistan.scan": "Kiroshi Scanner (Zoom)",
@@ -149,5 +150,19 @@
   "shop.sandevistan.footer": "SELECT IMPLANT",
   "msg.sandevistan.ripperdoc.spawned": "§b[RIPPERDOC]: §aViktor Vektor spawned. Right-click him to trade.",
   "msg.sandevistan.ripperdoc.removed": "§b[RIPPERDOC]: §eRemoved ripperdocs: %s.",
-  "msg.sandevistan.shop.bought": "§b[RIPPERDOC]: §aPurchased: §f%s §7(-€$%s)"
+  "msg.sandevistan.shop.bought": "§b[RIPPERDOC]: §aPurchased: §f%s §7(-€$%s)",
+
+  "craft.sandevistan.tab": "CRAFT CYBERWARE",
+  "craft.sandevistan.back": "< WORKBENCH",
+  "craft.sandevistan.title": "CRAFT CYBERWARE",
+  "craft.sandevistan.ingredients": "REQUIRED MATERIALS:",
+  "craft.sandevistan.create": "CRAFT",
+  "craft.sandevistan.empty": "No blueprints in this category",
+  "craft.sandevistan.footer": "SELECT BLUEPRINT",
+
+  "msg.sandevistan.level.info": "§b[CYBERTECH]: §eLevel: §a%s §7(Progress: %s / %s XP)",
+  "msg.sandevistan.level.up": "§b[CYBERTECH]: §a§lLEVEL UP! §eYour level is now: §f%s",
+  "msg.sandevistan.craft.low_level": "§c[CRAFT]: Requires level %s!",
+  "msg.sandevistan.craft.no_items": "§c[CRAFT]: Not enough materials in inventory!",
+  "msg.sandevistan.craft.done": "§b[CRAFT]: §aCrafted: §f%s §7(+%s XP)"
 }
