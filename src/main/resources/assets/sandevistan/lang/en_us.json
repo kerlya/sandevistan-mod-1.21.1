@@ -76,5 +76,19 @@
   "msg.sandevistan.bank.not_found": "§c[BANK]: Player not found online.",
   "msg.sandevistan.bank.no_funds": "§c[BANK]: Insufficient Eddies.",
   "msg.sandevistan.bank.sent": "§b[BANK]: §eSent §a€$%s §eto §f%s.",
-  "msg.sandevistan.bank.received": "§b[BANK]: §aReceived €$%s from %s."
+  "msg.sandevistan.bank.received": "§b[BANK]: §aReceived €$%s from %s.",
+
+  "shop.sandevistan.title": "RIPPERDOC // CYBERWARE",
+  "shop.sandevistan.cat.all": "ALL",
+  "shop.sandevistan.cat.os": "OS",
+  "shop.sandevistan.cat.eyes": "EYES",
+  "shop.sandevistan.cat.arms": "ARMS",
+  "shop.sandevistan.cat.skin": "SKIN",
+  "shop.sandevistan.cat.legs": "LEGS",
+  "shop.sandevistan.buy": "BUY",
+  "shop.sandevistan.empty": "No implants in this category yet",
+  "shop.sandevistan.footer": "SELECT IMPLANT",
+  "msg.sandevistan.ripperdoc.spawned": "§b[RIPPERDOC]: §aViktor Vektor spawned. Right-click him to trade.",
+  "msg.sandevistan.ripperdoc.removed": "§b[RIPPERDOC]: §eRemoved ripperdocs: %s.",
+  "msg.sandevistan.shop.bought": "§b[RIPPERDOC]: §aPurchased: §f%s §7(-€$%s)"
 }
