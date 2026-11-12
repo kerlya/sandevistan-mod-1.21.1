@@ -35,9 +35,9 @@ public final class SandevistanHud {
         if (raw == null || raw.isEmpty()) return "";
         String[] parts = raw.split(":");
         if (parts.length == 3) {
-            String first = Text.translatable("fixer.sandevistan.first." + parts).getString();
-            String nick = Text.translatable("fixer.sandevistan.nick." + parts).getString();
-            String last = Text.translatable("fixer.sandevistan.last." + parts).getString();
+            String first = Text.translatable("fixer.sandevistan.first." + parts[0]).getString();
+            String nick = Text.translatable("fixer.sandevistan.nick." + parts[1]).getString();
+            String last = Text.translatable("fixer.sandevistan.last." + parts[2]).getString();
             return first + " " + nick + " " + last;
         }
         return raw;
