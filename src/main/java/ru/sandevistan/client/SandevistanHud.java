@@ -63,7 +63,8 @@ public final class SandevistanHud {
             progress = 1.0f;
             barColor = 0xFF00E676;
             borderColor = 0xFF00C853;
-            label = Text.translatable("hud.sandevistan.ready");
+            String actKey = SandevistanClient.getKeyLabel(SandevistanClient.activateKey, "R");
+            label = Text.translatable("hud.sandevistan.ready", actKey);
         } else if (elapsed < ACTIVE_MS) {
             progress = 1.0f - (float) elapsed / ACTIVE_MS;
             boolean pulse = (elapsed / 150L) % 2 == 0;
@@ -102,7 +103,9 @@ public final class SandevistanHud {
     private static void renderPhoneWidget(DrawContext ctx, MinecraftClient client) {
         int sw = client.getWindow().getScaledWidth();
         int sh = client.getWindow().getScaledHeight();
-        int px = sw - 38;
+        String phoneKeyName = SandevistanClient.getKeyLabel(SandevistanClient.phoneKey, "Z");
+        int keyTextW = client.textRenderer.getWidth("[" + phoneKeyName + "]");
+        int px = sw - 24 - keyTextW;
         int py = sh - 34;
 
         ctx.fill(px, py, px + 14, py + 22, 0xCC0D1821);
@@ -117,7 +120,7 @@ public final class SandevistanHud {
             ctx.fill(px + 11, py - 2, px + 15, py + 2, 0xFFFF2A55);
         }
 
-        ctx.drawTextWithShadow(client.textRenderer, Text.literal("§b[Z]"), px + 17, py + 7, 0x00F0FF);
+        ctx.drawTextWithShadow(client.textRenderer, Text.literal("§b[" + phoneKeyName + "]"), px + 17, py + 7, 0x00F0FF);
     }
 
     private static void renderIncomingCall(DrawContext ctx, MinecraftClient client) {
@@ -152,18 +155,22 @@ public final class SandevistanHud {
             tx, y + 30, 0xFCEE09);
 
         int btnY = y + 43;
-        drawCallKeyButton(ctx, client, tx, btnY, "Y", Text.translatable("call.sandevistan.answer"));
-        drawCallKeyButton(ctx, client, tx + 76, btnY, "N", Text.translatable("call.sandevistan.reject"));
+        String acceptKeyName = SandevistanClient.getKeyLabel(SandevistanClient.acceptCallKey, "Y");
+        String rejectKeyName = SandevistanClient.getKeyLabel(SandevistanClient.rejectCallKey, "N");
+        int nextBtnX = drawCallKeyButton(ctx, client, tx, btnY, acceptKeyName, Text.translatable("call.sandevistan.answer"));
+        drawCallKeyButton(ctx, client, nextBtnX + 10, btnY, rejectKeyName, Text.translatable("call.sandevistan.reject"));
     }
 
-    private static void drawCallKeyButton(DrawContext ctx, MinecraftClient client, int bx, int by, String key, Text label) {
-        ctx.fill(bx, by, bx + 13, by + 13, 0xCC1A080D);
-        ctx.fill(bx, by, bx + 13, by + 1, 0xFFFF2A55);
-        ctx.fill(bx, by + 12, bx + 13, by + 13, 0xFFFF2A55);
+    private static int drawCallKeyButton(DrawContext ctx, MinecraftClient client, int bx, int by, String key, Text label) {
+        int keyW = Math.max(13, client.textRenderer.getWidth(key) + 6);
+        ctx.fill(bx, by, bx + keyW, by + 13, 0xCC1A080D);
+        ctx.fill(bx, by, bx + keyW, by + 1, 0xFFFF2A55);
+        ctx.fill(bx, by + 12, bx + keyW, by + 13, 0xFFFF2A55);
         ctx.fill(bx, by, bx + 1, by + 13, 0xFFFF2A55);
-        ctx.fill(bx + 12, by, bx + 13, by + 13, 0xFFFF2A55);
-        ctx.drawText(client.textRenderer, key, bx + 4, by + 3, 0x00F0FF, false);
-        ctx.drawTextWithShadow(client.textRenderer, label, bx + 16, by + 3, 0x00F0FF);
+        ctx.fill(bx + keyW - 1, by, bx + keyW, by + 13, 0xFFFF2A55);
+        ctx.drawText(client.textRenderer, key, bx + 3, by + 3, 0x00F0FF, false);
+        ctx.drawTextWithShadow(client.textRenderer, label, bx + keyW + 4, by + 3, 0x00F0FF);
+        return bx + keyW + 4 + client.textRenderer.getWidth(label);
     }
 
     private static void renderActiveContractTracker(DrawContext ctx, MinecraftClient client) {
