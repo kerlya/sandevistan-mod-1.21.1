@@ -73,11 +73,14 @@ public final class SandevistanMod implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(ActivatePayload.ID, ActivatePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenCyberwarePayload.ID, OpenCyberwarePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(PhoneActionPayload.ID, PhoneActionPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(BuyImplantPayload.ID, BuyImplantPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncCyberwarePayload.ID, SyncCyberwarePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncBackVisualPayload.ID, SyncBackVisualPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncPhonePayload.ID, SyncPhonePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenShopPayload.ID, OpenShopPayload.CODEC);
 
         FixerContractManager.register();
+        RipperdocManager.register();
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.player;
@@ -107,6 +110,10 @@ public final class SandevistanMod implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(PhoneActionPayload.ID,
             (payload, context) -> context.server().execute(() ->
                 FixerContractManager.handlePhoneAction(context.player(), payload.action(), payload.targetPlayer(), payload.amount())));
+
+        ServerPlayNetworking.registerGlobalReceiver(BuyImplantPayload.ID,
+            (payload, context) -> context.server().execute(() ->
+                RipperdocManager.handleBuy(context.player(), payload.implantId())));
 
         ServerPlayNetworking.registerGlobalReceiver(OpenCyberwarePayload.ID,
             (payload, context) -> context.server().execute(() -> {
