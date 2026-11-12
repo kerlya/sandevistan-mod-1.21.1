@@ -27,15 +27,13 @@ public class SandevistanBackFeatureRenderer extends FeatureRenderer<AbstractClie
         if (player.isInvisible() || !SandevistanClient.hasBackImplant(player.getId())) return;
 
         matrices.push();
-        // Привязываем имплант к телу игрока (повторяет наклон при приседании)
         this.getContextModel().body.rotate(matrices);
 
-        // Смещаем на заднюю поверхность спины вдоль позвоночника
         matrices.translate(0.0F, 0.34F, 0.145F);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0F));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180.0F));
         matrices.scale(0.68F, 0.78F, 0.68F);
 
-        // Рисуем 3D-модель предмета на спине (использует вашу новую текстуру sandevistan.png!)
         MinecraftClient.getInstance().getItemRenderer().renderItem(
             DISPLAY_STACK,
             ModelTransformationMode.FIXED,
