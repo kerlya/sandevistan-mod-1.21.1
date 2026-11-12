@@ -17,7 +17,7 @@
   "gui.sandevistan.slot.skin": "КОЖА",
   "gui.sandevistan.slot.legs": "НОГИ",
 
-  "hud.sandevistan.ready": "§aСАНДЕВИСТАН: ГОТОВ [R]",
+  "hud.sandevistan.ready": "§aСАНДЕВИСТАН: ГОТОВ [%s]",
   "hud.sandevistan.active": "§eАКТИВЕН: %sс",
   "hud.sandevistan.cooldown": "§cОЖИДАНИЕ: %sс",
 
