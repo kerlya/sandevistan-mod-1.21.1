@@ -25,6 +25,8 @@ public class CyberwareStorage extends PersistentState {
 
     private final Map<UUID, DefaultedList<ItemStack>> playerSlots = new HashMap<>();
     private final Map<UUID, Long> playerEddies = new HashMap<>();
+    private final Map<UUID, Integer> playerLevels = new HashMap<>();
+    private final Map<UUID, Integer> playerXp = new HashMap<>();
     private final Map<UUID, ActiveContract> activeContracts = new HashMap<>();
     private final Map<UUID, List<String>> bankHistory = new HashMap<>();
     private final Map<UUID, List<String>> smsMessages = new HashMap<>();
@@ -33,6 +35,34 @@ public class CyberwareStorage extends PersistentState {
 
     public DefaultedList<ItemStack> getSlots(UUID uuid) {
         return playerSlots.computeIfAbsent(uuid, k -> DefaultedList.ofSize(SLOT_COUNT, ItemStack.EMPTY));
+    }
+
+    public int getLevel(UUID uuid) {
+        return playerLevels.getOrDefault(uuid, 1);
+    }
+
+    public int getXp(UUID uuid) {
+        return playerXp.getOrDefault(uuid, 0);
+    }
+
+    public int getXpForNextLevel(int level) {
+        return 100 + (level - 1) * 75;
+    }
+
+    public boolean addXp(UUID uuid, int amount) {
+        if (amount <= 0) return false;
+        int lvl = getLevel(uuid);
+        int xp = getXp(uuid) + amount;
+        boolean leveledUp = false;
+        while (xp >= getXpForNextLevel(lvl)) {
+            xp -= getXpForNextLevel(lvl);
+            lvl++;
+            leveledUp = true;
+        }
+        playerLevels.put(uuid, lvl);
+        playerXp.put(uuid, xp);
+        markDirty();
+        return leveledUp;
     }
 
     public long getEddies(UUID uuid) {
@@ -133,6 +163,14 @@ public class CyberwareStorage extends PersistentState {
         playerEddies.forEach((uuid, bal) -> eddiesTag.putLong(uuid.toString(), bal));
         nbt.put("Eddies", eddiesTag);
 
+        NbtCompound levelsTag = new NbtCompound();
+        playerLevels.forEach((uuid, lvl) -> levelsTag.putInt(uuid.toString(), lvl));
+        nbt.put("Levels", levelsTag);
+
+        NbtCompound xpTag = new NbtCompound();
+        playerXp.forEach((uuid, xp) -> xpTag.putInt(uuid.toString(), xp));
+        nbt.put("Xp", xpTag);
+
         NbtCompound contractsTag = new NbtCompound();
         activeContracts.forEach((uuid, c) -> {
             NbtCompound cTag = new NbtCompound();
@@ -174,9 +212,12 @@ public class CyberwareStorage extends PersistentState {
             state.playerSlots.put(UUID.fromString(key), list);
         }
         NbtCompound eddiesTag = nbt.getCompound("Eddies");
-        for (String key : eddiesTag.getKeys()) {
-            state.playerEddies.put(UUID.fromString(key), eddiesTag.getLong(key));
-        }
+        for (String key : eddiesTag.getKeys()) state.playerEddies.put(UUID.fromString(key), eddiesTag.getLong(key));
+        NbtCompound levelsTag = nbt.getCompound("Levels");
+        for (String key : levelsTag.getKeys()) state.playerLevels.put(UUID.fromString(key), levelsTag.getInt(key));
+        NbtCompound xpTag = nbt.getCompound("Xp");
+        for (String key : xpTag.getKeys()) state.playerXp.put(UUID.fromString(key), xpTag.getInt(key));
+
         NbtCompound contractsTag = nbt.getCompound("Contracts");
         for (String key : contractsTag.getKeys()) {
             NbtCompound cTag = contractsTag.getCompound(key);
