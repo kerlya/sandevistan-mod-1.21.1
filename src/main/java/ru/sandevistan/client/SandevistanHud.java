@@ -22,6 +22,7 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import ru.sandevistan.RipperdocEntity;
+import java.util.List;
 import java.util.Locale;
 
 public final class SandevistanHud {
@@ -34,11 +35,11 @@ public final class SandevistanHud {
 
     public static String formatFixerName(String raw) {
         if (raw == null || raw.isEmpty()) return "";
-        String[] parts = raw.split(":");
-        if (parts.length == 3) {
-            String first = Text.translatable("fixer.sandevistan.first." + parts).getString();
-            String nick = Text.translatable("fixer.sandevistan.nick." + parts).getString();
-            String last = Text.translatable("fixer.sandevistan.last." + parts).getString();
+        List<String> parts = List.of(raw.split(":"));
+        if (parts.size() == 3) {
+            String first = Text.translatable("fixer.sandevistan.first." + parts.get(0)).getString();
+            String nick = Text.translatable("fixer.sandevistan.nick." + parts.get(1)).getString();
+            String last = Text.translatable("fixer.sandevistan.last." + parts.get(2)).getString();
             return first + " " + nick + " " + last;
         }
         return raw;
