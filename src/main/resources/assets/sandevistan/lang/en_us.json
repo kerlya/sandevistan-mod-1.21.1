@@ -33,6 +33,7 @@
   "threat.sandevistan.neutral": "§e§lNEUTRAL (PROVOKABLE)",
   "threat.sandevistan.peaceful": "§a§lPEACEFUL (SAFE)",
 
+  "faction.sandevistan.ripperdocs": "RIPPERDOCS / MEDTECH",
   "faction.sandevistan.players": "MERCENARIES / PLAYERS",
   "faction.sandevistan.civilians": "CIVILIANS / SETTLEMENT",
   "faction.sandevistan.illagers": "ILLAGER SYNDICATE",
@@ -41,6 +42,17 @@
   "faction.sandevistan.nether": "NETHER LEGION",
   "faction.sandevistan.end": "END ENTITIES",
   "faction.sandevistan.fauna": "BIOTECH / FAUNA",
+
+  "entity.sandevistan.ripperdoc": "Ripperdoc",
+  "entity.sandevistan.ripperdoc.tag": "RIPPERDOC",
+  "entity.sandevistan.ripperdoc.name.0": "Viktor Vektor",
+  "entity.sandevistan.ripperdoc.name.1": "Cassius Ryder",
+  "entity.sandevistan.ripperdoc.name.2": "Doc Kane",
+  "entity.sandevistan.ripperdoc.name.3": "Nina Kraviz",
+  "entity.sandevistan.ripperdoc.name.4": "Charles Bucks",
+  "entity.sandevistan.ripperdoc.name.5": "Octavio Silva",
+  "entity.sandevistan.ripperdoc.name.6": "Fingers",
+  "entity.sandevistan.ripperdoc.name.7": "Robert Wilson",
 
   "msg.sandevistan.overload": "§c[SYSTEM FAULT]: §eNervous system overload! Take a break.",
   "msg.sandevistan.psychosis": "§4§l[CRITICAL FAILURE]: CYBERPSYCHOSIS DETECTED!",
@@ -148,7 +160,7 @@
   "shop.sandevistan.buy": "BUY",
   "shop.sandevistan.empty": "No implants in this category yet",
   "shop.sandevistan.footer": "SELECT IMPLANT",
-  "msg.sandevistan.ripperdoc.spawned": "§b[RIPPERDOC]: §aViktor Vektor spawned. Right-click him to trade.",
+  "msg.sandevistan.ripperdoc.spawned": "§b[RIPPERDOC]: §aRipperdoc spawned. Right-click him to trade.",
   "msg.sandevistan.ripperdoc.removed": "§b[RIPPERDOC]: §eRemoved ripperdocs: %s.",
   "msg.sandevistan.shop.bought": "§b[RIPPERDOC]: §aPurchased: §f%s §7(-€$%s)",
 
