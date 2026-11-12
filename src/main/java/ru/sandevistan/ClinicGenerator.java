@@ -1,7 +1,7 @@
 package ru.sandevistan;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ChestBlock;
@@ -22,40 +22,61 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.chunk.WorldChunk;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public final class ClinicGenerator {
     private static final Random RNG = new Random();
+    private static final Set<Long> PROCESSED_CELLS = new HashSet<>();
 
     public static void register() {
-        ServerChunkEvents.CHUNK_LOAD.register((ServerWorld world, WorldChunk chunk) -> {
-            if (world.getRegistryKey() != World.OVERWORLD) return;
-            ChunkPos cpos = chunk.getPos();
-            if (Math.floorMod(cpos.x, 32) != 8 || Math.floorMod(cpos.z, 32) != 8) return;
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (server.getTicks() % 60 != 0) return;
+            ServerWorld world = server.getWorld(World.OVERWORLD);
+            if (world == null) return;
 
-            long seed = world.getSeed() ^ (cpos.x * 341873128712L + cpos.z * 132897987541L);
-            Random chunkRng = new Random(seed);
-            if (chunkRng.nextInt(3) != 0) return;
+            for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
+                if (p.getWorld() != world) continue;
+                int pChunkX = Math.floorDiv(p.getBlockX(), 16);
+                int pChunkZ = Math.floorDiv(p.getBlockZ(), 16);
 
-            int bx = cpos.getStartX() + 8;
-            int bz = cpos.getStartZ() + 8;
+                int cellX = Math.floorDiv(pChunkX, 32);
+                int cellZ = Math.floorDiv(pChunkZ, 32);
+                long cellKey = (((long) cellX) << 32) ^ (cellZ & 0xffffffffL);
+                if (PROCESSED_CELLS.contains(cellKey)) continue;
 
-            world.getServer().execute(() -> {
-                if (!world.isChunkLoaded(cpos.x, cpos.z)) return;
+                int cx = cellX * 32 + 8;
+                int cz = cellZ * 32 + 8;
+
+                // Проверяем, что сам чанк и все соседние чанки вокруг него уже полностью загружены игроком
+                if (!world.isChunkLoaded(cx, cz)
+                    || !world.isChunkLoaded(cx - 1, cz)
+                    || !world.isChunkLoaded(cx + 1, cz)
+                    || !world.isChunkLoaded(cx, cz - 1)
+                    || !world.isChunkLoaded(cx, cz + 1)) {
+                    continue;
+                }
+
+                PROCESSED_CELLS.add(cellKey);
+
+                long seed = world.getSeed() ^ (cx * 341873128712L + cz * 132897987541L);
+                if (new Random(seed).nextInt(3) != 0) continue;
+
+                int bx = cx * 16 + 8;
+                int bz = cz * 16 + 8;
                 int by = world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, bx, bz);
-                if (by < 60 || by > 130) return;
+                if (by < 60 || by > 130) continue;
 
                 BlockPos center = new BlockPos(bx, by, bz);
-                if (!world.getBlockState(center.down()).isSolidBlock(world, center.down())) return;
-                if (!world.getFluidState(center).isEmpty()) return;
+                if (!world.getBlockState(center.down()).isSolidBlock(world, center.down())) continue;
+                if (!world.getFluidState(center).isEmpty()) continue;
 
                 RegistryEntry<Biome> biome = world.getBiome(center);
                 boolean validBiome = biome.matchesKey(BiomeKeys.PLAINS)
@@ -63,14 +84,14 @@ public final class ClinicGenerator {
                     || biome.matchesKey(BiomeKeys.BIRCH_FOREST)
                     || biome.matchesKey(BiomeKeys.TAIGA)
                     || biome.matchesKey(BiomeKeys.SAVANNA);
-                if (!validBiome) return;
+                if (!validBiome) continue;
 
                 if (!world.getEntitiesByClass(RipperdocEntity.class, new Box(center).expand(48.0), e -> true).isEmpty()) {
-                    return;
+                    continue;
                 }
 
                 buildClinic(world, center);
-            });
+            }
         });
     }
 
