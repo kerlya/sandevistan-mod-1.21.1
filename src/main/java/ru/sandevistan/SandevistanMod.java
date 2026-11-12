@@ -50,6 +50,7 @@ public final class SandevistanMod implements ModInitializer {
 
     private static final Identifier ARMOR_MOD_ID = Identifier.of("sandevistan", "cyberware_armor");
     private static final SoundEvent ACTIVATE = sound("activate");
+    public static final SoundEvent RINGTONE = sound("ringtone");
 
     private static final Map<UUID, Long> ACTIVE = new HashMap<>();
     private static final Map<UUID, Long> COOLDOWN = new HashMap<>();
@@ -109,7 +110,7 @@ public final class SandevistanMod implements ModInitializer {
 
         ServerPlayNetworking.registerGlobalReceiver(PhoneActionPayload.ID,
             (payload, context) -> context.server().execute(() ->
-                FixerContractManager.handlePhoneAction(context.player(), payload.action(), payload.targetPlayer(), payload.amount())));
+                FixerContractManager.handlePhoneAction(context.player(), payload.action(), payload.targetPlayer(), payload.textData(), payload.amount())));
 
         ServerPlayNetworking.registerGlobalReceiver(BuyImplantPayload.ID,
             (payload, context) -> context.server().execute(() ->
