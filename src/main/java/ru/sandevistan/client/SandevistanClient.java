@@ -6,11 +6,17 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.CraftingScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 import ru.sandevistan.*;
 import java.util.HashSet;
@@ -27,6 +33,10 @@ public final class SandevistanClient implements ClientModInitializer {
     public static long lastActivateMs = 0L;
     public static boolean clientHasSandevistan = false;
     public static boolean clientHasKiroshi = false;
+    public static boolean clientHasMetalArms = false;
+    public static int clientCyberLevel = 1;
+    public static int clientCyberXp = 0;
+    public static int clientCyberNextXp = 100;
     private static final Set<Integer> PLAYERS_WITH_SANDEVISTAN = new HashSet<>();
 
     public static long clientEddies = 250L;
@@ -61,13 +71,37 @@ public final class SandevistanClient implements ClientModInitializer {
         MinecraftClient client = MinecraftClient.getInstance();
         return client.player != null && client.currentScreen == null && clientHasKiroshi && scanKey != null && scanKey.isPressed();
     }
-
     @Override
     public void onInitializeClient() {
         HandledScreens.register(SandevistanMod.CYBERWARE_HANDLER, CyberwareScreen::new);
         SandevistanHud.register();
 
-        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
+        ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            if (screen instanceof CraftingScreen) {
+                ScreenEvents.afterRender(screen).register((scr, ctx, mouseX, mouseY, delta) -> {
+                    int bx = (scaledWidth - 176) / 2;
+                    int by = (scaledHeight - 166) / 2 - 20;
+                    Text tabLabel = Text.translatable("craft.sandevistan.tab");
+                    int bw = Math.max(114, client.textRenderer.getWidth(tabLabel) + 14);
+                    boolean hover = mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY <= by + 18;
+
+                    int bg = hover ? 0xFF3A101E : 0xEE18080D;
+                    int border = hover ? 0xFF00F0FF : 0xFFFF2A55;
+                    ctx.fill(bx, by, bx + bw, by + 18, bg);
+                    ctx.fill(bx, by, bx + bw, by + 1, border);
+                    ctx.fill(bx, by + 17, bx + bw, by + 18, border);
+                    ctx.fill(bx, by, bx + 1, by + 18, border);
+                    ctx.fill(bx + bw - 1, by, bx + bw, by + 18, border);
+                    ctx.drawText(client.textRenderer, tabLabel, bx + 7, by + 5, hover ? 0x00F0FF : 0xFFFFFF, false);
+                });
+
+                ScreenMouseEvents.afterMouseClick(screen).register((scr, mouseX, mouseY, button) -> {
+                    if (button == 0) {
+                        int bx = (scaledWidth - 176) / 2;
+                        int by = (scaledHeight - 166) / 2 - 20;
+                        Text tabLabel = Text.translatable("craft.sandevistan.tab");
+                        int bw = Math.max(114, client.textRenderer.getWidth(tabLabel) + 14);
+                        if (mouseX >= bx && mouseX <= bx + bw && mouseY >= by && mouseY  {
             if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
                 registrationHelper.register(new SandevistanBackFeatureRenderer(playerRenderer));
             }
@@ -83,6 +117,10 @@ public final class SandevistanClient implements ClientModInitializer {
             (payload, context) -> context.client().execute(() -> {
                 clientHasSandevistan = payload.hasSandevistan();
                 clientHasKiroshi = payload.hasKiroshi();
+                clientHasMetalArms = payload.hasMetalArms();
+                clientCyberLevel = payload.cyberLevel();
+                clientCyberXp = payload.cyberXp();
+                clientCyberNextXp = payload.cyberNextXp();
             }));
 
         ClientPlayNetworking.registerGlobalReceiver(SyncBackVisualPayload.ID,
