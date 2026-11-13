@@ -234,7 +234,7 @@ public final class ScavengerCampGenerator {
         CAMP_ALIVE_COUNT.remove(campId);
         if (killer != null && killer.getServer() != null) {
             long eddiesReward = 150L + world.random.nextInt(101);
-            FixerContractManager.addEddies(killer, eddiesReward, "Привал мусорщиков");
+            FixerContractManager.addEddies(killer, eddiesReward);
             CyberwareStorage.get(killer.getServer()).addXp(killer.getUuid(), 20);
             killer.playSoundToPlayer(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.PLAYERS, 0.85f, 1.15f);
             killer.sendMessage(Text.translatable("msg.sandevistan.camp.cleared", eddiesReward, 20), false);
