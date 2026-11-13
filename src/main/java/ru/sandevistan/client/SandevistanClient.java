@@ -16,6 +16,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
@@ -34,6 +35,9 @@ public final class SandevistanClient implements ClientModInitializer {
 
     public static long lastActivateMs = 0L;
     public static long lastReloadSendMs = 0L;
+    public static long lastClientShotMs = 0L;
+    public static float adsProgress = 0.0f;
+
     public static boolean clientHasSandevistan = false;
     public static boolean clientHasKiroshi = false;
     public static boolean clientHasMetalArms = false;
@@ -124,6 +128,7 @@ public final class SandevistanClient implements ClientModInitializer {
             PLAYERS_WITH_SANDEVISTAN.clear();
             clientCallState = 0;
             clientHasUnreadSms = false;
+            adsProgress = 0.0f;
         });
 
         ClientPlayNetworking.registerGlobalReceiver(SyncCyberwarePayload.ID,
@@ -169,7 +174,6 @@ public final class SandevistanClient implements ClientModInitializer {
         acceptCallKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.accept", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Y, "category.sandevistan"));
         rejectCallKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.reject", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.sandevistan"));
         reloadKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.reload", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_X, "category.sandevistan"));
-
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (menuKey.wasPressed()) {
                 if (client.player != null && client.getNetworkHandler() != null) ClientPlayNetworking.send(new OpenCyberwarePayload());
@@ -183,6 +187,50 @@ public final class SandevistanClient implements ClientModInitializer {
             while (rejectCallKey.wasPressed()) {
                 if (client.player != null && clientCallState == 1) ClientPlayNetworking.send(new PhoneActionPayload(2, "", "", 0L));
             }
+
+            if (client.player != null && client.currentScreen == null) {
+                ItemStack main = client.player.getMainHandStack();
+                if (main.isOf(SandevistanMod.SARATOGA_M221)) {
+                    // Полностью подавляем анимацию удара рукой при нажатии ЛКМ
+                    client.player.handSwinging = false;
+                    client.player.handSwingTicks = 0;
+                    client.player.handSwingProgress = 0.0f;
+                    client.player.lastHandSwingProgress = 0.0f;
+
+                    boolean reloading = client.player.getItemCooldownManager().isCoolingDown(SandevistanMod.SARATOGA_M221);
+                    boolean aimingNow = !reloading && client.options.useKey.isPressed();
+                    if (aimingNow) {
+                        adsProgress = Math.min(1.0f, adsProgress + 0.25f);
+                    } else {
+                        adsProgress = Math.max(0.0f, adsProgress - 0.25f);
+                    }
+
+                    if (client.options.attackKey.isPressed() && !reloading) {
+                        long now = System.currentTimeMillis();
+                        long elapsedSinceActivate = now - lastActivateMs;
+                        boolean sandyActive = isEquipped(client) && lastActivateMs > 0L && elapsedSinceActivate < 8000L;
+                        long intervalMs = sandyActive ? 140L : 190L;
+
+                        if (now - lastClientShotMs >= intervalMs) {
+                            lastClientShotMs = now;
+                            ClientPlayNetworking.send(new ShootWeaponPayload(aimingNow));
+
+                            // Мягкая отдача при выстреле (меньше в прицеле)
+                            if (SaratogaItem.getAmmo(main) > 0) {
+                                float recoilPitch = aimingNow ? 0.45f : 0.85f;
+                                float recoilYaw = (client.player.getRandom().nextFloat() - 0.5f) * (aimingNow ? 0.35f : 0.7f);
+                                client.player.setPitch(Math.max(-90.0f, client.player.getPitch() - recoilPitch));
+                                client.player.setYaw(client.player.getYaw() + recoilYaw);
+                            }
+                        }
+                    }
+                } else {
+                    adsProgress = Math.max(0.0f, adsProgress - 0.25f);
+                }
+            } else {
+                adsProgress = 0.0f;
+            }
+
             boolean reloadPressed = false;
             while (reloadKey.wasPressed()) reloadPressed = true;
             if ((reloadPressed || reloadKey.isPressed()) && client.player != null && client.currentScreen == null && client.player.getMainHandStack().isOf(SandevistanMod.SARATOGA_M221)) {
