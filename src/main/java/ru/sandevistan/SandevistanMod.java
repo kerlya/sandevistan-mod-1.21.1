@@ -8,6 +8,8 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.Entity;
@@ -20,6 +22,7 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.DustParticleEffect;
@@ -30,6 +33,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.screen.SimpleNamedScreenHandlerFactory;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -44,6 +48,14 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class SandevistanMod implements ModInitializer {
+    public static final Block DROP_POINT = Registry.register(
+        Registries.BLOCK, Identifier.of("sandevistan", "drop_point"),
+        new DropPointBlock(AbstractBlock.Settings.create().strength(3.0f, 6.0f).sounds(BlockSoundGroup.METAL).nonOpaque().luminance(s -> 7))
+    );
+    public static final Item DROP_POINT_ITEM = Registry.register(
+        Registries.ITEM, Identifier.of("sandevistan", "drop_point"),
+        new BlockItem(DROP_POINT, new Item.Settings())
+    );
     public static final Item SANDEVISTAN = Registry.register(
         Registries.ITEM, Identifier.of("sandevistan", "sandevistan"),
         new Item(new Item.Settings().maxCount(1))
@@ -133,6 +145,7 @@ public final class SandevistanMod implements ModInitializer {
     public void onInitialize() {
         FabricDefaultAttributeRegistry.register(RIPPERDOC_ENTITY, RipperdocEntity.createRipperdocAttributes());
         FabricDefaultAttributeRegistry.register(SCAVENGER_ENTITY, ScavengerEntity.createScavengerAttributes());
+        DropPointManager.init();
 
         PayloadTypeRegistry.playC2S().register(ActivatePayload.ID, ActivatePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenCyberwarePayload.ID, OpenCyberwarePayload.CODEC);
@@ -141,10 +154,12 @@ public final class SandevistanMod implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(CraftImplantPayload.ID, CraftImplantPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(ReloadWeaponPayload.ID, ReloadWeaponPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(ShootWeaponPayload.ID, ShootWeaponPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(SellItemPayload.ID, SellItemPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncCyberwarePayload.ID, SyncCyberwarePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncBackVisualPayload.ID, SyncBackVisualPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncPhonePayload.ID, SyncPhonePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenShopPayload.ID, OpenShopPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenDropPointPayload.ID, OpenDropPointPayload.CODEC);
 
         FixerContractManager.register();
         RipperdocManager.register();
@@ -189,6 +204,10 @@ public final class SandevistanMod implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(ShootWeaponPayload.ID,
             (payload, context) -> context.server().execute(() ->
                 SaratogaItem.handleShootRequest(context.player(), payload.aiming())));
+
+        ServerPlayNetworking.registerGlobalReceiver(SellItemPayload.ID,
+            (payload, context) -> context.server().execute(() ->
+                DropPointManager.handleSell(context.player(), payload.itemId(), payload.sellAll())));
 
         ServerPlayNetworking.registerGlobalReceiver(ReloadWeaponPayload.ID,
             (payload, context) -> context.server().execute(() -> {
