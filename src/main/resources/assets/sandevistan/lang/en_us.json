@@ -4,6 +4,7 @@
   "item.sandevistan.metal_arms": "Scrap Metal Arms",
   "item.sandevistan.saratoga_m221": "Militech M221 Saratoga",
   "item.sandevistan.smg_ammo": "9mm SMG Ammo",
+  "item.sandevistan.lead_pipe": "Lead Pipe",
   "key.sandevistan.activate": "Activate Sandevistan",
   "key.sandevistan.menu": "Cyberware Menu",
   "key.sandevistan.scan": "Kiroshi Scanner (Zoom)",
@@ -38,6 +39,7 @@
   "threat.sandevistan.peaceful": "§a§lPEACEFUL (SAFE)",
 
   "faction.sandevistan.ripperdocs": "RIPPERDOCS / MEDTECH",
+  "faction.sandevistan.scavengers": "SCAVENGERS / GANG",
   "faction.sandevistan.players": "MERCENARIES / PLAYERS",
   "faction.sandevistan.civilians": "CIVILIANS / SETTLEMENT",
   "faction.sandevistan.illagers": "ILLAGER SYNDICATE",
@@ -56,6 +58,10 @@
   "entity.sandevistan.ripperdoc.name.5": "Octavio Silva",
   "entity.sandevistan.ripperdoc.name.6": "Fingers",
   "entity.sandevistan.ripperdoc.name.7": "Robert Wilson",
+
+  "entity.sandevistan.scavenger": "Scavenger",
+  "entity.sandevistan.scavenger.bruiser": "Scavenger Bruiser",
+  "entity.sandevistan.scavenger.gunner": "Scavenger Gunner",
 
   "msg.sandevistan.overload": "§c[SYSTEM FAULT]: §eNervous system overload! Take a break.",
   "msg.sandevistan.psychosis": "§4§l[CRITICAL FAILURE]: CYBERPSYCHOSIS DETECTED!",
@@ -169,6 +175,8 @@
   "shop.sandevistan.footer": "SELECT IMPLANT",
   "msg.sandevistan.ripperdoc.spawned": "§b[RIPPERDOC]: §aRipperdoc spawned. Right-click him to trade.",
   "msg.sandevistan.clinic.spawned": "§b[CLINIC]: §aUnderground ripperdoc clinic built nearby.",
+  "msg.sandevistan.camp.spawned": "§b[MAP]: §aScavenger camp spawned nearby.",
+  "msg.sandevistan.camp.cleared": "§b[CAMP CLEARED]: §aEarned §e€$%s §aand §b+%s XP §atechnician exp!",
   "msg.sandevistan.ripperdoc.removed": "§b[RIPPERDOC]: §eRemoved ripperdocs: %s.",
   "msg.sandevistan.shop.bought": "§b[RIPPERDOC]: §aPurchased: §f%s §7(-€$%s)",
 
