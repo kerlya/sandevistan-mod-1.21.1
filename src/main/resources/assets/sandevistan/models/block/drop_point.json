@@ -1,0 +1,98 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "body": "minecraft:block/polished_blackstone",
+    "trim": "minecraft:block/iron_block",
+    "screen": "minecraft:block/cyan_stained_glass",
+    "slot": "minecraft:block/obsidian",
+    "particle": "minecraft:block/polished_blackstone"
+  },
+  "elements": [
+    {
+      "name": "base_plinth",
+      "from":,
+      "to":,
+      "faces": {
+        "north": { "texture": "#trim" },
+        "east": { "texture": "#trim" },
+        "south": { "texture": "#trim" },
+        "west": { "texture": "#trim" },
+        "up": { "texture": "#trim" },
+        "down": { "texture": "#trim" }
+      }
+    },
+    {
+      "name": "main_cabinet",
+      "from":,
+      "to":,
+      "faces": {
+        "north": { "texture": "#body" },
+        "east": { "texture": "#body" },
+        "south": { "texture": "#body" },
+        "west": { "texture": "#body" },
+        "up": { "texture": "#body" }
+      }
+    },
+    {
+      "name": "side_pillar_left",
+      "from":,
+      "to":,
+      "faces": {
+        "north": { "texture": "#trim" },
+        "east": { "texture": "#trim" },
+        "south": { "texture": "#trim" },
+        "west": { "texture": "#trim" },
+        "up": { "texture": "#trim" }
+      }
+    },
+    {
+      "name": "side_pillar_right",
+      "from":,
+      "to":,
+      "faces": {
+        "north": { "texture": "#trim" },
+        "east": { "texture": "#trim" },
+        "south": { "texture": "#trim" },
+        "west": { "texture": "#trim" },
+        "up": { "texture": "#trim" }
+      }
+    },
+    {
+      "name": "top_visor",
+      "from":,
+      "to":,
+      "faces": {
+        "north": { "texture": "#trim" },
+        "east": { "texture": "#trim" },
+        "south": { "texture": "#trim" },
+        "west": { "texture": "#trim" },
+        "up": { "texture": "#body" },
+        "down": { "texture": "#trim" }
+      }
+    },
+    {
+      "name": "holo_screen",
+      "from": [4, 9, 3.2],
+      "to": [12, 14, 4.2],
+      "faces": {
+        "north": { "texture": "#screen" },
+        "east": { "texture": "#trim" },
+        "west": { "texture": "#trim" },
+        "up": { "texture": "#trim" },
+        "down": { "texture": "#trim" }
+      }
+    },
+    {
+      "name": "parcel_chute",
+      "from": [3, 3, 3.2],
+      "to": [13, 8, 4.2],
+      "faces": {
+        "north": { "texture": "#slot" },
+        "east": { "texture": "#trim" },
+        "west": { "texture": "#trim" },
+        "up": { "texture": "#trim" },
+        "down": { "texture": "#trim" }
+      }
+    }
+  ]
+}
