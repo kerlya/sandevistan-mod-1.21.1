@@ -12,9 +12,11 @@ import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
+import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -54,6 +56,8 @@ public class ScavengerEntity extends HostileEntity {
     public ScavengerEntity(EntityType<? extends HostileEntity> entityType, World world) {
         super(entityType, world);
         this.experiencePoints = 6;
+        this.setPathfindingPenalty(PathNodeType.DAMAGE_FIRE, -1.0f);
+        this.setPathfindingPenalty(PathNodeType.DANGER_FIRE, -1.0f);
     }
 
     public static DefaultAttributeContainer.Builder createScavengerAttributes() {
@@ -63,12 +67,20 @@ public class ScavengerEntity extends HostileEntity {
             .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 4.0)
             .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 28.0);
     }
-
     @Override
     protected void initDataTracker(DataTracker.Builder builder) {
         super.initDataTracker(builder);
         builder.add(ROLE, 0);
     }
+
+    @Override
+    public boolean isInvulnerableTo(DamageSource damageSource) {
+        if (damageSource.isOf(DamageTypes.CAMPFIRE)) {
+            return true;
+        }
+        return super.isInvulnerableTo(damageSource);
+    }
+
     public int getRole() {
         return this.dataTracker.get(ROLE);
     }
@@ -149,7 +161,9 @@ public class ScavengerEntity extends HostileEntity {
         if (target == null && this.campCenter != null) {
             double distFromCampSq = this.getBlockPos().getSquaredDistance(this.campCenter);
             if (distFromCampSq > 81.0 && this.age % 20 == 0) {
-                this.getNavigation().startMovingTo(this.campCenter.getX() + 0.5, this.campCenter.getY(), this.campCenter.getZ() + 0.5, 0.9);
+                double offsetX = isGunner() ? 2.5 : -2.5;
+                double offsetZ = isGunner() ? 1.5 : 2.0;
+                this.getNavigation().startMovingTo(this.campCenter.getX() + offsetX, this.campCenter.getY(), this.campCenter.getZ() + offsetZ, 0.9);
             }
             return;
         }
