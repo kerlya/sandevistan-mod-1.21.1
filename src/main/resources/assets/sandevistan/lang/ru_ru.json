@@ -1,4 +1,5 @@
 {
+  "block.sandevistan.drop_point": "Почтомат Найт-Сити",
   "item.sandevistan.sandevistan": "Сандевистан",
   "item.sandevistan.kiroshi_mk1": "Оптика Кироши Mk.1",
   "item.sandevistan.metal_arms": "Металлические руки",
@@ -180,8 +181,19 @@
   "msg.sandevistan.ripperdoc.removed": "§b[РИПЕРДОК]: §eУдалено рипердоков: %s.",
   "msg.sandevistan.shop.bought": "§b[РИПЕРДОК]: §aПриобретено: §f%s §7(-€$%s)",
 
+  "droppoint.sandevistan.title": "ПОЧТОМАТ // СКУПКА ЛУТА",
+  "droppoint.sandevistan.cat.all": "ВСЕ",
+  "droppoint.sandevistan.cat.weapons": "ОРУЖИЕ",
+  "droppoint.sandevistan.cat.cyberware": "ИМПЛАНТЫ",
+  "droppoint.sandevistan.cat.resources": "РЕСУРСЫ",
+  "droppoint.sandevistan.sell_one": "ПРОДАТЬ %s (+€$%s)",
+  "droppoint.sandevistan.sell_all": "ПРОДАТЬ ВСЁ (+€$%s)",
+  "msg.sandevistan.droppoint.spawned": "§b[ПОЧТОМАТ]: §aТерминал установлен перед вами.",
+  "msg.sandevistan.droppoint.not_enough": "§c[ПОЧТОМАТ]: Недостаточно предметов для продажи!",
+  "msg.sandevistan.droppoint.sold": "§b[ПОЧТОМАТ]: §aПродано %s x %s §e(+€$%s)",
+
   "craft.sandevistan.tab": "СОЗДАНИЕ ИМПЛАНТОВ",
-  "craft.sandevistan.back": "< ВЕРСТАК",
+  "craft.sandevistan.back": "ВЕРСТАК",
   "craft.sandevistan.title": "СОЗДАНИЕ ИМПЛАНТОВ",
   "craft.sandevistan.ingredients": "НЕОБХОДИМЫЕ МАТЕРИАЛЫ:",
   "craft.sandevistan.create": "СОЗДАТЬ",
