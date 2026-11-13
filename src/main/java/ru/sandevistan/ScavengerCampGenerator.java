@@ -179,17 +179,18 @@ public final class ScavengerCampGenerator {
         UUID campId = UUID.randomUUID();
         CAMP_ALIVE_COUNT.put(campId, 3);
 
-        spawnScavenger(world, center.add(1, 0, 1), campId, 1);
-        spawnScavenger(world, center.add(-2, 0, 2), campId, 0);
-        spawnScavenger(world, center.add(2, 0, -1), campId, 0);
+        spawnScavenger(world, center, center.add(1, 0, 1), campId, 1);
+        spawnScavenger(world, center, center.add(-2, 0, 2), campId, 0);
+        spawnScavenger(world, center, center.add(2, 0, -1), campId, 0);
     }
 
-    private static void spawnScavenger(ServerWorld world, BlockPos pos, UUID campId, int role) {
+    private static void spawnScavenger(ServerWorld world, BlockPos center, BlockPos pos, UUID campId, int role) {
         ScavengerEntity scav = SandevistanMod.SCAVENGER_ENTITY.create(world);
         if (scav == null) return;
         scav.refreshPositionAndAngles(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, world.random.nextFloat() * 360f, 0f);
         scav.setPersistent();
         scav.setCampId(campId);
+        scav.setCampCenter(center);
         scav.setRole(role);
         world.spawnEntity(scav);
     }
