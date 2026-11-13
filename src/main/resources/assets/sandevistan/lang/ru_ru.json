@@ -4,6 +4,7 @@
   "item.sandevistan.metal_arms": "Металлические руки",
   "item.sandevistan.saratoga_m221": "Милитех M221 «Саратога»",
   "item.sandevistan.smg_ammo": "Патроны ПП 9мм",
+  "item.sandevistan.lead_pipe": "Обрезок трубы",
   "key.sandevistan.activate": "Активировать Сандевистан",
   "key.sandevistan.menu": "Меню киберимплантов",
   "key.sandevistan.scan": "Сканер Кироши (Зум)",
@@ -38,6 +39,7 @@
   "threat.sandevistan.peaceful": "§a§lМИРНЫЙ (БЕЗОПАСЕН)",
 
   "faction.sandevistan.ripperdocs": "РИПЕРДОКИ / МЕДТЕХ",
+  "faction.sandevistan.scavengers": "МУСОРЩИКИ / БАНДА",
   "faction.sandevistan.players": "НАЕМНИКИ / ИГРОКИ",
   "faction.sandevistan.civilians": "ГРАЖДАНСКИЕ / ПОСЕЛЕНИЕ",
   "faction.sandevistan.illagers": "СИНДИКАТ ИЛЛИДЖЕРОВ",
@@ -56,6 +58,10 @@
   "entity.sandevistan.ripperdoc.name.5": "Октавио Сильва",
   "entity.sandevistan.ripperdoc.name.6": "Фингерс",
   "entity.sandevistan.ripperdoc.name.7": "Роберт Уилсон",
+
+  "entity.sandevistan.scavenger": "Мусорщик",
+  "entity.sandevistan.scavenger.bruiser": "Мусорщик-боец",
+  "entity.sandevistan.scavenger.gunner": "Мусорщик-стрелок",
 
   "msg.sandevistan.overload": "§c[СБОЙ СИСТЕМЫ]: §eПерегрузка нервной системы! Сделайте перерыв.",
   "msg.sandevistan.psychosis": "§4§l[КРИТИЧЕСКИЙ СБОЙ]: ОБНАРУЖЕН КИБЕРПСИХОЗ!",
@@ -169,6 +175,8 @@
   "shop.sandevistan.footer": "ВЫБЕРИТЕ ИМПЛАНТ",
   "msg.sandevistan.ripperdoc.spawned": "§b[РИПЕРДОК]: §aРипердок прибыл. Нажмите ПКМ по нему.",
   "msg.sandevistan.clinic.spawned": "§b[КЛИНИКА]: §aПодпольная клиника рипердока построена рядом с вами.",
+  "msg.sandevistan.camp.spawned": "§b[КАРТА]: §aПривал мусорщиков заспавнен рядом с вами.",
+  "msg.sandevistan.camp.cleared": "§b[ПРИВАЛ ЗАЧИЩЕН]: §aПолучено §e€$%s §aи §b+%s XP §aтехники!",
   "msg.sandevistan.ripperdoc.removed": "§b[РИПЕРДОК]: §eУдалено рипердоков: %s.",
   "msg.sandevistan.shop.bought": "§b[РИПЕРДОК]: §aПриобретено: §f%s §7(-€$%s)",
 
