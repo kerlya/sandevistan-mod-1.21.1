@@ -1,4 +1,5 @@
 {
+  "block.sandevistan.drop_point": "Night City Drop Point",
   "item.sandevistan.sandevistan": "Sandevistan",
   "item.sandevistan.kiroshi_mk1": "Kiroshi Optics Mk.1",
   "item.sandevistan.metal_arms": "Scrap Metal Arms",
@@ -79,7 +80,6 @@
   "call.sandevistan.answer": "ANSWER",
   "call.sandevistan.reject": "REJECT",
   "call.sandevistan.progress": "Target: %s [%s/%s] (+€$%s)",
-
   "fixer.sandevistan.first.0": "Ryan",
   "fixer.sandevistan.first.1": "Dex",
   "fixer.sandevistan.first.2": "Viktor",
@@ -114,6 +114,7 @@
   "fixer.sandevistan.last.7": "Kane",
   "fixer.sandevistan.last.8": "Mercer",
   "fixer.sandevistan.last.9": "Fox",
+
   "target.sandevistan.zombie": "Zombies",
   "target.sandevistan.skeleton": "Skeletons",
   "target.sandevistan.creeper": "Creepers",
@@ -124,7 +125,6 @@
   "target.sandevistan.redstone": "Redstone",
   "target.sandevistan.gold_ingot": "Gold Ingots",
   "target.sandevistan.diamond": "Diamonds",
-
   "phone.sandevistan.title": "Holophone",
   "phone.sandevistan.tab.bank": "BANK",
   "phone.sandevistan.tab.jobs": "JOBS",
@@ -179,6 +179,17 @@
   "msg.sandevistan.camp.cleared": "§b[CAMP CLEARED]: §aEarned §e€$%s §aand §b+%s XP §atechnician exp!",
   "msg.sandevistan.ripperdoc.removed": "§b[RIPPERDOC]: §eRemoved ripperdocs: %s.",
   "msg.sandevistan.shop.bought": "§b[RIPPERDOC]: §aPurchased: §f%s §7(-€$%s)",
+
+  "droppoint.sandevistan.title": "DROP POINT // SELL LOOT",
+  "droppoint.sandevistan.cat.all": "ALL",
+  "droppoint.sandevistan.cat.weapons": "WEAPONS",
+  "droppoint.sandevistan.cat.cyberware": "CYBERWARE",
+  "droppoint.sandevistan.cat.resources": "RESOURCES",
+  "droppoint.sandevistan.sell_one": "SELL %s (+€$%s)",
+  "droppoint.sandevistan.sell_all": "SELL ALL (+€$%s)",
+  "msg.sandevistan.droppoint.spawned": "§b[DROP POINT]: §aTerminal placed in front of you.",
+  "msg.sandevistan.droppoint.not_enough": "§c[DROP POINT]: Not enough items to sell!",
+  "msg.sandevistan.droppoint.sold": "§b[DROP POINT]: §aSold %s x %s §e(+€$%s)",
 
   "craft.sandevistan.tab": "CRAFT CYBERWARE",
   "craft.sandevistan.back": "< WORKBENCH",
