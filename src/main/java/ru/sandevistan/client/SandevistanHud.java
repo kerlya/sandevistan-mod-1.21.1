@@ -17,6 +17,7 @@ import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.raid.RaiderEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
@@ -219,65 +220,22 @@ public final class SandevistanHud {
             else if (i == fullHearts && halfHeart) ctx.drawGuiTexture(HEART_HALF, hx, hy, 9, 9);
         }
     }
-    private static Text getThreatStatus(LivingEntity entity) {
-        if (entity instanceof RipperdocEntity) return Text.translatable("threat.sandevistan.peaceful");
-        if (entity instanceof ScavengerEntity) return Text.translatable("threat.sandevistan.hostile");
-        if (entity instanceof HostileEntity) {
-            if (entity instanceof EndermanEntity enderman && !enderman.isAngry()) {
-                return Text.translatable("threat.sandevistan.neutral");
-            }
-            if (entity instanceof PiglinEntity piglin && !piglin.isAttacking()) {
-                return Text.translatable("threat.sandevistan.neutral");
-            }
-            return Text.translatable("threat.sandevistan.hostile");
+    public static String formatFixerName(String raw) {
+        if (raw == null || raw.isEmpty()) return "";
+        String[] parts = raw.split("\\|");
+        if (parts.length == 3) {
+            return Text.translatable(parts).getString() + " " + Text.translatable(parts).getString() + " " + Text.translatable(parts).getString();
         }
-        if (entity instanceof Angerable) {
-            return Text.translatable("threat.sandevistan.neutral");
-        }
-        if (entity instanceof PlayerEntity) {
-            return Text.translatable("threat.sandevistan.neutral");
-        }
-        return Text.translatable("threat.sandevistan.peaceful");
+        return raw;
     }
 
-    private static Text getFactionName(LivingEntity entity) {
-        if (entity instanceof RipperdocEntity) return Text.translatable("faction.sandevistan.ripperdocs");
-        if (entity instanceof ScavengerEntity) return Text.translatable("faction.sandevistan.scavengers");
-        if (entity instanceof PlayerEntity) return Text.translatable("faction.sandevistan.players");
-        if (entity instanceof MerchantEntity || entity instanceof GolemEntity) return Text.translatable("faction.sandevistan.civilians");
-        if (entity instanceof RaiderEntity) return Text.translatable("faction.sandevistan.illagers");
-        String path = Registries.ENTITY_TYPE.getId(entity.getType()).getPath();
-        if (path.contains("zombie") || path.contains("skeleton") || path.contains("wither") || path.contains("phantom") || path.contains("drowned") || path.contains("husk") || path.contains("stray")) {
-            return Text.translatable("faction.sandevistan.undead");
-        }
-        if (path.contains("spider") || path.contains("silverfish") || path.contains("endermite") || path.contains("bee")) {
-            return Text.translatable("faction.sandevistan.arthropods");
-        }
-        if (path.contains("piglin") || path.contains("hoglin") || path.contains("ghast") || path.contains("blaze") || path.contains("magma")) {
-            return Text.translatable("faction.sandevistan.nether");
-        }
-        if (path.contains("enderman") || path.contains("shulker") || path.contains("ender_dragon")) {
-            return Text.translatable("faction.sandevistan.end");
-        }
-        if (entity instanceof PassiveEntity) return Text.translatable("faction.sandevistan.fauna");
-        return Text.literal(path.toUpperCase());
-    }
-
-    private static LivingEntity raycastLivingEntity(MinecraftClient client, double range) {
-        Entity camera = client.getCameraEntity();
-        if (camera == null || client.world == null) return null;
-        Vec3d start = camera.getCameraPosVec(1.0f);
-        Vec3d dir = camera.getRotationVec(1.0f);
-        Vec3d end = start.add(dir.multiply(range));
-
-        HitResult blockHit = camera.raycast(range, 1.0f, false);
-        double maxDistSq = range * range;
-        if (blockHit != null && blockHit.getType() != HitResult.Type.MISS) {
-            maxDistSq = blockHit.getPos().squaredDistanceTo(start);
-        }
-
-        Box box = camera.getBoundingBox().stretch(dir.multiply(range)).expand(1.0);
-        EntityHitResult hit = ProjectileUtil.raycast(camera, start, end, box, e -> !e.isSpectator() && e.canHit() && e instanceof LivingEntity, maxDistSq);
+    public static int countRequiredItems(MinecraftClient client, String targetKey) {
+        if (client == null || client.player == null || targetKey == null) return 0;
+        String itemName = targetKey.replace("target.sandevistan.", "");
+        Identifier id = Identifier.ofVanilla(itemName);
+        Item targetItem = Registries.ITEM.get(id);
+        int total = 0;
+        for (int i = 0; i  !e.isSpectator() && e.canHit() && e instanceof LivingEntity, maxDistSq);
         return hit != null && hit.getEntity() instanceof LivingEntity living ? living : null;
     }
 }
