@@ -200,8 +200,8 @@ public class ScavengerEntity extends HostileEntity {
     }
 
     @Override
-    protected void dropCustomLoot(ServerWorld world, DamageSource source, boolean causedByPlayer) {
-        super.dropCustomLoot(world, source, causedByPlayer);
+    protected void dropEquipment(ServerWorld world, DamageSource source, boolean causedByPlayer) {
+        super.dropEquipment(world, source, causedByPlayer);
         if (this.isGunner()) {
             if (world.random.nextFloat() < 0.08f) {
                 this.dropStack(new ItemStack(SandevistanMod.SARATOGA_M221));
