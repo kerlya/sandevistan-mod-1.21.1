@@ -1,5 +1,6 @@
 package ru.sandevistan;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
@@ -23,17 +24,23 @@ import net.minecraft.util.UseAction;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class SaratogaItem extends Item {
     public static final int MAX_AMMO = 32;
     public static final int RELOAD_TICKS = 28;
+    private static final Map<UUID, Long> LAST_SHOT_TICK = new HashMap<>();
+    private static final Map<UUID, Integer> BURST_COUNT = new HashMap<>();
 
     public SaratogaItem(Settings settings) {
         super(settings);
@@ -52,59 +59,64 @@ public class SaratogaItem extends Item {
     }
 
     @Override
+    public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
+        return false;
+    }
+
+    @Override
     public int getMaxUseTime(ItemStack stack, LivingEntity user) {
         return 72000;
     }
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
+        return UseAction.NONE;
     }
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
-        if (user.getItemCooldownManager().isCoolingDown(this)) {
-            return TypedActionResult.fail(stack);
-        }
-        int ammo = getAmmo(stack);
-        if (ammo <= 0) {
-            if (!world.isClient && user instanceof ServerPlayerEntity sp) {
-                startReload(sp, stack);
-            }
-            return TypedActionResult.fail(stack);
-        }
+        if (hand != Hand.MAIN_HAND) return TypedActionResult.pass(stack);
         user.setCurrentHand(hand);
         return TypedActionResult.consume(stack);
     }
 
-    @Override
-    public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
-        if (world.isClient || !(user instanceof ServerPlayerEntity sp)) return;
-        if (sp.getItemCooldownManager().isCoolingDown(this)) return;
+    public static void handleShootRequest(ServerPlayerEntity sp, boolean aiming) {
+        ItemStack stack = sp.getMainHandStack();
+        if (!stack.isOf(SandevistanMod.SARATOGA_M221)) return;
+        if (sp.getItemCooldownManager().isCoolingDown(stack.getItem())) return;
 
-        int usedTicks = 72000 - remainingUseTicks;
+        ServerWorld world = sp.getServerWorld();
+        long nowTick = world.getTime();
+        UUID id = sp.getUuid();
+        long lastTick = LAST_SHOT_TICK.getOrDefault(id, 0L);
+
         boolean sandyActive = SandevistanMod.isSandevistanActive(sp);
         int fireInterval = sandyActive ? 3 : 4;
-        if (usedTicks % fireInterval != 0) return;
+        if (nowTick - lastTick < fireInterval) return;
 
         int ammo = getAmmo(stack);
         if (ammo <= 0) {
-            sp.stopUsingItem();
+            LAST_SHOT_TICK.put(id, nowTick);
             startReload(sp, stack);
             return;
         }
 
+        int burst = (nowTick - lastTick <= 8) ? BURST_COUNT.getOrDefault(id, 0) + 1 : 0;
+        BURST_COUNT.put(id, burst);
+        LAST_SHOT_TICK.put(id, nowTick);
+
         setAmmo(stack, ammo - 1);
-        fireBullet(sp, (ServerWorld) world, usedTicks);
+        fireBullet(sp, world, burst, aiming);
     }
-    private static void fireBullet(ServerPlayerEntity sp, ServerWorld world, int burstTick) {
+    private static void fireBullet(ServerPlayerEntity sp, ServerWorld world, int burstCount, boolean aiming) {
         world.playSound(null, sp.getBlockPos(), SandevistanMod.SARATOGA_SHOT, SoundCategory.PLAYERS, 0.95f, 0.96f + world.random.nextFloat() * 0.08f);
 
         Vec3d eyePos = sp.getCameraPosVec(1.0f);
         Vec3d look = sp.getRotationVec(1.0f);
 
-        double spread = Math.min(0.045, 0.012 + burstTick * 0.0006);
+        double baseSpread = Math.min(0.045, 0.012 + burstCount * 0.002);
+        double spread = aiming ? baseSpread * 0.4 : baseSpread;
         Vec3d dir = look.add(
             (world.random.nextDouble() - 0.5) * spread,
             (world.random.nextDouble() - 0.5) * spread,
@@ -157,7 +169,9 @@ public class SaratogaItem extends Item {
 
         Vec3d right = dir.crossProduct(new Vec3d(0, 1, 0)).normalize();
         if (right.lengthSquared() < 0.01) right = new Vec3d(1, 0, 0);
-        Vec3d muzzle = eyePos.add(dir.multiply(0.7)).add(right.multiply(0.22)).add(0, -0.14, 0);
+        double sideOffset = aiming ? 0.0 : 0.22;
+        double downOffset = aiming ? -0.07 : -0.14;
+        Vec3d muzzle = eyePos.add(dir.multiply(0.7)).add(right.multiply(sideOffset)).add(0, downOffset, 0);
         Vec3d traceVec = actualEnd.subtract(muzzle);
         double traceLen = traceVec.length();
         Vec3d step = traceVec.normalize();
