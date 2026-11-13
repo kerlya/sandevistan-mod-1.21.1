@@ -8,6 +8,8 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.component.type.AttributeModifierSlot;
+import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -62,6 +64,19 @@ public final class SandevistanMod implements ModInitializer {
         Registries.ITEM, Identifier.of("sandevistan", "smg_ammo"),
         new Item(new Item.Settings().maxCount(64))
     );
+    public static final Item LEAD_PIPE = Registry.register(
+        Registries.ITEM, Identifier.of("sandevistan", "lead_pipe"),
+        new Item(new Item.Settings().maxCount(1).maxDamage(120).attributeModifiers(
+            AttributeModifiersComponent.builder()
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE,
+                    new EntityAttributeModifier(Item.BASE_ATTACK_DAMAGE_MODIFIER_ID, 3.0, EntityAttributeModifier.Operation.ADD_VALUE),
+                    AttributeModifierSlot.MAINHAND)
+                .add(EntityAttributes.GENERIC_ATTACK_SPEED,
+                    new EntityAttributeModifier(Item.BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE),
+                    AttributeModifierSlot.MAINHAND)
+                .build()
+        ))
+    );
     public static final ScreenHandlerType<CyberwareScreenHandler> CYBERWARE_HANDLER = Registry.register(
         Registries.SCREEN_HANDLER, Identifier.of("sandevistan", "cyberware"),
         new ScreenHandlerType<>(CyberwareScreenHandler::new, FeatureFlags.VANILLA_FEATURES)
@@ -69,6 +84,12 @@ public final class SandevistanMod implements ModInitializer {
     public static final EntityType<RipperdocEntity> RIPPERDOC_ENTITY = Registry.register(
         Registries.ENTITY_TYPE, Identifier.of("sandevistan", "ripperdoc"),
         EntityType.Builder.create(RipperdocEntity::new, SpawnGroup.CREATURE)
+            .dimensions(0.6f, 1.8f)
+            .build()
+    );
+    public static final EntityType<ScavengerEntity> SCAVENGER_ENTITY = Registry.register(
+        Registries.ENTITY_TYPE, Identifier.of("sandevistan", "scavenger"),
+        EntityType.Builder.create(ScavengerEntity::new, SpawnGroup.MONSTER)
             .dimensions(0.6f, 1.8f)
             .build()
     );
@@ -85,6 +106,8 @@ public final class SandevistanMod implements ModInitializer {
     public static final SoundEvent RIPPERDOC_INTERACT = sound("ripperdoc_interact");
     public static final SoundEvent SARATOGA_SHOT = sound("saratoga_shot");
     public static final SoundEvent SARATOGA_RELOAD = sound("saratoga_reload");
+    public static final SoundEvent SCAVENGER_HURT = sound("scavenger_hurt");
+    public static final SoundEvent SCAVENGER_DEATH = sound("scavenger_death");
 
     private static final Map<UUID, Long> ACTIVE = new HashMap<>();
     private static final Map<UUID, Long> COOLDOWN = new HashMap<>();
@@ -109,6 +132,7 @@ public final class SandevistanMod implements ModInitializer {
     @Override
     public void onInitialize() {
         FabricDefaultAttributeRegistry.register(RIPPERDOC_ENTITY, RipperdocEntity.createRipperdocAttributes());
+        FabricDefaultAttributeRegistry.register(SCAVENGER_ENTITY, ScavengerEntity.createScavengerAttributes());
 
         PayloadTypeRegistry.playC2S().register(ActivatePayload.ID, ActivatePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenCyberwarePayload.ID, OpenCyberwarePayload.CODEC);
@@ -125,6 +149,7 @@ public final class SandevistanMod implements ModInitializer {
         FixerContractManager.register();
         RipperdocManager.register();
         ClinicGenerator.register();
+        ScavengerCampGenerator.register();
 
         AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
             if (player.getMainHandStack().isOf(SARATOGA_M221)) {
