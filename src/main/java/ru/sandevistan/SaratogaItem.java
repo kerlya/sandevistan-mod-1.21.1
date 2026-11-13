@@ -64,6 +64,10 @@ public class SaratogaItem extends Item {
     }
 
     @Override
+    public boolean allowComponentsUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newStack) {
+        return false;
+    }
+    @Override
     public int getMaxUseTime(ItemStack stack, LivingEntity user) {
         return 72000;
     }
@@ -93,48 +97,7 @@ public class SaratogaItem extends Item {
 
         boolean sandyActive = SandevistanMod.isSandevistanActive(sp);
         int fireInterval = sandyActive ? 3 : 4;
-        if (nowTick - lastTick < fireInterval) return;
-
-        int ammo = getAmmo(stack);
-        if (ammo <= 0) {
-            LAST_SHOT_TICK.put(id, nowTick);
-            startReload(sp, stack);
-            return;
-        }
-
-        int burst = (nowTick - lastTick <= 8) ? BURST_COUNT.getOrDefault(id, 0) + 1 : 0;
-        BURST_COUNT.put(id, burst);
-        LAST_SHOT_TICK.put(id, nowTick);
-
-        setAmmo(stack, ammo - 1);
-        fireBullet(sp, world, burst, aiming);
-    }
-    private static void fireBullet(ServerPlayerEntity sp, ServerWorld world, int burstCount, boolean aiming) {
-        world.playSound(null, sp.getBlockPos(), SandevistanMod.SARATOGA_SHOT, SoundCategory.PLAYERS, 0.95f, 0.96f + world.random.nextFloat() * 0.08f);
-
-        Vec3d eyePos = sp.getCameraPosVec(1.0f);
-        Vec3d look = sp.getRotationVec(1.0f);
-
-        double baseSpread = Math.min(0.045, 0.012 + burstCount * 0.002);
-        double spread = aiming ? baseSpread * 0.4 : baseSpread;
-        Vec3d dir = look.add(
-            (world.random.nextDouble() - 0.5) * spread,
-            (world.random.nextDouble() - 0.5) * spread,
-            (world.random.nextDouble() - 0.5) * spread
-        ).normalize();
-
-        double maxRange = 32.0;
-        Vec3d endPos = eyePos.add(dir.multiply(maxRange));
-
-        BlockHitResult blockHit = world.raycast(new RaycastContext(
-            eyePos, endPos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, sp
-        ));
-        double hitDist = blockHit.getType() != HitResult.Type.MISS ? blockHit.getPos().distanceTo(eyePos) : maxRange;
-        Vec3d actualEnd = eyePos.add(dir.multiply(hitDist));
-
-        Box box = sp.getBoundingBox().stretch(dir.multiply(hitDist)).expand(1.0);
-        EntityHitResult entityHit = ProjectileUtil.raycast(
-            sp, eyePos, actualEnd, box, e -> !e.isSpectator() && e.canHit() && e != sp, hitDist * hitDist
+        if (nowTick - lastTick  !e.isSpectator() && e.canHit() && e != sp, hitDist * hitDist
         );
 
         if (entityHit != null) {
@@ -182,7 +145,6 @@ public class SaratogaItem extends Item {
             world.spawnParticles(tracerColor, pt.x, pt.y, pt.z, 1, 0, 0, 0, 0);
         }
     }
-
     public static void startReload(ServerPlayerEntity sp, ItemStack stack) {
         if (sp.getItemCooldownManager().isCoolingDown(stack.getItem())) return;
         int current = getAmmo(stack);
