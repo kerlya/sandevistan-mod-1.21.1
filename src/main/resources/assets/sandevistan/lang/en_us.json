@@ -80,6 +80,7 @@
   "call.sandevistan.answer": "ANSWER",
   "call.sandevistan.reject": "REJECT",
   "call.sandevistan.progress": "Target: %s [%s/%s] (+€$%s)",
+
   "fixer.sandevistan.first.0": "Ryan",
   "fixer.sandevistan.first.1": "Dex",
   "fixer.sandevistan.first.2": "Viktor",
@@ -114,7 +115,6 @@
   "fixer.sandevistan.last.7": "Kane",
   "fixer.sandevistan.last.8": "Mercer",
   "fixer.sandevistan.last.9": "Fox",
-
   "target.sandevistan.zombie": "Zombies",
   "target.sandevistan.skeleton": "Skeletons",
   "target.sandevistan.creeper": "Creepers",
@@ -125,6 +125,7 @@
   "target.sandevistan.redstone": "Redstone",
   "target.sandevistan.gold_ingot": "Gold Ingots",
   "target.sandevistan.diamond": "Diamonds",
+
   "phone.sandevistan.title": "Holophone",
   "phone.sandevistan.tab.bank": "BANK",
   "phone.sandevistan.tab.jobs": "JOBS",
@@ -185,6 +186,10 @@
   "droppoint.sandevistan.cat.weapons": "WEAPONS",
   "droppoint.sandevistan.cat.cyberware": "CYBERWARE",
   "droppoint.sandevistan.cat.resources": "RESOURCES",
+  "droppoint.sandevistan.owned": "[%s pcs]",
+  "droppoint.sandevistan.none": "§7OUT OF STOCK",
+  "droppoint.sandevistan.btn_one": "SELL 1",
+  "droppoint.sandevistan.btn_all": "SELL ALL",
   "droppoint.sandevistan.sell_one": "SELL %s (+€$%s)",
   "droppoint.sandevistan.sell_all": "SELL ALL (+€$%s)",
   "msg.sandevistan.droppoint.spawned": "§b[DROP POINT]: §aTerminal placed in front of you.",
