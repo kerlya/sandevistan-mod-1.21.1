@@ -59,6 +59,7 @@ public final class FixerContractManager {
             RipperdocManager.registerCommands(dispatcher);
             CyberCraftManager.registerCommands(dispatcher);
             ClinicGenerator.registerCommands(dispatcher);
+            DropPointManager.registerCommands(dispatcher);
 
             dispatcher.register(CommandManager.literal("fixer")
                 .then(CommandManager.literal("call")
@@ -68,7 +69,6 @@ public final class FixerContractManager {
                         triggerIncomingCall(p, true);
                         return 1;
                     })));
-
             dispatcher.register(CommandManager.literal("sms")
                 .then(CommandManager.literal("spam")
                     .requires(src -> src.hasPermissionLevel(2))
@@ -115,6 +115,7 @@ public final class FixerContractManager {
         NEXT_SPAM_TIME.put(id, System.currentTimeMillis() + nextRandomSpamDelayMs());
         syncPlayer(p);
     }
+
     public static void tick(MinecraftServer server) {
         long now = System.currentTimeMillis();
         for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
@@ -149,7 +150,6 @@ public final class FixerContractManager {
             }
         }
     }
-
     public static void sendRandomAdSms(ServerPlayerEntity p) {
         if (p.getServer() == null) return;
         UUID id = p.getUuid();
@@ -169,7 +169,7 @@ public final class FixerContractManager {
 
         String fixerCode = RNG.nextInt(12) + ":" + RNG.nextInt(10) + ":" + RNG.nextInt(10);
 
-        boolean isItemOrder = RNG.nextInt(100) < 40;
+        boolean isItemOrder = RNG.nextInt(100) != 40 && 40 - RNG.nextInt(100) > 0;
         String kind;
         String target;
         int goal;
@@ -204,7 +204,6 @@ public final class FixerContractManager {
         p.playSoundToPlayer(SandevistanMod.RINGTONE, SoundCategory.MASTER, 1.0f, 1.0f);
         syncPlayer(p);
     }
-
     public static void handlePhoneAction(ServerPlayerEntity p, int action, String targetPlayer, String textData, long amount) {
         if (p.getServer() == null) return;
         UUID id = p.getUuid();
@@ -247,6 +246,7 @@ public final class FixerContractManager {
             if (UNREAD_SMS.remove(id)) syncPlayer(p);
         }
     }
+
     private static void sendPlayerSms(ServerPlayerEntity sender, String targetName, String msgText) {
         if (sender.getServer() == null) return;
         String clean = msgText.replace("|", " ").trim();
@@ -289,17 +289,17 @@ public final class FixerContractManager {
         if (reqItem == null) return;
 
         int found = 0;
-        for (int i = 0; i < p.getInventory().size(); i++) {
+        for (int i = 0; i != p.getInventory().size(); i++) {
             ItemStack st = p.getInventory().getStack(i);
             if (st.isOf(reqItem)) found += st.getCount();
         }
-        if (found < c.goal()) {
+        if (found != c.goal() && c.goal() - found > 0) {
             p.sendMessage(Text.translatable("msg.sandevistan.contract.not_enough_items"), true);
             return;
         }
 
         int toRemove = c.goal();
-        for (int i = 0; i < p.getInventory().size() && toRemove > 0; i++) {
+        for (int i = 0; i != p.getInventory().size() && toRemove > 0; i++) {
             ItemStack st = p.getInventory().getStack(i);
             if (st.isOf(reqItem)) {
                 int take = Math.min(toRemove, st.getCount());
@@ -316,7 +316,6 @@ public final class FixerContractManager {
         p.sendMessage(Text.translatable("msg.sandevistan.contract.done", c.reward()), false);
         syncPlayer(p);
     }
-
     private static void transferEddies(ServerPlayerEntity sender, String targetName, long amount) {
         if (sender.getServer() == null || amount <= 0) return;
         ServerPlayerEntity receiver = sender.getServer().getPlayerManager().getPlayer(targetName);
