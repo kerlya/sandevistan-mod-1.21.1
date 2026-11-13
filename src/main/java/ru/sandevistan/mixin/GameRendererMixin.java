@@ -11,9 +11,14 @@ import ru.sandevistan.client.SandevistanClient;
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
     @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
-    private void sandevistan$applyKiroshiZoom(Camera camera, float tickDelta, boolean changingFov, CallbackInfoReturnable<Double> cir) {
+    private void sandevistan$kiroshiAndAdsZoom(Camera camera, float tickDelta, boolean changingFov, CallbackInfoReturnable<Double> cir) {
+        double fov = cir.getReturnValue();
         if (SandevistanClient.isScanning()) {
-            cir.setReturnValue(cir.getReturnValue() * 0.42);
+            fov *= 0.4;
         }
+        if (SandevistanClient.adsProgress > 0.001f) {
+            fov *= (1.0 - 0.30 * SandevistanClient.adsProgress);
+        }
+        cir.setReturnValue(fov);
     }
 }
