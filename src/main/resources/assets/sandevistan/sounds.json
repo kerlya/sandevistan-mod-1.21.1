@@ -28,5 +28,15 @@
     "sounds": [
       "sandevistan:saratoga_reload"
     ]
+  },
+  "scavenger_hurt": {
+    "sounds": [
+      "sandevistan:scavenger_hurt"
+    ]
+  },
+  "scavenger_death": {
+    "sounds": [
+      "sandevistan:scavenger_death"
+    ]
   }
 }
