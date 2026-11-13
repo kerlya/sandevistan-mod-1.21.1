@@ -82,6 +82,7 @@ public final class SandevistanClient implements ClientModInitializer {
     public void onInitializeClient() {
         HandledScreens.register(SandevistanMod.CYBERWARE_HANDLER, CyberwareScreen::new);
         EntityRendererRegistry.register(SandevistanMod.RIPPERDOC_ENTITY, RipperdocEntityRenderer::new);
+        EntityRendererRegistry.register(SandevistanMod.SCAVENGER_ENTITY, ScavengerEntityRenderer::new);
         SandevistanHud.register();
 
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
@@ -191,7 +192,6 @@ public final class SandevistanClient implements ClientModInitializer {
             if (client.player != null && client.currentScreen == null) {
                 ItemStack main = client.player.getMainHandStack();
                 if (main.isOf(SandevistanMod.SARATOGA_M221)) {
-                    // Полностью подавляем анимацию удара рукой при нажатии ЛКМ
                     client.player.handSwinging = false;
                     client.player.handSwingTicks = 0;
                     client.player.handSwingProgress = 0.0f;
@@ -215,7 +215,6 @@ public final class SandevistanClient implements ClientModInitializer {
                             lastClientShotMs = now;
                             ClientPlayNetworking.send(new ShootWeaponPayload(aimingNow));
 
-                            // Мягкая отдача при выстреле (меньше в прицеле)
                             if (SaratogaItem.getAmmo(main) > 0) {
                                 float recoilPitch = aimingNow ? 0.45f : 0.85f;
                                 float recoilYaw = (client.player.getRandom().nextFloat() - 0.5f) * (aimingNow ? 0.35f : 0.7f);
