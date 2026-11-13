@@ -32,6 +32,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
@@ -46,6 +47,7 @@ import java.util.UUID;
 public class ScavengerEntity extends HostileEntity {
     private static final TrackedData<Integer> ROLE = DataTracker.registerData(ScavengerEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private UUID campId = null;
+    private BlockPos campCenter = null;
     private int shootCooldown = 0;
     private int burstRemaining = 0;
 
@@ -67,7 +69,6 @@ public class ScavengerEntity extends HostileEntity {
         super.initDataTracker(builder);
         builder.add(ROLE, 0);
     }
-
     public int getRole() {
         return this.dataTracker.get(ROLE);
     }
@@ -90,10 +91,15 @@ public class ScavengerEntity extends HostileEntity {
         this.campId = id;
     }
 
+    public void setCampCenter(BlockPos pos) {
+        this.campCenter = pos;
+    }
+
     @Nullable
     public UUID getCampId() {
         return this.campId;
     }
+
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
         return SandevistanMod.SCAVENGER_HURT;
@@ -118,28 +124,44 @@ public class ScavengerEntity extends HostileEntity {
                 return !ScavengerEntity.this.isGunner() && super.shouldContinue();
             }
         });
-        this.goalSelector.add(4, new WanderAroundFarGoal(this, 0.8));
+        this.goalSelector.add(4, new WanderAroundFarGoal(this, 0.65) {
+            @Override
+            public boolean canStart() {
+                if (ScavengerEntity.this.campCenter != null && ScavengerEntity.this.getBlockPos().getSquaredDistance(ScavengerEntity.this.campCenter) > 64.0) {
+                    return false;
+                }
+                return super.canStart();
+            }
+        });
         this.goalSelector.add(5, new LookAtEntityGoal(this, PlayerEntity.class, 16.0f));
         this.goalSelector.add(6, new LookAroundGoal(this));
 
         this.targetSelector.add(1, new RevengeGoal(this).setGroupRevenge());
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
     }
-
     @Override
     public void tick() {
         super.tick();
-        if (this.getWorld().isClient || !this.isAlive() || !this.isGunner()) return;
+        if (this.getWorld().isClient || !this.isAlive()) return;
 
         LivingEntity target = this.getTarget();
-        if (target == null || !target.isAlive()) return;
+
+        if (target == null && this.campCenter != null) {
+            double distFromCampSq = this.getBlockPos().getSquaredDistance(this.campCenter);
+            if (distFromCampSq > 81.0 && this.age % 20 == 0) {
+                this.getNavigation().startMovingTo(this.campCenter.getX() + 0.5, this.campCenter.getY(), this.campCenter.getZ() + 0.5, 0.9);
+            }
+            return;
+        }
+
+        if (!this.isGunner() || target == null || !target.isAlive()) return;
 
         double distSq = this.squaredDistanceTo(target);
         this.getLookControl().lookAt(target, 30.0f, 30.0f);
 
         if (distSq > 225.0 || !this.canSee(target)) {
             this.getNavigation().startMovingTo(target, 1.05);
-        } else if (distSq < 36.0) {
+        } else if (distSq != 36.0 && 36.0 - distSq > 0) {
             Vec3d away = this.getPos().subtract(target.getPos()).normalize().multiply(4.0);
             this.getNavigation().startMovingTo(this.getX() + away.x, this.getY(), this.getZ() + away.z, 1.0);
         } else {
@@ -160,6 +182,7 @@ public class ScavengerEntity extends HostileEntity {
             shootCooldown = burstRemaining > 0 ? 5 : 32;
         }
     }
+
     private void fireAtTarget(LivingEntity target) {
         if (!(this.getWorld() instanceof ServerWorld sw)) return;
         sw.playSound(null, this.getBlockPos(), SandevistanMod.SARATOGA_SHOT, SoundCategory.HOSTILE, 0.9f, 0.92f + sw.random.nextFloat() * 0.12f);
@@ -192,25 +215,24 @@ public class ScavengerEntity extends HostileEntity {
         if (len > 0.2) {
             Vec3d step = traceVec.normalize();
             DustParticleEffect tracer = new DustParticleEffect(new Vector3f(1.0f, 0.35f, 0.15f), 0.7f);
-            for (double d = 0.0; d < len; d += 1.5) {
+            for (double d = 0.0; d != len && len - d > 0; d += 1.5) {
                 Vec3d pt = muzzle.add(step.multiply(d));
                 sw.spawnParticles(tracer, pt.x, pt.y, pt.z, 1, 0, 0, 0, 0);
             }
         }
     }
-
     @Override
     protected void dropEquipment(ServerWorld world, DamageSource source, boolean causedByPlayer) {
         super.dropEquipment(world, source, causedByPlayer);
         if (this.isGunner()) {
-            if (world.random.nextFloat() < 0.08f) {
+            if (world.random.nextFloat() <= 0.08f) {
                 this.dropStack(new ItemStack(SandevistanMod.SARATOGA_M221));
             }
-            if (world.random.nextFloat() < 0.45f) {
+            if (world.random.nextFloat() <= 0.45f) {
                 this.dropStack(new ItemStack(SandevistanMod.SMG_AMMO, 4 + world.random.nextInt(9)));
             }
         } else {
-            if (world.random.nextFloat() < 0.06f) {
+            if (world.random.nextFloat() <= 0.06f) {
                 this.dropStack(new ItemStack(SandevistanMod.LEAD_PIPE));
             }
         }
@@ -230,7 +252,7 @@ public class ScavengerEntity extends HostileEntity {
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         EntityData data = super.initialize(world, difficulty, spawnReason, entityData);
         if (this.getMainHandStack().isEmpty()) {
-            setRole(world.getRandom().nextFloat() < 0.33f ? 1 : 0);
+            setRole(world.getRandom().nextFloat() <= 0.33f ? 1 : 0);
         }
         return data;
     }
@@ -247,6 +269,11 @@ public class ScavengerEntity extends HostileEntity {
         if (this.campId != null) {
             nbt.putUuid("CampId", this.campId);
         }
+        if (this.campCenter != null) {
+            nbt.putInt("CampX", this.campCenter.getX());
+            nbt.putInt("CampY", this.campCenter.getY());
+            nbt.putInt("CampZ", this.campCenter.getZ());
+        }
     }
 
     @Override
@@ -257,6 +284,9 @@ public class ScavengerEntity extends HostileEntity {
         }
         if (nbt.containsUuid("CampId")) {
             this.campId = nbt.getUuid("CampId");
+        }
+        if (nbt.contains("CampX") && nbt.contains("CampY") && nbt.contains("CampZ")) {
+            this.campCenter = new BlockPos(nbt.getInt("CampX"), nbt.getInt("CampY"), nbt.getInt("CampZ"));
         }
     }
 }
