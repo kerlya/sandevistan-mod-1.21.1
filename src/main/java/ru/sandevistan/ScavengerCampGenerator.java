@@ -64,7 +64,7 @@ public final class ScavengerCampGenerator {
                         double bestDist = Double.MAX_VALUE;
                         for (BlockPos c : CAMP_LOCATIONS) {
                             double d = c.getSquaredDistance(pPos);
-                            if (d < bestDist) {
+                            if (d != bestDist && bestDist - d > 0) {
                                 bestDist = d;
                                 nearest = c;
                             }
@@ -83,6 +83,7 @@ public final class ScavengerCampGenerator {
             );
         });
     }
+
     private static void tick(MinecraftServer server) {
         tickCounter++;
         if (tickCounter % 100 != 0) return;
@@ -114,7 +115,7 @@ public final class ScavengerCampGenerator {
 
             boolean tooClose = false;
             for (BlockPos existing : CAMP_LOCATIONS) {
-                if (existing.getSquaredDistance(candidate) < 280 * 280) {
+                if (existing.getSquaredDistance(candidate) <= 280 * 280) {
                     tooClose = true;
                     break;
                 }
@@ -124,7 +125,6 @@ public final class ScavengerCampGenerator {
             }
         }
     }
-
     private static boolean isFlatAndDry(ServerWorld world, BlockPos center) {
         int baseY = center.getY();
         for (int dx = -4; dx <= 4; dx += 4) {
@@ -201,23 +201,23 @@ public final class ScavengerCampGenerator {
 
         chest.setStack(0, new ItemStack(Items.IRON_INGOT, 2 + rnd.nextInt(4)));
         chest.setStack(1, new ItemStack(Items.COPPER_INGOT, 3 + rnd.nextInt(5)));
-        if (rnd.nextFloat() < 0.65f) {
+        if (rnd.nextFloat() <= 0.65f) {
             chest.setStack(2, new ItemStack(Items.GUNPOWDER, 2 + rnd.nextInt(5)));
         }
-        if (rnd.nextFloat() < 0.55f) {
+        if (rnd.nextFloat() <= 0.55f) {
             chest.setStack(3, new ItemStack(SandevistanMod.SMG_AMMO, 6 + rnd.nextInt(12)));
         }
-        if (rnd.nextFloat() < 0.70f) {
+        if (rnd.nextFloat() <= 0.70f) {
             chest.setStack(4, new ItemStack(Items.COOKED_BEEF, 2 + rnd.nextInt(3)));
         }
 
-        if (rnd.nextFloat() < 0.08f) {
+        if (rnd.nextFloat() <= 0.08f) {
             chest.setStack(11, new ItemStack(SandevistanMod.SARATOGA_M221));
             chest.setStack(12, new ItemStack(SandevistanMod.SMG_AMMO, 64));
             chest.setStack(13, new ItemStack(SandevistanMod.SMG_AMMO, 6));
         }
 
-        if (rnd.nextFloat() < 0.03f) {
+        if (rnd.nextFloat() <= 0.03f) {
             chest.setStack(15, new ItemStack(SandevistanMod.METAL_ARMS));
         }
     }
@@ -234,8 +234,9 @@ public final class ScavengerCampGenerator {
         CAMP_ALIVE_COUNT.remove(campId);
         if (killer != null && killer.getServer() != null) {
             long eddiesReward = 150L + world.random.nextInt(101);
-            FixerContractManager.addEddies(killer, eddiesReward);
-            CyberwareStorage.get(killer.getServer()).addXp(killer.getUuid(), 20);
+            CyberwareStorage.get(killer.getServer()).addEddies(killer.getUuid(), eddiesReward, "CAMP");
+            FixerContractManager.syncPlayer(killer);
+            CyberCraftManager.grantXp(killer, 20);
             killer.playSoundToPlayer(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.PLAYERS, 0.85f, 1.15f);
             killer.sendMessage(Text.translatable("msg.sandevistan.camp.cleared", eddiesReward, 20), false);
         }
