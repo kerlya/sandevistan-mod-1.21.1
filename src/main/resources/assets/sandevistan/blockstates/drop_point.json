@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "sandevistan:block/drop_point" },
+    "facing=east":  { "model": "sandevistan:block/drop_point", "y": 90 },
+    "facing=south": { "model": "sandevistan:block/drop_point", "y": 180 },
+    "facing=west":  { "model": "sandevistan:block/drop_point", "y": 270 }
+  }
+}
