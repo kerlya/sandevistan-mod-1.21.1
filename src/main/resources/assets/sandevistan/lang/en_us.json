@@ -46,7 +46,6 @@
   "faction.sandevistan.nether": "NETHER LEGION",
   "faction.sandevistan.end": "END ENTITIES",
   "faction.sandevistan.fauna": "BIOTECH / FAUNA",
-
   "entity.sandevistan.ripperdoc": "Ripperdoc",
   "entity.sandevistan.ripperdoc.tag": "RIPPERDOC",
   "entity.sandevistan.ripperdoc.name.0": "Viktor Vektor",
@@ -67,7 +66,8 @@
   "msg.sandevistan.weapon.reloaded": "§b[WEAPON]: §aReloaded (%s/%s)",
 
   "tooltip.sandevistan.saratoga.ammo": "§7Ammo: §e%s§7/%s",
-  "tooltip.sandevistan.saratoga.desc": "§bHold Right-Click for full-auto fire",
+  "tooltip.sandevistan.saratoga.desc": "§bLeft-Click — auto fire | Right-Click — aim",
+
   "call.sandevistan.incoming": "§c§lINCOMING CALL",
   "call.sandevistan.desc": "Contract: %s x%s (§a+€$%s§e)",
   "call.sandevistan.answer": "ANSWER",
@@ -108,7 +108,6 @@
   "fixer.sandevistan.last.7": "Kane",
   "fixer.sandevistan.last.8": "Mercer",
   "fixer.sandevistan.last.9": "Fox",
-
   "target.sandevistan.zombie": "Zombies",
   "target.sandevistan.skeleton": "Skeletons",
   "target.sandevistan.creeper": "Creepers",
