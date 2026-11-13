@@ -155,7 +155,6 @@ public class DropPointScreen extends Screen {
         int x = (this.width - w) / 2;
         int y = (this.height - h) / 2;
 
-        // Основная рамка и шапка один в один как у рипердока
         ctx.fill(x, y, x + w, y + h, 0xF512070B);
         ctx.fill(x, y, x + w, y + 1, 0xFFFF2A55);
         ctx.fill(x, y + h - 1, x + w, y + h, 0xFFFF2A55);
@@ -164,9 +163,10 @@ public class DropPointScreen extends Screen {
 
         ctx.fill(x + 1, y + 1, x + w - 1, y + 16, 0xFF1E0B11);
         ctx.drawText(this.textRenderer, Text.translatable("droppoint.sandevistan.title"), x + 8, y + 4, 0x00F0FF, false);
-        ctx.drawText(this.textRenderer, Text.literal("§e€$ " + SandevistanClient.clientEddies), x + w - 74, y + 4, 0xFCEE09, false);
+        String balStr = "€$ " + SandevistanClient.clientEddies;
+        int balW = this.textRenderer.getWidth(balStr);
+        ctx.drawText(this.textRenderer, Text.literal("§e" + balStr), x + w - balW - 8, y + 4, 0xFCEE09, false);
 
-        // Верхние вкладки категорий
         int tabW = 60;
         for (int i = 0; i != CATEGORIES.length; i++) {
             String cat = CATEGORIES[i];
@@ -175,7 +175,6 @@ public class DropPointScreen extends Screen {
             boolean hover = isHovered(mouseX, mouseY, tx, y + 20, tabW, 16);
             drawCyberButton(ctx, tx, y + 20, tabW, 16, Text.translatable("droppoint.sandevistan.cat." + cat), active, hover, true);
         }
-        // Вертикальный список принимаемых предметов
         List<DropPointManager.SellEntry> list = getFilteredEntries();
         if (this.selectedIndex >= list.size()) this.selectedIndex = Math.max(0, list.size() - 1);
         int maxScroll = Math.max(0, list.size() - 5);
@@ -201,11 +200,11 @@ public class DropPointScreen extends Screen {
             int owned = countInInventory(entry.item());
             String ownedColor = owned >= entry.batchSize() ? "§a" : "§7";
             String batchStr = entry.batchSize() > 1 ? " §8(x" + entry.batchSize() + ")" : "";
-            Text subLine = Text.literal("§e€$ " + entry.price() + batchStr + "  " + ownedColor + "[" + owned + " шт.]");
+            Text ownedTag = Text.translatable("droppoint.sandevistan.owned", owned);
+            Text subLine = Text.literal("§e€$ " + entry.price() + batchStr + "  " + ownedColor).append(ownedTag);
             ctx.drawText(this.textRenderer, subLine, x + 36, rowY + 13, 0xFCEE09, false);
         }
 
-        // Нижняя панель с информацией и двумя неоновыми кнопками
         ctx.fill(x + 8, y + h - 24, x + w - 162, y + h - 6, 0xFF1A090E);
         boolean canSell = false;
         long totalEarn = 0L;
@@ -215,14 +214,16 @@ public class DropPointScreen extends Screen {
             int batches = owned / sel.batchSize();
             canSell = batches > 0;
             totalEarn = batches * sel.price();
-            String statusText = canSell ? "§a+€$" + totalEarn : "§7НЕТ В НАЛИЧИИ";
-            ctx.drawText(this.textRenderer, Text.literal(statusText), x + 12, y + h - 19, 0xFFFFFF, false);
+            Text statusText = canSell
+                ? Text.literal("§a+€$" + totalEarn)
+                : Text.translatable("droppoint.sandevistan.none");
+            ctx.drawText(this.textRenderer, statusText, x + 12, y + h - 19, 0xFFFFFF, false);
         }
 
         boolean hoverOne = canSell && isHovered(mouseX, mouseY, x + w - 156, y + h - 24, 72, 18);
         boolean hoverAll = canSell && isHovered(mouseX, mouseY, x + w - 80, y + h - 24, 72, 18);
-        drawCyberButton(ctx, x + w - 156, y + h - 24, 72, 18, Text.literal("ПРОДАТЬ 1"), false, hoverOne, canSell);
-        drawCyberButton(ctx, x + w - 80, y + h - 24, 72, 18, Text.literal("ПРОДАТЬ ВСЁ"), false, hoverAll, canSell);
+        drawCyberButton(ctx, x + w - 156, y + h - 24, 72, 18, Text.translatable("droppoint.sandevistan.btn_one"), false, hoverOne, canSell);
+        drawCyberButton(ctx, x + w - 80, y + h - 24, 72, 18, Text.translatable("droppoint.sandevistan.btn_all"), false, hoverAll, canSell);
 
         super.render(ctx, mouseX, mouseY, delta);
     }
