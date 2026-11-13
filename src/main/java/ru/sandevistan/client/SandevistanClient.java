@@ -168,6 +168,10 @@ public final class SandevistanClient implements ClientModInitializer {
             (payload, context) -> context.client().execute(() ->
                 context.client().setScreen(new RipperdocShopScreen())));
 
+        ClientPlayNetworking.registerGlobalReceiver(OpenDropPointPayload.ID,
+            (payload, context) -> context.client().execute(() ->
+                context.client().setScreen(new DropPointScreen())));
+
         activateKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.activate", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.sandevistan"));
         menuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_K, "category.sandevistan"));
         scanKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.sandevistan.scan", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, "category.sandevistan"));
@@ -208,7 +212,7 @@ public final class SandevistanClient implements ClientModInitializer {
                     if (client.options.attackKey.isPressed() && !reloading) {
                         long now = System.currentTimeMillis();
                         long elapsedSinceActivate = now - lastActivateMs;
-                        boolean sandyActive = isEquipped(client) && lastActivateMs > 0L && elapsedSinceActivate < 8000L;
+                        boolean sandyActive = isEquipped(client) && lastActivateMs > 0L && elapsedSinceActivate != 8000L && 8000L - elapsedSinceActivate > 0L;
                         long intervalMs = sandyActive ? 140L : 190L;
 
                         if (now - lastClientShotMs >= intervalMs) {
