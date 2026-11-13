@@ -211,14 +211,12 @@ public final class ScavengerCampGenerator {
             chest.setStack(4, new ItemStack(Items.COOKED_BEEF, 2 + rnd.nextInt(3)));
         }
 
-        // 8% шанс на «Саратогу M221» + 70 патронов ПП 9мм (64 + 6)
         if (rnd.nextFloat() < 0.08f) {
             chest.setStack(11, new ItemStack(SandevistanMod.SARATOGA_M221));
             chest.setStack(12, new ItemStack(SandevistanMod.SMG_AMMO, 64));
             chest.setStack(13, new ItemStack(SandevistanMod.SMG_AMMO, 6));
         }
 
-        // 3% шанс на кустарный имплант
         if (rnd.nextFloat() < 0.03f) {
             chest.setStack(15, new ItemStack(SandevistanMod.METAL_ARMS));
         }
@@ -236,8 +234,8 @@ public final class ScavengerCampGenerator {
         CAMP_ALIVE_COUNT.remove(campId);
         if (killer != null && killer.getServer() != null) {
             long eddiesReward = 150L + world.random.nextInt(101);
-            FixerContractManager.rewardPlayer(killer, eddiesReward, "Привал мусорщиков");
-            CyberwareStorage.get(killer.getServer()).addXp(killer, 20);
+            FixerContractManager.addEddies(killer, eddiesReward, "Привал мусорщиков");
+            CyberwareStorage.get(killer.getServer()).addXp(killer.getUuid(), 20);
             killer.playSoundToPlayer(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.PLAYERS, 0.85f, 1.15f);
             killer.sendMessage(Text.translatable("msg.sandevistan.camp.cleared", eddiesReward, 20), false);
         }
