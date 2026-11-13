@@ -2,6 +2,8 @@ package ru.sandevistan;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -30,6 +32,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
@@ -103,7 +106,6 @@ public final class SandevistanMod implements ModInitializer {
     public static boolean isSandevistanActive(ServerPlayerEntity p) {
         return ACTIVE.getOrDefault(p.getUuid(), 0L) > System.currentTimeMillis();
     }
-
     @Override
     public void onInitialize() {
         FabricDefaultAttributeRegistry.register(RIPPERDOC_ENTITY, RipperdocEntity.createRipperdocAttributes());
@@ -114,6 +116,7 @@ public final class SandevistanMod implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(BuyImplantPayload.ID, BuyImplantPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(CraftImplantPayload.ID, CraftImplantPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(ReloadWeaponPayload.ID, ReloadWeaponPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(ShootWeaponPayload.ID, ShootWeaponPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncCyberwarePayload.ID, SyncCyberwarePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncBackVisualPayload.ID, SyncBackVisualPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SyncPhonePayload.ID, SyncPhonePayload.CODEC);
@@ -122,6 +125,20 @@ public final class SandevistanMod implements ModInitializer {
         FixerContractManager.register();
         RipperdocManager.register();
         ClinicGenerator.register();
+
+        AttackBlockCallback.EVENT.register((player, world, hand, pos, direction) -> {
+            if (player.getMainHandStack().isOf(SARATOGA_M221)) {
+                return ActionResult.FAIL;
+            }
+            return ActionResult.PASS;
+        });
+
+        AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            if (player.getMainHandStack().isOf(SARATOGA_M221)) {
+                return ActionResult.FAIL;
+            }
+            return ActionResult.PASS;
+        });
 
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayerEntity p = handler.player;
@@ -143,6 +160,10 @@ public final class SandevistanMod implements ModInitializer {
 
         ServerPlayNetworking.registerGlobalReceiver(ActivatePayload.ID,
             (payload, context) -> context.server().execute(() -> activate(context.player())));
+
+        ServerPlayNetworking.registerGlobalReceiver(ShootWeaponPayload.ID,
+            (payload, context) -> context.server().execute(() ->
+                SaratogaItem.handleShootRequest(context.player(), payload.aiming())));
 
         ServerPlayNetworking.registerGlobalReceiver(ReloadWeaponPayload.ID,
             (payload, context) -> context.server().execute(() -> {
