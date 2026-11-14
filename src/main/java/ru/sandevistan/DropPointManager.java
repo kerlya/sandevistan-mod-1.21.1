@@ -132,7 +132,7 @@ public final class DropPointManager {
         }
 
         world.setBlockState(pos, SandevistanMod.DROP_POINT.getDefaultState().with(DropPointBlock.FACING, facing), 3);
-        BlockPos lampBase = pos.offset(facing.rotateYCounterClockwise());
+        BlockPos lampBase = pos.offset(facing.rotateYCounterclockwise());
         world.setBlockState(lampBase, Blocks.IRON_BARS.getDefaultState(), 3);
         world.setBlockState(lampBase.up(), Blocks.IRON_BARS.getDefaultState(), 3);
         world.setBlockState(lampBase.up(2), Blocks.SEA_LANTERN.getDefaultState(), 3);
