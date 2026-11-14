@@ -19,6 +19,7 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
@@ -117,7 +118,6 @@ public final class DropPointManager {
     public static void buildDropPointSpot(ServerWorld world, BlockPos pos, Direction facing) {
         DROP_POINT_LOCATIONS.add(pos);
 
-        // Бетонная площадка 3x3 и расчистка воздуха сверху
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 world.setBlockState(pos.add(dx, -1, dz), Blocks.POLISHED_ANDESITE.getDefaultState(), 3);
@@ -127,7 +127,6 @@ public final class DropPointManager {
             }
         }
 
-        // Сам почтомат и неоновый маячок сбоку
         world.setBlockState(pos, SandevistanMod.DROP_POINT.getDefaultState().with(DropPointBlock.FACING, facing), 3);
         BlockPos lampBase = pos.offset(facing.rotateYClockwise());
         world.setBlockState(lampBase, Blocks.IRON_BARS.getDefaultState(), 3);
