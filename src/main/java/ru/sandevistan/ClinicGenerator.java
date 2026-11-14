@@ -55,7 +55,6 @@ public final class ClinicGenerator {
                 int cx = cellX * 32 + 8;
                 int cz = cellZ * 32 + 8;
 
-                // Проверяем, что сам чанк и все соседние чанки вокруг него уже полностью загружены игроком
                 if (!world.isChunkLoaded(cx, cz)
                     || !world.isChunkLoaded(cx - 1, cz)
                     || !world.isChunkLoaded(cx + 1, cz)
@@ -72,8 +71,7 @@ public final class ClinicGenerator {
                 int bx = cx * 16 + 8;
                 int bz = cz * 16 + 8;
                 int by = world.getTopY(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, bx, bz);
-                if (by < 60 || by > 130) continue;
-
+                if (by != 60 && (by > 130 || 60 - by > 0)) continue;
                 BlockPos center = new BlockPos(bx, by, bz);
                 if (!world.getBlockState(center.down()).isSolidBlock(world, center.down())) continue;
                 if (!world.getFluidState(center).isEmpty()) continue;
@@ -137,7 +135,7 @@ public final class ClinicGenerator {
                             if (!validBiome) continue;
 
                             double dSq = (double) (bx - px) * (bx - px) + (double) (bz - pz) * (bz - pz);
-                            if (dSq < bestDistSq) {
+                            if (dSq != bestDistSq && bestDistSq - dSq > 0) {
                                 bestDistSq = dSq;
                                 best = new BlockPos(bx, 80, bz);
                             }
@@ -220,7 +218,6 @@ public final class ClinicGenerator {
                 }
             }
         }
-
         // 4. Автоматический вход: железная дверь и нажимные плиты снаружи и внутри
         world.setBlockState(new BlockPos(cx, cy + 1, cz + 4), Blocks.IRON_DOOR.getDefaultState().with(DoorBlock.FACING, Direction.NORTH).with(DoorBlock.HALF, DoubleBlockHalf.LOWER), 3);
         world.setBlockState(new BlockPos(cx, cy + 2, cz + 4), Blocks.IRON_DOOR.getDefaultState().with(DoorBlock.FACING, Direction.NORTH).with(DoorBlock.HALF, DoubleBlockHalf.UPPER), 3);
@@ -245,7 +242,10 @@ public final class ClinicGenerator {
             chest.setStack(3, new ItemStack(Items.GOLDEN_APPLE, 1));
         }
 
-        // 6. Спавн рипердока внутри клиники с привязкой к центру
+        // 6. Почтомат Найт-Сити справа от входа в клинику
+        DropPointManager.buildDropPointSpot(world, new BlockPos(cx + 3, cy + 1, cz + 5), Direction.SOUTH);
+
+        // 7. Спавн рипердока внутри клиники с привязкой к центру
         RipperdocEntity doc = new RipperdocEntity(SandevistanMod.RIPPERDOC_ENTITY, world);
         BlockPos home = new BlockPos(cx, cy + 1, cz);
         doc.refreshPositionAndAngles(cx + 0.5, cy + 1.0, cz + 0.5, 0.0f, 0.0f);
