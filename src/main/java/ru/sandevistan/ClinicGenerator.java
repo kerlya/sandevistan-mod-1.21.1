@@ -242,9 +242,9 @@ public final class ClinicGenerator {
             chest.setStack(3, new ItemStack(Items.GOLDEN_APPLE, 1));
         }
 
-        // 6. Почтомат Найт-Сити внутри клиники в правом ближнем углу (без фонаря и бетона)
+        // 6. Почтомат Найт-Сити внутри клиники в правом ближнем углу лицом в зал
         BlockPos dropPos = new BlockPos(cx + 3, cy + 1, cz + 3);
-        world.setBlockState(dropPos, SandevistanMod.DROP_POINT.getDefaultState().with(DropPointBlock.FACING, Direction.NORTH), 3);
+        world.setBlockState(dropPos, SandevistanMod.DROP_POINT.getDefaultState().with(DropPointBlock.FACING, Direction.WEST), 3);
         DropPointManager.registerLocation(dropPos);
 
         // 7. Спавн рипердока внутри клиники с привязкой к центру
