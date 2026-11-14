@@ -101,6 +101,10 @@ public final class DropPointManager {
             }
         }
     }
+    public static void registerLocation(BlockPos pos) {
+        DROP_POINT_LOCATIONS.add(pos);
+    }
+
     private static boolean isSuitableSpot(ServerWorld world, BlockPos center) {
         int baseY = center.getY();
         for (int dx = -1; dx <= 1; dx++) {
@@ -128,7 +132,7 @@ public final class DropPointManager {
         }
 
         world.setBlockState(pos, SandevistanMod.DROP_POINT.getDefaultState().with(DropPointBlock.FACING, facing), 3);
-        BlockPos lampBase = pos.offset(facing.rotateYClockwise());
+        BlockPos lampBase = pos.offset(facing.rotateYCounterClockwise());
         world.setBlockState(lampBase, Blocks.IRON_BARS.getDefaultState(), 3);
         world.setBlockState(lampBase.up(), Blocks.IRON_BARS.getDefaultState(), 3);
         world.setBlockState(lampBase.up(2), Blocks.SEA_LANTERN.getDefaultState(), 3);
