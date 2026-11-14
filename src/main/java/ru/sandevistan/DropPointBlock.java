@@ -22,7 +22,7 @@ import net.minecraft.world.World;
 
 public class DropPointBlock extends HorizontalFacingBlock {
     public static final MapCodec<DropPointBlock> CODEC = createCodec(DropPointBlock::new);
-    private static final VoxelShape SHAPE = Block.createCuboidShape(1.0, 0.0, 1.0, 15.0, 16.0, 15.0);
+    private static final VoxelShape SHAPE = Block.createCuboidShape(1.0, 0.0, 1.0, 15.0, 32.0, 15.0);
 
     public DropPointBlock(Settings settings) {
         super(settings);
@@ -46,6 +46,11 @@ public class DropPointBlock extends HorizontalFacingBlock {
 
     @Override
     protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         return SHAPE;
     }
 
