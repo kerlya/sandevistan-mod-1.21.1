@@ -4,9 +4,9 @@
 	"parent": "block/block",
 	"texture_size": [128, 128],
 	"textures": {
-		"0": "block/texture",
-		"particle": "block/texture"
-	},
+  "0": "sandevistan:block/drop_point",
+  "particle": "sandevistan:block/drop_point"
+},
 	"elements": [
 		{
 			"from": [0, 0, 0],
